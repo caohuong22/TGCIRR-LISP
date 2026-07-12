@@ -6,7 +6,7 @@ if ($LASTEXITCODE -ne 0) { throw "Ribbon build failed with exit code $LASTEXITCO
 Copy-Item "$PSScriptRoot\..\src\ribbon\bin\Release\net48\TGIRR.Ribbon.dll" "$PSScriptRoot\..\bundle\TGIRR_CAD_LISP.bundle\Contents\Windows\" -Force
 $lispSource = "$PSScriptRoot\..\src\lisp"
 $lispTarget = "$PSScriptRoot\..\bundle\TGIRR_CAD_LISP.bundle\Contents\Lisp"
-$allowed = @('SBS.lsp','TL.lsp','TGL.lsp','VDNG.lsp')
+$allowed = @('SBS.lsp','TL.lsp','TGL.lsp')
 Get-ChildItem $lispTarget -Filter '*.lsp' -ErrorAction SilentlyContinue | Remove-Item -Force
 foreach ($file in $allowed) { Copy-Item (Join-Path $lispSource $file) $lispTarget -Force }
 <#
