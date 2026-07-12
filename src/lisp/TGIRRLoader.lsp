@@ -1,0 +1,23 @@
+﻿;;; TGIRR master loader - nap cac Lisp cung thu muc voi loader
+(vl-load-com)
+(defun TGIRR:LOADER-DIR (/ current)
+  (setq current (findfile "TGIRRLoader.lsp"))
+  (if current
+    (vl-filename-directory current)
+    (getvar "ROAMABLEROOTPREFIX")))
+(defun TGIRR:LOAD-FILE (folder name / path result)
+  (setq path (strcat folder "\\" name))
+  (if (findfile path)
+    (progn
+      (setq result (vl-catch-all-apply 'load (list path)))
+      (if (vl-catch-all-error-p result)
+        (prompt (strcat "\nTGIRR: Khong nap duoc " name " - " (vl-catch-all-error-message result)))
+        (prompt (strcat "\nTGIRR: Da nap " name))))
+    (prompt (strcat "\nTGIRR: Khong tim thay " path))))
+(setq TGIRR:LISP-DIR (TGIRR:LOADER-DIR))
+(TGIRR:LOAD-FILE TGIRR:LISP-DIR "SBS.lsp")
+(TGIRR:LOAD-FILE TGIRR:LISP-DIR "TL.lsp")
+(TGIRR:LOAD-FILE TGIRR:LISP-DIR "TGL.lsp")
+(TGIRR:LOAD-FILE TGIRR:LISP-DIR "CPlus.lsp")
+(prompt (strcat "\nTGIRR CAD LISP: Thu muc " TGIRR:LISP-DIR))
+(princ)

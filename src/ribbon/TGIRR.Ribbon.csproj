@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+ <PropertyGroup><TargetFramework>net48</TargetFramework><LangVersion>latest</LangVersion><RootNamespace>Tgirrr.CadLisp</RootNamespace><AssemblyName>TGIRR.Ribbon</AssemblyName><AutoCADDir Condition="'$(AutoCADDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2023\</AutoCADDir></PropertyGroup>
+ <ItemGroup>
+  <Reference Include="AcCoreMgd"><HintPath>$(AutoCADDir)AcCoreMgd.dll</HintPath><Private>false</Private></Reference>
+  <Reference Include="AcDbMgd"><HintPath>$(AutoCADDir)AcDbMgd.dll</HintPath><Private>false</Private></Reference>
+  <Reference Include="AcMgd"><HintPath>$(AutoCADDir)AcMgd.dll</HintPath><Private>false</Private></Reference>
+  <Reference Include="AdWindows"><HintPath>$(AutoCADDir)AdWindows.dll</HintPath><Private>false</Private></Reference>
+  <Reference Include="PresentationCore"/><Reference Include="PresentationFramework"/><Reference Include="System.Xaml"/><Reference Include="WindowsBase"/><Reference Include="System.Windows.Forms"/>
+ </ItemGroup>
+</Project>
