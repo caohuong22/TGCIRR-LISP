@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
- <PropertyGroup><TargetFramework>net48</TargetFramework><LangVersion>latest</LangVersion><RootNamespace>Tgirrr.CadLisp</RootNamespace><AssemblyName>TGIRR.Ribbon</AssemblyName><AutoCADDir Condition="'$(AutoCADDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2023\</AutoCADDir></PropertyGroup>
+ <PropertyGroup><TargetFramework>net48</TargetFramework><LangVersion>latest</LangVersion><RootNamespace>Tgirrr.CadLisp</RootNamespace><AssemblyName>TGIRR.Ribbon</AssemblyName><AutoCADDir Condition="'$(AutoCADDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2024\</AutoCADDir></PropertyGroup>
  <ItemGroup>
   <Reference Include="AcCoreMgd"><HintPath>$(AutoCADDir)AcCoreMgd.dll</HintPath><Private>false</Private></Reference>
   <Reference Include="AcDbMgd"><HintPath>$(AutoCADDir)AcDbMgd.dll</HintPath><Private>false</Private></Reference>

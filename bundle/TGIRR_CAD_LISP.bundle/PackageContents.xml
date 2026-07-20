@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <ApplicationPackage SchemaVersion="1.0" AutodeskProduct="AutoCAD" Name="TGIRR CAD LISP" AppVersion="1.4.0" ProductCode="{65F66A23-9110-4C2A-BCC4-66A304D52C75}">
   <CompanyDetails Name="TGIRR" />
   <Components Description="TGIRR AutoLISP and Ribbon">
-    <RuntimeRequirements OS="Win64" Platform="AutoCAD*" SeriesMin="R24.2" SeriesMax="R24.2" />
+    <RuntimeRequirements OS="Win64" Platform="AutoCAD*" SeriesMin="R24.3" SeriesMax="R24.3" />
     <ComponentEntry AppName="TGIRR SBS" ModuleName="./Contents/Lisp/SBS.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR TL" ModuleName="./Contents/Lisp/TL.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR TGL" ModuleName="./Contents/Lisp/TGL.lsp" LoadOnAutoCADStartup="True" />
