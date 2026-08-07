@@ -1,4 +1,4 @@
-﻿param([switch]$SkipBuild)
+param([switch]$SkipBuild)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $bundleName = 'TGIRR_CAD_LISP.bundle'
@@ -16,4 +16,4 @@ Write-Host '[3/4] Xoa bundle TGIRR cu...' -ForegroundColor Cyan; if (Test-Path $
 Write-Host '[4/4] Copy bundle moi...' -ForegroundColor Cyan; Copy-Item -Path $sourceBundle -Destination $targetBundle -Recurse -Force
 $sourceFiles = @(Get-ChildItem $sourceBundle -Recurse -File); $targetFiles = @(Get-ChildItem $targetBundle -Recurse -File)
 if ($sourceFiles.Count -ne $targetFiles.Count) { throw "Copy khong day du: nguon $($sourceFiles.Count) file, dich $($targetFiles.Count) file." }
-Write-Host ''; Write-Host 'CAI DAT THANH CONG!' -ForegroundColor Green; Write-Host "Da cai vao: $targetBundle" -ForegroundColor Green; Write-Host 'Bay gio anh co the mo AutoCAD 2023.' -ForegroundColor White; Write-Host ''
+Write-Host ''; Write-Host 'CAI DAT THANH CONG!' -ForegroundColor Green; Write-Host "Da cai vao: $targetBundle" -ForegroundColor Green; Write-Host 'Bay gio anh co the mo AutoCAD 2021-2024.' -ForegroundColor White; Write-Host ''

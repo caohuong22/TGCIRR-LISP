@@ -1,4 +1,4 @@
-﻿;;; TGIRR master loader - nap cac Lisp cung thu muc voi loader
+;;; TGIRR master loader - nap cac Lisp cung thu muc voi loader
 (vl-load-com)
 (defun TGIRR:LOADER-DIR (/ current)
   (setq current (findfile "TGIRRLoader.lsp"))
@@ -18,6 +18,6 @@
 (TGIRR:LOAD-FILE TGIRR:LISP-DIR "SBS.lsp")
 (TGIRR:LOAD-FILE TGIRR:LISP-DIR "TL.lsp")
 (TGIRR:LOAD-FILE TGIRR:LISP-DIR "TGL.lsp")
-(TGIRR:LOAD-FILE TGIRR:LISP-DIR "CPlus.lsp")
+(TGIRR:LOAD-FILE TGIRR:LISP-DIR "TGN.lsp")
 (prompt (strcat "\nTGIRR CAD LISP: Thu muc " TGIRR:LISP-DIR))
 (princ)

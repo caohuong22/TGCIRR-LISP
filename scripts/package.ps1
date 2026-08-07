@@ -1,4 +1,4 @@
-﻿param([string]$AutoCADDir='')
+param([string]$AutoCADDir='')
 $ErrorActionPreference='Stop'
 $project = "$PSScriptRoot\..\src\ribbon\TGIRR.Ribbon.csproj"
 if ($AutoCADDir) { dotnet build $project -c Release -p:AutoCADDir="$AutoCADDir" } else { dotnet build $project -c Release }
@@ -6,8 +6,8 @@ if ($LASTEXITCODE -ne 0) { throw "Ribbon build failed with exit code $LASTEXITCO
 Copy-Item "$PSScriptRoot\..\src\ribbon\bin\Release\net48\TGIRR.Ribbon.dll" "$PSScriptRoot\..\bundle\TGIRR_CAD_LISP.bundle\Contents\Windows\" -Force
 $lispSource = "$PSScriptRoot\..\src\lisp"
 $lispTarget = "$PSScriptRoot\..\bundle\TGIRR_CAD_LISP.bundle\Contents\Lisp"
-$allowed = @('SBS.lsp','TL.lsp','TGL.lsp')
-Get-ChildItem $lispTarget -Filter '*.lsp' -ErrorAction SilentlyContinue | Remove-Item -Force
+$allowed = @('SBS.lsp','TL.lsp','TGL.lsp','TGN.lsp','TGN.dcl')
+Get-ChildItem $lispTarget -File -ErrorAction SilentlyContinue | Where-Object { $_.Extension -in '.lsp','.dcl' } | Remove-Item -Force
 foreach ($file in $allowed) { Copy-Item (Join-Path $lispSource $file) $lispTarget -Force }
 <#
 foreach ($file in @('SBS.lsp','TL.lsp','TGL.lsp')) {

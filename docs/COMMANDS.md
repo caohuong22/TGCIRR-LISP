@@ -1,4 +1,4 @@
-﻿# Danh sách lệnh TGIRR CAD LISP
+# Danh sách lệnh TGIRR CAD LISP
 
 | Nhóm | Lệnh | Chức năng |
 |---|---|---|
@@ -7,6 +7,7 @@
 | Chọn | SL / SC | Chọn theo Layer / màu hiển thị |
 | Văn bản | CT | Căn Text/MText theo trục và điểm chuẩn |
 | Văn bản | RT / NT / FT | Xoay, đánh số, tìm và thay thế văn bản |
+| Đánh số | TGN | Đánh số đối tượng/vùng tưới bằng nhãn tròn/ellipse; hỗ trợ thứ tự chọn, tọa độ hoặc dọc Polyline |
 | Kích thước | CD | Căn chữ Dimension về vị trí chuẩn |
 | Kích thước | FD | Sửa tỷ lệ trình bày, không đổi hệ số giá trị đo |
 | Kích thước | OD | Xếp đều Dimension theo khoảng cách |
