@@ -1,10 +1,44 @@
 <Project Sdk="Microsoft.NET.Sdk">
- <PropertyGroup><TargetFramework>net48</TargetFramework><LangVersion>latest</LangVersion><RootNamespace>Tgirrr.CadLisp</RootNamespace><AssemblyName>TGIRR.Ribbon</AssemblyName><AutoCADDir Condition="'$(AutoCADDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2024\</AutoCADDir></PropertyGroup>
- <ItemGroup>
-  <Reference Include="AcCoreMgd"><HintPath>$(AutoCADDir)AcCoreMgd.dll</HintPath><Private>false</Private></Reference>
-  <Reference Include="AcDbMgd"><HintPath>$(AutoCADDir)AcDbMgd.dll</HintPath><Private>false</Private></Reference>
-  <Reference Include="AcMgd"><HintPath>$(AutoCADDir)AcMgd.dll</HintPath><Private>false</Private></Reference>
-  <Reference Include="AdWindows"><HintPath>$(AutoCADDir)AdWindows.dll</HintPath><Private>false</Private></Reference>
-  <Reference Include="PresentationCore"/><Reference Include="PresentationFramework"/><Reference Include="System.Xaml"/><Reference Include="WindowsBase"/><Reference Include="System.Windows.Forms"/>
- </ItemGroup>
+  <PropertyGroup>
+    <!-- Auto-detect AutoCAD installation directory if not explicitly provided -->
+    <AutoCADDir Condition="'$(AutoCADDir)' == '' and Exists('C:\Program Files\Autodesk\AutoCAD 2025\')">C:\Program Files\Autodesk\AutoCAD 2025\</AutoCADDir>
+    <AutoCADDir Condition="'$(AutoCADDir)' == '' and Exists('C:\Program Files\Autodesk\AutoCAD 2026\')">C:\Program Files\Autodesk\AutoCAD 2026\</AutoCADDir>
+    <AutoCADDir Condition="'$(AutoCADDir)' == '' and Exists('C:\Program Files\Autodesk\AutoCAD 2024\')">C:\Program Files\Autodesk\AutoCAD 2024\</AutoCADDir>
+    <AutoCADDir Condition="'$(AutoCADDir)' == '' and Exists('C:\Program Files\Autodesk\AutoCAD 2023\')">C:\Program Files\Autodesk\AutoCAD 2023\</AutoCADDir>
+    <AutoCADDir Condition="'$(AutoCADDir)' == '' and Exists('C:\Program Files\Autodesk\AutoCAD 2022\')">C:\Program Files\Autodesk\AutoCAD 2022\</AutoCADDir>
+    <AutoCADDir Condition="'$(AutoCADDir)' == '' and Exists('C:\Program Files\Autodesk\AutoCAD 2021\')">C:\Program Files\Autodesk\AutoCAD 2021\</AutoCADDir>
+    <AutoCADDir Condition="'$(AutoCADDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2025\</AutoCADDir>
+
+    <!-- Auto-detect TargetFramework: AutoCAD 2025+ uses .NET 8, <=2024 uses .NET 4.8 -->
+    <TargetFramework Condition="'$(TargetFramework)' == '' and ($([System.String]::Copy('$(AutoCADDir)').Contains('2025')) or $([System.String]::Copy('$(AutoCADDir)').Contains('2026')))">net8.0-windows</TargetFramework>
+    <TargetFramework Condition="'$(TargetFramework)' == ''">net48</TargetFramework>
+
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Tgirrr.CadLisp</RootNamespace>
+    <AssemblyName>TGIRR.Ribbon</AssemblyName>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="AcCoreMgd">
+      <HintPath>$(AutoCADDir)accoremgd.dll</HintPath>
+      <HintPath Condition="!Exists('$(AutoCADDir)accoremgd.dll')">$(AutoCADDir)AcCoreMgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="AcDbMgd">
+      <HintPath>$(AutoCADDir)acdbmgd.dll</HintPath>
+      <HintPath Condition="!Exists('$(AutoCADDir)acdbmgd.dll')">$(AutoCADDir)AcDbMgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="AcMgd">
+      <HintPath>$(AutoCADDir)acmgd.dll</HintPath>
+      <HintPath Condition="!Exists('$(AutoCADDir)acmgd.dll')">$(AutoCADDir)AcMgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="AdWindows">
+      <HintPath>$(AutoCADDir)AdWindows.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 # TGIRR CAD LISP
 
-Thư viện AutoLISP tích hợp Ribbon tiếng Việt cho AutoCAD 2021-2024 64-bit, gồm công cụ bố trí tưới, đánh số đối tượng/vùng tưới và hỗ trợ bản vẽ.
+Thư viện AutoLISP tích hợp Ribbon tiếng Việt cho AutoCAD 2021-2025+ 64-bit, gồm công cụ bố trí tưới, đánh số đối tượng/vùng tưới và hỗ trợ bản vẽ.
 
 ## Cài đặt
 
