@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/ribbon/">
+    <Project Path="src/ribbon/TGIRR.Ribbon.csproj" />
+  </Folder>
+  <Folder Name="/src/zwcad/">
+    <Project Path="src/zwcad/TGIRR.Zwcad.csproj" />
+  </Folder>
+  <Folder Name="/src/gscad/">
+    <Project Path="src/gscad/TGIRR.Gscad.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CPLUS.Regression/CPLUS.Regression.csproj" />
+    <Project Path="tests/VDNG.Regression/VDNG.Regression.csproj" />
+  </Folder>
+</Solution>

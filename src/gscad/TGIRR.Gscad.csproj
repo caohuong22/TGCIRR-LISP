@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Tgirrr.CadLisp</RootNamespace>
+    <AssemblyName>TGIRR.Gscad</AssemblyName>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <Nullable>disable</Nullable>
+    <!-- Auto-detect GstarCAD install dir; override with -p:GscadDir=... -->
+    <GscadDir Condition="'$(GscadDir)' == '' and Exists('C:\Program Files\Gstarsoft\GstarCAD2027\')">C:\Program Files\Gstarsoft\GstarCAD2027\</GscadDir>
+    <GscadDir Condition="'$(GscadDir)' == ''">C:\Program Files\Gstarsoft\GstarCAD2027\</GscadDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="GcCoreMgd">
+      <HintPath>$(GscadDir)GcCoreMgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="GcDbMgd">
+      <HintPath>$(GscadDir)GcDbMgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="GcMgd">
+      <HintPath>$(GscadDir)GcMgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,23 @@
+***MENUGROUP=TGIRR
+
+
+***POP1
+**TGIRR_CAD
+ID_TGIRR_CAD     [TGIRR &CAD]
+ID_TGIRR_SBS     [Chon doi tuong giong mau (&SBS)]^C^CSBS
+ID_TGIRR_TL      [Tong chieu dai (&TL)]^C^CTL
+ID_TGIRR_TGL     [Tao bo layer chuan (&TGL)]^C^CTGL
+ID_TGIRR_TGN     [Danh so doi tuong / vung tuoi (&TGN)]^C^CTGN
+                 [--]
+ID_TGIRR_CPLUS   [Copy theo quy luat (&CPLUS)]^C^CCPLUS
+ID_TGIRR_VDNG    [Rai day nho giot (&VDNG)]^C^CVDNG
+ID_TGIRR_TNET    [Tao net ve co chu (&TNET)]^C^CTNET
+
+***HELPSTRINGS
+ID_TGIRR_SBS     [Chon cac doi tuong giong mau nam phan lon trong Polyline kin]
+ID_TGIRR_TL      [Cong tong chieu dai cac duong da chon truoc]
+ID_TGIRR_TGL     [Tao bo layer tieu chuan va dat TG-DRIP lam layer hien hanh]
+ID_TGIRR_TGN     [Danh so doi tuong / vung tuoi bang nhan tron/ellipse]
+ID_TGIRR_CPLUS   [Copy TEXT/MTEXT/Multileader/Attribute/Dimension theo quy luat]
+ID_TGIRR_VDNG    [Ve day nho giot ben trong Boundary kin]
+ID_TGIRR_TNET    [Mo hop thoai tao/chinh sua net ve co chu (file LIN)]

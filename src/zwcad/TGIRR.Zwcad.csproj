@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Tgirrr.CadLisp</RootNamespace>
+    <AssemblyName>TGIRR.Zwcad</AssemblyName>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <!-- Auto-detect ZWCAD 2026 install dir; override with -p:ZwcadDir=... -->
+    <ZwcadDir Condition="'$(ZwcadDir)' == '' and Exists('C:\Program Files\ZWSOFT\ZWCAD 2026\')">C:\Program Files\ZWSOFT\ZWCAD 2026\</ZwcadDir>
+    <ZwcadDir Condition="'$(ZwcadDir)' == ''">C:\Program Files\ZWSOFT\ZWCAD 2026\</ZwcadDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="ZwManaged">
+      <HintPath>$(ZwcadDir)ZwManaged.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ZwDatabaseMgd">
+      <HintPath>$(ZwcadDir)ZwDatabaseMgd.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="ZwDatabaseMgdBrep">
+      <HintPath>$(ZwcadDir)ZwDatabaseMgdBrep.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

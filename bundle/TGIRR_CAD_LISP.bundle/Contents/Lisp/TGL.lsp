@@ -39,6 +39,7 @@
     ("TG-XA KHI" "114" "Continuous")
     ("TG-QCV" "7" "Continuous")
     ("TG-LDPE 20" "4" "Continuous")
+    ("TG-number" "7" "Continuous")
   ))
 
   ;; Lap qua tung Layer trong danh sach
