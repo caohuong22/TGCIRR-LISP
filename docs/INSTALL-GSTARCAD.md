@@ -27,10 +27,13 @@ Bản port chạy trên **GstarCAD 2027** (API .NET `Gssoft.Gscad.*`, runtime **
    - Kết quả nằm ở `bundle/TGIRR_CAD_GSTARCAD.bundle/`:
      - `Contents/Lisp/` — các file `.lsp` + `TGN.dcl` + loader `TGIRRLoaderG.lsp` + menu `TGIRR_CAD.mnu`/`.mnl`
      - `Contents/Windows/TGIRR.Gscad.dll` — plugin .NET
-2. Copy toàn bộ `Contents/Lisp` + `Contents/Windows/TGIRR.Gscad.dll` vào một thư mục nằm trong **Support File Search Path** của GstarCAD.
+2. Copy **tất cả file `Contents/Lisp`** (`.lsp`, `.dcl`, `.mnu`, `.mnl`) và `Contents/Windows/TGIRR.Gscad.dll` vào **cùng một thư mục riêng** (nằm trong Support File Search Path). Không trộn lẫn nhiều nơi để tránh loader dò nhầm bản cũ.
 3. Mở GstarCAD, gõ `APPLOAD` và chọn `TGIRRLoaderG.lsp` (hoặc gõ `(load "TGIRRLoaderG.lsp")`).
-4. Gõ `TGIRRLOAD` để nạp đầy đủ (cả Lisp lẫn `NETLOAD` DLL).
-5. Thêm menu: gõ `MENULOAD`, duyệt chọn `TGIRR_CAD.mnu`, chọn **TGIRR CAD** rồi bấm *Load*. Menu kéo xuống **TGIRR CAD** sẽ xuất hiện trên thanh menu.
+4. **Xác định thư mục (1 lần):** gõ `TGIRRSETDIR`, chọn file `TGIRR.Gscad.dll` nơi bạn vừa copy. Lệnh sẽ ghi nhớ đường dẫn này.
+5. Gõ `TGIRRLOAD` để nạp đầy đủ (cả Lisp lẫn `NETLOAD` DLL).
+6. Thêm menu: gõ `MENULOAD`, duyệt chọn `TGIRR_CAD.mnu`, chọn **TGIRR CAD** rồi bấm *Load*. Menu kéo xuống **TGIRR CAD** sẽ xuất hiện trên thanh menu.
+
+> Mẹo: nếu `TGIRRLOAD` báo không tìm thấy `.lsp`/`.dll`, có nghĩa loader đang trỏ sai thư mục (do findfile dò theo search path). Chạy lại `TGIRRSETDIR` để trỏ cứng vào đúng chỗ.
 
 ## Lưu ý về .NET
 
