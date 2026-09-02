@@ -28,7 +28,10 @@ Bản port chạy trên **ZWCAD 2026** (API .NET `ZwSoft.ZwCAD.*`, runtime .NET 
    - Kết quả nằm ở `bundle/TGIRR_CAD_ZWCAD.bundle/`:
      - `Contents/Lisp/` — các file `.lsp` + `TGN.dcl` + loader `TGIRRLoaderZ.lsp` + menu `TGIRR_CAD.mnu`/`.mnl`
      - `Contents/Windows/TGIRR.Zwcad.dll` — plugin .NET
-2. Copy **tất cả file `Contents/Lisp`** (`.lsp`, `.dcl`, `.mnu`, `.mnl`) và `Contents/Windows/TGIRR.Zwcad.dll` vào **cùng một thư mục riêng** (nằm trong Support File Search Path). Không trộn lẫn nhiều nơi để tránh loader dò nhầm bản cũ.
+2. Copy vào thư mục riêng (nằm trong Support File Search Path). Có 2 cách:
+   - **Cách gọn (flat):** copy tất cả file trong `Contents/Lisp` (`.lsp`, `.dcl`, `.mnu`, `.mnl`) và `Contents/Windows/TGIRR.Zwcad.dll` vào **cùng một thư mục**.
+   - **Giữ cấu trúc bundle:** copy nguyên cả 2 thư mục `Contents/Lisp` và `Contents/Windows` vào. Loader tự dò được cả `\Lisp` lẫn `\Windows`, nên cả 2 cách đều chạy.
+   Không trộn lẫn nhiều nơi để tránh loader dò nhầm bản cũ.
 3. Mở ZWCAD, gõ `APPLOAD` và chọn `TGIRRLoaderZ.lsp` (hoặc gõ `(load "TGIRRLoaderZ.lsp")`).
 4. **Xác định thư mục (1 lần):** gõ `TGIRRSETDIR`, chọn file `TGIRR.Zwcad.dll` nơi bạn vừa copy. Lệnh sẽ ghi nhớ đường dẫn này.
 5. Gõ `TGIRRLOAD` để nạp đầy đủ (cả Lisp lẫn `NETLOAD` DLL).

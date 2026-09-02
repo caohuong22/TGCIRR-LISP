@@ -27,7 +27,10 @@ Bản port chạy trên **GstarCAD 2027** (API .NET `Gssoft.Gscad.*`, runtime **
    - Kết quả nằm ở `bundle/TGIRR_CAD_GSTARCAD.bundle/`:
      - `Contents/Lisp/` — các file `.lsp` + `TGN.dcl` + loader `TGIRRLoaderG.lsp` + menu `TGIRR_CAD.mnu`/`.mnl`
      - `Contents/Windows/TGIRR.Gscad.dll` — plugin .NET
-2. Copy **tất cả file `Contents/Lisp`** (`.lsp`, `.dcl`, `.mnu`, `.mnl`) và `Contents/Windows/TGIRR.Gscad.dll` vào **cùng một thư mục riêng** (nằm trong Support File Search Path). Không trộn lẫn nhiều nơi để tránh loader dò nhầm bản cũ.
+2. Copy vào thư mục riêng (nằm trong Support File Search Path). Có 2 cách:
+   - **Cách gọn (flat):** copy tất cả file trong `Contents/Lisp` (`.lsp`, `.dcl`, `.mnu`, `.mnl`) và `Contents/Windows/TGIRR.Gscad.dll` vào **cùng một thư mục**.
+   - **Giữ cấu trúc bundle:** copy nguyên cả 2 thư mục `Contents/Lisp` và `Contents/Windows` vào. Loader tự dò được cả `\Lisp` lẫn `\Windows`, nên cả 2 cách đều chạy.
+   Không trộn lẫn nhiều nơi để tránh loader dò nhầm bản cũ.
 3. Mở GstarCAD, gõ `APPLOAD` và chọn `TGIRRLoaderG.lsp` (hoặc gõ `(load "TGIRRLoaderG.lsp")`).
 4. **Xác định thư mục (1 lần):** gõ `TGIRRSETDIR`, chọn file `TGIRR.Gscad.dll` nơi bạn vừa copy. Lệnh sẽ ghi nhớ đường dẫn này.
 5. Gõ `TGIRRLOAD` để nạp đầy đủ (cả Lisp lẫn `NETLOAD` DLL).
