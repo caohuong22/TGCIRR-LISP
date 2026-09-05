@@ -10,6 +10,7 @@
     <Nullable>disable</Nullable>
     <!-- Auto-detect GstarCAD install dir; override with -p:GscadDir=... -->
     <GscadDir Condition="'$(GscadDir)' == '' and Exists('C:\Program Files\Gstarsoft\GstarCAD2027\')">C:\Program Files\Gstarsoft\GstarCAD2027\</GscadDir>
+    <GscadDir Condition="'$(GscadDir)' == '' and Exists('$(MSBuildThisFileDirectory)..\..\Reference\gstarCad\')">$(MSBuildThisFileDirectory)..\..\Reference\gstarCad\</GscadDir>
     <GscadDir Condition="'$(GscadDir)' == ''">C:\Program Files\Gstarsoft\GstarCAD2027\</GscadDir>
   </PropertyGroup>
 

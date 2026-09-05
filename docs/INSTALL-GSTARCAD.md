@@ -16,7 +16,9 @@ Bản port chạy trên **GstarCAD 2027** (API .NET `Gssoft.Gscad.*`, runtime **
 
 ## Khác biệt so với bản AutoCAD
 
-1. **Giao diện:** GstarCAD dùng ribbon riêng (file CUIX/menu) chứ không phải `Autodesk.Windows.Ribbon`. Bản port cung cấp menu kéo xuống `TGIRR_CAD.mnu` (dùng `MENULOAD`) và các **lệnh** để gõ trực tiếp hoặc gán phím tắt:
+1. **Giao diện:** GstarCAD dùng ribbon riêng (file CUIX) chứ không phải `Autodesk.Windows.Ribbon`. Bản port dùng **PaletteSet dockable** (bảng công cụ neo được, API `Gssoft.Gscad.Windows.PaletteSet`) chứa các nút bấm tương tự Ribbon:
+   - Gõ `TGIRRPALETTE` để mở/đóng bảng công cụ **TGIRR CAD** (loader `TGIRRLOAD` tự mở sau khi nạp).
+   - Ngoài ra vẫn có menu kéo xuống `TGIRR_CAD.mnu` (dùng `MENULOAD`) và các **lệnh** gõ trực tiếp:
    - `SBS`, `TL`, `TGL`, `TGN` — lệnh AutoLISP
    - `CPLUS`, `VDNG`, `TNET` — lệnh .NET (`[CommandMethod]`)
 2. **Nạp plugin:** GstarCAD nạp DLL bằng lệnh `NETLOAD` (loader Lisp tự gọi `NETLOAD`).
@@ -33,7 +35,7 @@ Bản port chạy trên **GstarCAD 2027** (API .NET `Gssoft.Gscad.*`, runtime **
    Không trộn lẫn nhiều nơi để tránh loader dò nhầm bản cũ.
 3. Mở GstarCAD, gõ `APPLOAD` và chọn `TGIRRLoaderG.lsp` (hoặc gõ `(load "TGIRRLoaderG.lsp")`).
 4. **Xác định thư mục (1 lần):** gõ `TGIRRSETDIR`, chọn file `TGIRR.Gscad.dll` nơi bạn vừa copy. Lệnh sẽ ghi nhớ đường dẫn này.
-5. Gõ `TGIRRLOAD` để nạp đầy đủ (cả Lisp lẫn `NETLOAD` DLL).
+5. Gõ `TGIRRLOAD` để nạp đầy đủ (cả Lisp lẫn `NETLOAD` DLL) — bảng công cụ **TGIRR CAD** sẽ tự mở. Nếu muốn mở/đóng lại, gõ `TGIRRPALETTE`.
 6. Thêm menu: gõ `MENULOAD`, duyệt chọn `TGIRR_CAD.mnu`, chọn **TGIRR CAD** rồi bấm *Load*. Menu kéo xuống **TGIRR CAD** sẽ xuất hiện trên thanh menu.
 
 > Mẹo: nếu `TGIRRLOAD` báo không tìm thấy `.lsp`/`.dll`, có nghĩa loader đang trỏ sai thư mục (do findfile dò theo search path). Chạy lại `TGIRRSETDIR` để trỏ cứng vào đúng chỗ.

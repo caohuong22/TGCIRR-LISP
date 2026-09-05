@@ -3,3 +3,9 @@
 .vs/
 *.user
 *.suo
+
+# Local CAD API reference DLLs (large, ~155MB)
+Reference/
+# Local utility script (personal, not part of project)
+fix_network.bat
+
