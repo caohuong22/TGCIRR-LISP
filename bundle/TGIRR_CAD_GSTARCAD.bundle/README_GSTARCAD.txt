@@ -10,6 +10,7 @@
 ## Lenh
 - TGIRRPALETTE: mo/dong bang cong cu TGIRR CAD (PaletteSet)
 - SBS  : chon doi tuong giong mau trong bien kin (LISP)
+- HBD  : ve duong bao boundary cho hatch co (LISP, lenh tat BH/TGBOUND)
 - TL   : tong chieu dai (LISP)
 - TGL  : tao bo layer chuan (LISP)
 - TGN  : danh so doi tuong/vung tuoi (LISP + DCL)

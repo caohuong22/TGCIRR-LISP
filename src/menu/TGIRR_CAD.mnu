@@ -5,6 +5,8 @@
 **TGIRR_CAD
 ID_TGIRR_CAD     [TGIRR &CAD]
 ID_TGIRR_SBS     [Chon doi tuong giong mau (&SBS)]^C^CSBS
+ID_TGIRR_HBD     [Ve duong bao Hatch co (&HBD)]^C^CHBD
+ID_TGIRR_JH      [Gop cac Hatch thanh 1 (&JH)]^C^CJH
 ID_TGIRR_TL      [Tong chieu dai (&TL)]^C^CTL
 ID_TGIRR_TGL     [Tao bo layer chuan (&TGL)]^C^CTGL
 ID_TGIRR_TGN     [Danh so doi tuong / vung tuoi (&TGN)]^C^CTGN
@@ -15,6 +17,8 @@ ID_TGIRR_TNET    [Tao net ve co chu (&TNET)]^C^CTNET
 
 ***HELPSTRINGS
 ID_TGIRR_SBS     [Chon cac doi tuong giong mau nam phan lon trong Polyline kin]
+ID_TGIRR_HBD     [Ve duong bao Boundary Polyline xung quanh cac doi tuong Hatch co]
+ID_TGIRR_JH      [Gop cac Hatch phan manh giap nhau thanh 1 va tao duong bao chung]
 ID_TGIRR_TL      [Cong tong chieu dai cac duong da chon truoc]
 ID_TGIRR_TGL     [Tao bo layer tieu chuan va dat TG-DRIP lam layer hien hanh]
 ID_TGIRR_TGN     [Danh so doi tuong / vung tuoi bang nhan tron/ellipse]

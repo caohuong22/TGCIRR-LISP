@@ -23,7 +23,7 @@ namespace Tgirrr.CadLisp {
                 PaletteSetStyles.ShowPropertiesMenu;
     _ps.DockEnabled = DockSides.Left | DockSides.Right;
     _ps.MinimumSize = new System.Drawing.Size(300, 360);
-    _ps.Size = new System.Drawing.Size(320, 520);
+    _ps.Size = new System.Drawing.Size(320, 600);
     _ps.AddVisual("TGIRR CAD", new PaletteContent());
     _ps.Visible = true;      // lan dau: hien ngay
    } else {
@@ -61,6 +61,9 @@ namespace Tgirrr.CadLisp {
    });
 
    page.Children.Add(Group("CHỌN", MakeButton("SBS", "Chọn đối tượng giống mẫu", "trong vùng polyline kín")));
+   page.Children.Add(Group("RANH GIỚI",
+     MakeButton("HBD", "Vẽ bound Hatch cỏ", "tạo boundary polyline trên layer TG-BOUND (hỗ trợ join)"),
+     MakeButton("JH", "Gộp Hatch phân mảnh", "hợp nhất các hatch giáp nhau làm 1 và tạo bound chung")));
    page.Children.Add(Group("ĐO", MakeButton("TL", "Tổng chiều dài", "các đường đã chọn trước")));
    page.Children.Add(Group("LAYER", MakeButton("TGL", "Tạo bộ Layer chuẩn", "đặt TG-DRIP làm layer hiện hành")));
    page.Children.Add(Group("ĐÁNH SỐ", MakeButton("TGN", "Đánh số đối tượng / vùng tưới", "bằng nhãn tròn / ellipse")));

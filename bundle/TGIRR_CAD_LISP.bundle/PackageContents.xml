@@ -7,6 +7,7 @@
     <ComponentEntry AppName="TGIRR TL" ModuleName="./Contents/Lisp/TL.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR TGL" ModuleName="./Contents/Lisp/TGL.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR TGN" ModuleName="./Contents/Lisp/TGN.lsp" LoadOnAutoCADStartup="True" />
+    <ComponentEntry AppName="TGIRR HBD" ModuleName="./Contents/Lisp/HBD.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR Ribbon" ModuleName="./Contents/Windows/TGIRR.Ribbon.dll" AppDescription="TGIRR Ribbon UI" LoadOnAutoCADStartup="True" />
   </Components>
 </ApplicationPackage>
