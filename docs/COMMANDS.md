@@ -4,6 +4,7 @@ Dưới đây là toàn bộ lệnh **hiện đang hoạt động** trong tab Ri
 
 | Nhóm (Panel) | Lệnh | Chức năng | Gõ trực tiếp? |
 |---|---|---|---|
+| GIAO DIỆN | TGIRRPALETTE | Bật/tắt bảng công cụ Palette (ZWCAD & GstarCAD) | Có (`TGIRRPALETTE`) |
 | CHỌN | SBS | Chọn đối tượng giống mẫu nằm phần lớn trong Polyline kín | Có (`SBS`) |
 | RANH GIỚI | HBD | Vẽ đường bao Polyline (Boundary) quanh Hatch cỏ, tự gán Layer `TG-BOUND` | Có (`HBD`, `BH`, `TGBOUND`) |
 | RANH GIỚI | JH | Gộp các Hatch phân mảnh giáp nhau thành 1 Hatch duy nhất + 1 Boundary chung | Có (`JH`, `MH`, `JOINHATCH`) |
@@ -39,10 +40,15 @@ Dưới đây là toàn bộ lệnh **hiện đang hoạt động** trong tab Ri
   5. Xóa các Hatch con phân mảnh cũ, giúp bản vẽ gọn gàng, nhẹ và liền mạch.
 - **Hoàn tác**: Hỗ trợ `UNDO` 1 bước duy nhất.
 
-## Ghi chú
+## Ghi chú về nền tảng
+ 
+- **AutoCAD:** Toàn bộ công cụ hiển thị trên thanh Ribbon (tab **TGIRR CAD LISP**).
+- **ZWCAD & GstarCAD:** **KHÔNG DÙNG RIBBON** (do không hỗ trợ API Ribbon như AutoCAD). Thay vào đó, toàn bộ công cụ được hiển thị trên bảng công cụ neo **`TGIRRPALETTE`** (dockable WPF Palette) và menu kéo xuống `TGIRR_CAD.mnu`.
+- **SBS, HBD, JH, TL, TGN, TGL** được viết bằng AutoLISP; **CPLUS, VDNG, TNET** được viết bằng .NET.
+- Các lệnh Lisp có thể nạp tự động qua loader tương ứng:
+  - AutoCAD: `TGIRRLoader.lsp`
+  - ZWCAD: `TGIRRLoaderZ.lsp` (gõ `TGIRRLOAD`)
+  - GstarCAD: `TGIRRLoaderG.lsp` (gõ `TGIRRLOAD`)
 
-- **SBS, HBD, JH, TL, TGN, TGL** được viết bằng AutoLISP; **CPLUS, VDNG, TNET** được viết bằng .NET (plugin Ribbon).
-- Nút Ribbon cho `TNET` đi qua lệnh `TNET` nên có thể gõ trực tiếp từ dòng lệnh.
-- Các lệnh Lisp có thể nạp độc lập bằng `APPLOAD` file `TGIRRLoader.lsp` (tự nạp các file Lisp cùng thư mục).
+Mỗi nút trên Ribbon / Palette đều có tooltip tiếng Việt chi tiết hướng dẫn cách sử dụng và cú pháp lệnh.
 
-Mỗi nút Ribbon có tooltip tiếng Việt chi tiết. Hãy thử trên bản vẽ sao lưu và dùng `UNDO` sau mỗi thao tác trong lần kiểm tra đầu tiên.

@@ -60,7 +60,7 @@ $readme = @'
 - VDNG : rai day nho giot (.NET)
 - TNET : tao net ve co chu (.NET)
 
-Luu y: GstarCAD nap DLL .NET bang NETLOAD; cac lenh .NET go bang ten truc tiep, qua bang cong cu TGIRRPALETTE, hoac qua menu keo xuong TGIRR_CAD.mnu (MENULOAD).
+Luu y: GstarCAD KHONG DUNG RIBBON cua AutoCAD; thay vao do nap DLL .NET bang NETLOAD, dung bang cong cu TGIRRPALETTE (dockable WPF PaletteSet) hoac menu keo xuong TGIRR_CAD.mnu (MENULOAD).
 '@
 [System.IO.File]::WriteAllText((Join-Path $bundle 'README_GSTARCAD.txt'), $readme, (New-Object System.Text.UTF8Encoding($false)))
 

@@ -9,7 +9,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <!-- Auto-detect ZWCAD 2026 install dir; override with -p:ZwcadDir=... -->
     <ZwcadDir Condition="'$(ZwcadDir)' == '' and Exists('C:\Program Files\ZWSOFT\ZWCAD 2026\')">C:\Program Files\ZWSOFT\ZWCAD 2026\</ZwcadDir>
-    <ZwcadDir Condition="'$(ZwcadDir)' == ''">C:\Program Files\ZWSOFT\ZWCAD 2026\</ZwcadDir>
+    <ZwcadDir Condition="'$(ZwcadDir)' == ''">..\..\Reference\Zwcad\net47\</ZwcadDir>
   </PropertyGroup>
 
   <ItemGroup>

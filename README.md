@@ -2,19 +2,31 @@
 
 Thư viện AutoLISP + .NET tiếng Việt gồm công cụ bố trí tưới, đánh số đối tượng/vùng tưới và hỗ trợ bản vẽ, hỗ trợ **3 nền tảng CAD**:
 
-| Nền tảng | Ribbon | Thư mục nguồn | Đóng gói | Tài liệu |
+| Nền tảng | Giao diện | Thư mục nguồn | Đóng gói | Tài liệu |
 |---|---|---|---|---|
-| AutoCAD 2021–2025+ (64-bit) | Có (tự tạo) | `src/ribbon/` | `scripts/package.ps1` | [INSTALL.md](docs/INSTALL.md) |
-| ZWCAD 2026 | Lệnh (CUIX thủ công) | `src/zwcad/` | `scripts/package-zwcad.ps1` | [INSTALL-ZWCAD.md](docs/INSTALL-ZWCAD.md) |
-| GstarCAD 2027 | Lệnh (menu thủ công) | `src/gscad/` | `scripts/package-gscad.ps1` | [INSTALL-GSTARCAD.md](docs/INSTALL-GSTARCAD.md) |
+| AutoCAD 2021–2025+ (64-bit) | Ribbon tự động | `src/ribbon/` | `package.ps1 -Target AutoCAD` | [INSTALL.md](docs/INSTALL.md) |
+| ZWCAD 2026 | **Không dùng Ribbon** (PaletteSet `TGIRRPALETTE` + Menu) | `src/zwcad/` | `package.ps1 -Target ZWCAD` | [INSTALL-ZWCAD.md](docs/INSTALL-ZWCAD.md) |
+| GstarCAD 2027 | **Không dùng Ribbon** (PaletteSet `TGIRRPALETTE` + Menu) | `src/gscad/` | `package.ps1 -Target GstarCAD` | [INSTALL-GSTARCAD.md](docs/INSTALL-GSTARCAD.md) |
 
-## Cài đặt (AutoCAD)
+## Đóng gói (Build & Package)
 
-1. Chạy `powershell -ExecutionPolicy Bypass -File scripts/package.ps1`.
-2. Đóng AutoCAD hoàn toàn.
-3. Copy `bundle/TGIRR_CAD_LISP.bundle` vào `C:\ProgramData\Autodesk\ApplicationPlugins\` và ghi đè bản cũ.
-4. Mở lại AutoCAD, chọn tab **TGIRR CAD LISP**.
+- **Đóng gói tất cả 3 CAD:** double-click `build.bat` ở thư mục gốc, hoặc chạy:
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File scripts/package.ps1
+  ```
+- **Đóng gói từng CAD:**
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File scripts/package.ps1 -Target ZWCAD      # ZWCAD (Không dùng Ribbon)
+  powershell -ExecutionPolicy Bypass -File scripts/package.ps1 -Target GstarCAD  # GstarCAD (Không dùng Ribbon)
+  powershell -ExecutionPolicy Bypass -File scripts/package.ps1 -Target AutoCAD   # AutoCAD (Dùng Ribbon)
+  ```
 
-Ribbon được xếp theo ba hàng. Khi rê chuột lên nút, AutoCAD hiển thị tên lệnh, mô tả chức năng và hướng dẫn bằng tiếng Việt.
+## Cài đặt nhanh
 
-Xem [docs/INSTALL.md](docs/INSTALL.md) và [docs/COMMANDS.md](docs/COMMANDS.md).
+- Double-click file `scripts/CAI_DAT_TGIRR.bat` để mở menu cài đặt tự động cho AutoCAD, ZWCAD hoặc GstarCAD.
+- Hoặc xem chi tiết từng nền tảng:
+  - [Hướng dẫn cài đặt AutoCAD (Ribbon)](docs/INSTALL.md)
+  - [Hướng dẫn cài đặt ZWCAD (Palette + Menu)](docs/INSTALL-ZWCAD.md)
+  - [Hướng dẫn cài đặt GstarCAD (Palette + Menu)](docs/INSTALL-GSTARCAD.md)
+  - [Danh mục lệnh TGIRR CAD](docs/COMMANDS.md)
+

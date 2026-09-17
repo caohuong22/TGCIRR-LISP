@@ -18,4 +18,4 @@
 - VDNG : rai day nho giot (.NET)
 - TNET : tao net ve co chu (.NET)
 
-Luu y: ZWCAD khong co ribbon lap trinh tuong AutoCAD; cac lenh duoc go bang ten, gan phim tat, hoac qua menu keo xuong TGIRR_CAD.mnu (MENULOAD).
+Luu y: ZWCAD KHONG DUNG RIBBON (khong co API Ribbon lap trinh duoc nhu AutoCAD); thay vao do dung bang cong cu TGIRRPALETTE (dockable WPF PaletteSet) hoac menu keo xuong TGIRR_CAD.mnu (MENULOAD).

@@ -1,13 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ApplicationPackage SchemaVersion="1.0" AutodeskProduct="AutoCAD" Name="TGIRR CAD LISP" AppVersion="1.4.0" ProductCode="{65F66A23-9110-4C2A-BCC4-66A304D52C75}">
   <CompanyDetails Name="TGIRR" />
-  <Components Description="TGIRR AutoLISP and Ribbon">
-    <RuntimeRequirements OS="Win64" Platform="AutoCAD*" SeriesMin="R24.0" SeriesMax="R25.2" />
+
+  <!-- AutoLISP common across AutoCAD versions (2021 - 2027+) -->
+  <Components Description="TGIRR AutoLISP">
+    <RuntimeRequirements OS="Win64" Platform="AutoCAD" SeriesMin="R24.0" SeriesMax="R26.2" />
     <ComponentEntry AppName="TGIRR SBS" ModuleName="./Contents/Lisp/SBS.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR TL" ModuleName="./Contents/Lisp/TL.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR TGL" ModuleName="./Contents/Lisp/TGL.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR TGN" ModuleName="./Contents/Lisp/TGN.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR HBD" ModuleName="./Contents/Lisp/HBD.lsp" LoadOnAutoCADStartup="True" />
-    <ComponentEntry AppName="TGIRR Ribbon" ModuleName="./Contents/Windows/TGIRR.Ribbon.dll" AppDescription="TGIRR Ribbon UI" LoadOnAutoCADStartup="True" />
+  </Components>
+
+  <!-- AutoCAD 2025 - 2026 (.NET 8.0) -->
+  <Components Description="TGIRR Ribbon for AutoCAD 2025-2026">
+    <RuntimeRequirements OS="Win64" Platform="AutoCAD" SeriesMin="R25.0" SeriesMax="R25.2" />
+    <ComponentEntry AppName="TGIRR Ribbon 2026" AppType=".NET" ModuleName="./Contents/Windows/2026/TGIRR.Ribbon.dll" AppDescription="TGIRR Ribbon UI" LoadOnAutoCADStartup="True">
+      <Commands GroupName="TGIRR">
+        <Command Local="TGIRR_RIBBON" Global="TGIRR_RIBBON" />
+        <Command Local="TGIRRRIBBON" Global="TGIRRRIBBON" />
+        <Command Local="CPLUS" Global="CPLUS" />
+        <Command Local="TNET" Global="TNET" />
+        <Command Local="VDNG" Global="VDNG" />
+      </Commands>
+    </ComponentEntry>
+  </Components>
+
+  <!-- AutoCAD 2027+ (.NET 10.0) -->
+  <Components Description="TGIRR Ribbon for AutoCAD 2027">
+    <RuntimeRequirements OS="Win64" Platform="AutoCAD" SeriesMin="R26.0" SeriesMax="R26.2" />
+    <ComponentEntry AppName="TGIRR Ribbon 2027" AppType=".NET" ModuleName="./Contents/Windows/2027/TGIRR.Ribbon.dll" AppDescription="TGIRR Ribbon UI" LoadOnAutoCADStartup="True">
+      <Commands GroupName="TGIRR">
+        <Command Local="TGIRR_RIBBON" Global="TGIRR_RIBBON" />
+        <Command Local="TGIRRRIBBON" Global="TGIRRRIBBON" />
+        <Command Local="CPLUS" Global="CPLUS" />
+        <Command Local="TNET" Global="TNET" />
+        <Command Local="VDNG" Global="VDNG" />
+      </Commands>
+    </ComponentEntry>
   </Components>
 </ApplicationPackage>
