@@ -6,14 +6,27 @@ Dưới đây là toàn bộ lệnh **hiện đang hoạt động** trong tab Ri
 |---|---|---|---|
 | GIAO DIỆN | TGIRRPALETTE | Bật/tắt bảng công cụ Palette (ZWCAD & GstarCAD) | Có (`TGIRRPALETTE`) |
 | CHỌN | SBS | Chọn đối tượng giống mẫu nằm phần lớn trong Polyline kín | Có (`SBS`) |
+| CHỌN | SBSE | Chọn chính xác theo mẫu trong Polyline kín (bắt buộc trùng nội dung chữ TEXT/MTEXT, tên Block) | Có (`SBSE`) |
 | RANH GIỚI | HBD | Vẽ đường bao Polyline (Boundary) quanh Hatch cỏ, tự gán Layer `TG-BOUND` | Có (`HBD`, `BH`, `TGBOUND`) |
 | RANH GIỚI | JH | Gộp các Hatch phân mảnh giáp nhau thành 1 Hatch duy nhất + 1 Boundary chung | Có (`JH`, `MH`, `JOINHATCH`) |
 | ĐO | TL | Cộng tổng chiều dài các đường đã chọn trước | Có (`TL`) |
+| VĂN BẢN | DOITEXT | Chuyển MText sang Text tại chỗ hoặc gom nhiều MText thành 1 danh sách cột thẳng hàng | Có (`DOITEXT`, `M2T`) |
 | VĂN BẢN | CPLUS | Copy TEXT/MTEXT/Multileader/Attribute/Dimension Override theo số, chữ A–Z hoặc danh sách | Có (`CPLUS`) |
 | ĐÁNH SỐ | TGN | Đánh số đối tượng / vùng tưới bằng nhãn tròn/ellipse | Có (`TGN`) |
 | LAYER | TGL | Tạo bộ Layer tiêu chuẩn và đặt `TG-DRIP` làm layer hiện hành | Có (`TGL`) |
 | TƯỚI | VDNG | Vẽ dây nhỏ giọt bên trong Boundary kín (tự tạo layer `TG-DRIP`) | Có (`VDNG`) |
 | NÉT VẼ | TNET | Mở hộp thoại tạo/chỉnh sửa nét vẽ có chữ (file LIN) | Có (`TNET`) |
+
+## Chi tiết lệnh DOITEXT (Chuyển MText sang Text & Gom danh sách)
+
+- **Lệnh gọi**: `DOITEXT`, `M2T` hoặc `MTEXT2TEXT`.
+- **Mục đích**:
+  1. Chuyển đổi các đối tượng `MTEXT` thành `TEXT` thông thường, bóc tách và làm sạch toàn bộ các mã định dạng nội bộ AutoCAD (`\f...;`, `\C...;`, `\H...;`, `\W...;`, ngoặc `{...}`...), bảo toàn ký hiệu Unicode/Symbol (`\U+xxxx`, `%%c`, `%%d`, `%%p`).
+  2. Hỗ trợ 2 chế độ linh hoạt:
+     - **Gom danh sách (`List`)**: Quét chọn nhiều MText (hoặc cả Text), tự động sắp xếp theo thứ tự tọa độ từ trên xuống dưới (và từ trái sang phải), cho phép pick điểm chèn mới (hoặc bấm Enter để lấy điểm trên cùng làm gốc), nhập khoảng cách dòng (mặc định = 1.5 * chiều cao chữ). Tạo thành 1 cột danh sách các dòng Text thẳng hàng, đều đặn.
+     - **Tại chỗ (`In-place`)**: Tách từng MText thành các dòng TEXT tại đúng vị trí, góc quay, layer, style, màu sắc của MText gốc trên bản vẽ.
+  3. Tùy chọn xóa hoặc giữ đối tượng MText gốc.
+  4. Hỗ trợ `UNDO` 1 bước duy nhất.
 
 ## Chi tiết lệnh HBD (Vẽ đường bao cho Hatch cỏ)
 

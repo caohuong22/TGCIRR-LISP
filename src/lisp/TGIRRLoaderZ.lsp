@@ -100,6 +100,7 @@
       (TGIRR:ZW-LOAD-FILE "TGL.lsp")
       (TGIRR:ZW-LOAD-FILE "TGN.lsp")
       (TGIRR:ZW-LOAD-FILE "HBD.lsp")
+      (TGIRR:ZW-LOAD-FILE "DOITEXT.lsp")
       ;; Nap plugin .NET (CPLUS, VDNG, TNET, TGIRRPALETTE)
       (TGIRR:ZW-NETLOAD "TGIRR.Zwcad.dll")
       ;; Mo palette cong cu (neu lenh da duoc nap tu DLL)

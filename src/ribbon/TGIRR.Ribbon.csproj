@@ -1,11 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net8.0-windows;net10.0-windows</TargetFrameworks>
+    <TargetFrameworks>net48;net8.0-windows;net10.0-windows</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <RootNamespace>Tgirrr.CadLisp</RootNamespace>
     <AssemblyName>TGIRR.Ribbon</AssemblyName>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <!-- Configuration for AutoCAD 2021-2024 (.NET Framework 4.8) -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
+    <AutoCADDir Condition="'$(AutoCADDir)' == '' and Exists('C:\Program Files\Autodesk\AutoCAD 2024\')">C:\Program Files\Autodesk\AutoCAD 2024\</AutoCADDir>
+    <AutoCADDir Condition="'$(AutoCADDir)' == '' and Exists('C:\Program Files\Autodesk\AutoCAD 2023\')">C:\Program Files\Autodesk\AutoCAD 2023\</AutoCADDir>
+    <AutoCADDir Condition="'$(AutoCADDir)' == ''">$(MSBuildThisFileDirectory)..\..\Reference\Cad2023\net48\</AutoCADDir>
   </PropertyGroup>
 
   <!-- Configuration for AutoCAD 2027 (.NET 10) -->

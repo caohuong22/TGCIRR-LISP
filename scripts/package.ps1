@@ -33,28 +33,33 @@ if ($targetNorm -in 'all', 'autocad') {
     if ($LASTEXITCODE -ne 0) { throw "AutoCAD Ribbon build that bai voi ma loi $LASTEXITCODE" }
 
     $windowsTarget = Join-Path $root 'bundle\TGIRR_CAD_LISP.bundle\Contents\Windows'
+    $win2024Target = Join-Path $windowsTarget '2024'
     $win2026Target = Join-Path $windowsTarget '2026'
     $win2027Target = Join-Path $windowsTarget '2027'
+    if (-not (Test-Path $win2024Target)) { New-Item -ItemType Directory -Path $win2024Target -Force | Out-Null }
     if (-not (Test-Path $win2026Target)) { New-Item -ItemType Directory -Path $win2026Target -Force | Out-Null }
     if (-not (Test-Path $win2027Target)) { New-Item -ItemType Directory -Path $win2027Target -Force | Out-Null }
 
-    $dllNet8 = Join-Path $root 'src\ribbon\bin\Release\net8.0-windows\TGIRR.Ribbon.dll'
+    $dllNet48 = Join-Path $root 'src\ribbon\bin\Release\net48\TGIRR.Ribbon.dll'
+    $dllNet8  = Join-Path $root 'src\ribbon\bin\Release\net8.0-windows\TGIRR.Ribbon.dll'
     $dllNet10 = Join-Path $root 'src\ribbon\bin\Release\net10.0-windows\TGIRR.Ribbon.dll'
 
+    if (Test-Path $dllNet48) {
+        Copy-Item $dllNet48 (Join-Path $win2024Target 'TGIRR.Ribbon.dll') -Force
+        # Cung cấp bản .NET 4.8 làm fallback tại thư mục gốc Windows\
+        Copy-Item $dllNet48 (Join-Path $windowsTarget 'TGIRR.Ribbon.dll') -Force
+    }
     if (Test-Path $dllNet8) {
         Copy-Item $dllNet8 (Join-Path $win2026Target 'TGIRR.Ribbon.dll') -Force
     }
     if (Test-Path $dllNet10) {
         Copy-Item $dllNet10 (Join-Path $win2027Target 'TGIRR.Ribbon.dll') -Force
-        Copy-Item $dllNet10 (Join-Path $windowsTarget 'TGIRR.Ribbon.dll') -Force
-    } elseif (Test-Path $dllNet8) {
-        Copy-Item $dllNet8 (Join-Path $windowsTarget 'TGIRR.Ribbon.dll') -Force
     }
 
     $lispSource = Join-Path $root 'src\lisp'
     $lispTarget = Join-Path $root 'bundle\TGIRR_CAD_LISP.bundle\Contents\Lisp'
     if (-not (Test-Path $lispTarget)) { New-Item -ItemType Directory -Path $lispTarget -Force | Out-Null }
-    $allowed = @('SBS.lsp','TL.lsp','TGL.lsp','TGN.lsp','TGN.dcl','HBD.lsp','TGIRRLoader.lsp')
+    $allowed = @('SBS.lsp','TL.lsp','TGL.lsp','TGN.lsp','TGN.dcl','HBD.lsp','DOITEXT.lsp','TGIRRLoader.lsp')
     Get-ChildItem $lispTarget -File -ErrorAction SilentlyContinue | Where-Object { $_.Extension -in '.lsp','.dcl' } | Remove-Item -Force
     foreach ($file in $allowed) {
         Copy-Item (Join-Path $lispSource $file) $lispTarget -Force
@@ -62,6 +67,9 @@ if ($targetNorm -in 'all', 'autocad') {
 
     Write-Host "  -> AutoCAD Bundle san sang: bundle\TGIRR_CAD_LISP.bundle" -ForegroundColor Green
     $successList += 'AutoCAD (Ribbon)'
+
+    # Tu dong dong bo sang thu muc ApplicationPlugins neu co
+    & (Join-Path $PSScriptRoot 'sync-bundle.ps1')
 }
 
 # -------------------------------------------------------------

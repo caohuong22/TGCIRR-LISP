@@ -75,7 +75,11 @@ namespace Tgirrr.CadLisp {
     MakeActionButton("SBS", "Chọn theo mẫu",
      "SBS — Chọn đối tượng giống mẫu trong vùng",
      "Chọn các đối tượng nằm trong Polyline kín có cùng layer, màu sắc, kiểu nét hoặc tên Block với mẫu.",
-     "Lệnh: SBS", CyanAccent, false, true)
+     "Lệnh: SBS", CyanAccent, false, false),
+    MakeActionButton("SBSE", "Chọn chính xác",
+     "SBSE — Chọn chính xác theo mẫu (trùng chữ)",
+     "Chọn các đối tượng trong vùng Polyline kín có cùng layer, màu, kiểu nét và BẮT BUỘC trùng nội dung chữ với TEXT/MTEXT.",
+     "Lệnh: SBSE", CyanAccent, false, false)
    ));
 
    // Nhom 2: Thiet ke & He thong (VDNG, TNET, TGL)
@@ -111,7 +115,11 @@ namespace Tgirrr.CadLisp {
     MakeActionButton("CPLUS", "Copy theo quy luật",
      "CPLUS — Copy văn bản theo quy luật",
      "Sao chép Text, MText, Multileader, Block Attribute hoặc Dimension tăng dần theo số, chữ hoặc danh sách.",
-     "Cửa sổ / Lệnh: CPLUS", AmberAccent, false, true)
+     "Cửa sổ / Lệnh: CPLUS", AmberAccent, false, true),
+    MakeActionButton("DOITEXT", "Đổi MText → Text",
+     "DOITEXT — Đổi MText sang Text & Gom list",
+     "Chuyển đổi MText sang Text tại chỗ hoặc gom nhiều MText thành 1 danh sách cột thẳng hàng đều đặn.",
+     "Lệnh: DOITEXT (hoặc M2T)", AmberAccent, false, false)
    ));
 
    // Footer
@@ -188,7 +196,7 @@ namespace Tgirrr.CadLisp {
    return dock;
   }
 
-  static FrameworkElement MakeGroup(string title, Color accent, Button b1, Button b2, Button bWide) {
+  static FrameworkElement MakeGroup(string title, Color accent, params Button[] buttons) {
    var card = new Border {
     Background = new SolidColorBrush(CardBg),
     BorderBrush = new SolidColorBrush(CardBorder),
@@ -218,23 +226,29 @@ namespace Tgirrr.CadLisp {
    });
    panel.Children.Add(titleRow);
 
-   // Hang 1: Luoi 2 cot cho 2 nut
-   var grid = new Grid { Margin = new Thickness(0, 0, 0, 3) };
-   grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-   grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+   for (int i = 0; i < buttons.Length; i += 2) {
+    if (i + 1 < buttons.Length) {
+     var grid = new Grid { Margin = new Thickness(0, 0, 0, 3) };
+     grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+     grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-   b1.Margin = new Thickness(0, 0, 2, 0);
-   grid.Children.Add(b1);
-   Grid.SetColumn(b1, 0);
+     var b1 = buttons[i];
+     var b2 = buttons[i + 1];
+     b1.Margin = new Thickness(0, 0, 2, 0);
+     grid.Children.Add(b1);
+     Grid.SetColumn(b1, 0);
 
-   b2.Margin = new Thickness(2, 0, 0, 0);
-   grid.Children.Add(b2);
-   Grid.SetColumn(b2, 1);
+     b2.Margin = new Thickness(2, 0, 0, 0);
+     grid.Children.Add(b2);
+     Grid.SetColumn(b2, 1);
 
-   panel.Children.Add(grid);
-
-   // Hang 2: Nut rong
-   panel.Children.Add(bWide);
+     panel.Children.Add(grid);
+    } else {
+     var b = buttons[i];
+     b.Margin = new Thickness(0, 0, 0, 3);
+     panel.Children.Add(b);
+    }
+   }
 
    card.Child = panel;
    return card;

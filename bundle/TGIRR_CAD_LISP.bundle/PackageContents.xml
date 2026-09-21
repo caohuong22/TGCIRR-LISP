@@ -10,6 +10,24 @@
     <ComponentEntry AppName="TGIRR TGL" ModuleName="./Contents/Lisp/TGL.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR TGN" ModuleName="./Contents/Lisp/TGN.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR HBD" ModuleName="./Contents/Lisp/HBD.lsp" LoadOnAutoCADStartup="True" />
+    <ComponentEntry AppName="TGIRR DOITEXT" ModuleName="./Contents/Lisp/DOITEXT.lsp" LoadOnAutoCADStartup="True" />
+  </Components>
+
+  <!-- AutoCAD 2021 - 2024 (.NET Framework 4.8) -->
+  <Components Description="TGIRR Ribbon for AutoCAD 2021-2024">
+    <RuntimeRequirements OS="Win64" Platform="AutoCAD*" SeriesMin="R24.0" SeriesMax="R24.3" />
+    <ComponentEntry AppName="TGIRR Ribbon 2024" AppType=".NET" ModuleName="./Contents/Windows/2024/TGIRR.Ribbon.dll" AppDescription="TGIRR Ribbon UI" LoadOnAutoCADStartup="True">
+      <Commands GroupName="TGIRR">
+        <Command Local="TGIRR_RIBBON" Global="TGIRR_RIBBON" />
+        <Command Local="TGIRRRIBBON" Global="TGIRRRIBBON" />
+        <Command Local="SBSE" Global="SBSE" />
+        <Command Local="DOITEXT" Global="DOITEXT" />
+        <Command Local="M2T" Global="M2T" />
+        <Command Local="CPLUS" Global="CPLUS" />
+        <Command Local="TNET" Global="TNET" />
+        <Command Local="VDNG" Global="VDNG" />
+      </Commands>
+    </ComponentEntry>
   </Components>
 
   <!-- AutoCAD 2025 - 2026 (.NET 8.0) -->
@@ -19,6 +37,9 @@
       <Commands GroupName="TGIRR">
         <Command Local="TGIRR_RIBBON" Global="TGIRR_RIBBON" />
         <Command Local="TGIRRRIBBON" Global="TGIRRRIBBON" />
+        <Command Local="SBSE" Global="SBSE" />
+        <Command Local="DOITEXT" Global="DOITEXT" />
+        <Command Local="M2T" Global="M2T" />
         <Command Local="CPLUS" Global="CPLUS" />
         <Command Local="TNET" Global="TNET" />
         <Command Local="VDNG" Global="VDNG" />
@@ -33,6 +54,9 @@
       <Commands GroupName="TGIRR">
         <Command Local="TGIRR_RIBBON" Global="TGIRR_RIBBON" />
         <Command Local="TGIRRRIBBON" Global="TGIRRRIBBON" />
+        <Command Local="SBSE" Global="SBSE" />
+        <Command Local="DOITEXT" Global="DOITEXT" />
+        <Command Local="M2T" Global="M2T" />
         <Command Local="CPLUS" Global="CPLUS" />
         <Command Local="TNET" Global="TNET" />
         <Command Local="VDNG" Global="VDNG" />
