@@ -73,7 +73,6 @@
   ;; Lap qua tung Layer trong danh sach
   (foreach item lstLayer
     (TGL:ensure item))
-  )
 
   ;; Dat TG-DRIP lam Layer hien hanh
   (command "_.-LAYER" "_Set" "TG-DRIP" "")
