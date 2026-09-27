@@ -215,7 +215,7 @@
     (if oldOsm (setvar "OSMODE" oldOsm))
     (if oldDim (setvar "DIMZIN" oldDim))
     (if (and msg (not (wcmatch (strcase msg t) "*cancel*,*exit*,*huy*")))
-      (prompt (strcat "\n[DOITEXT] Thong bao: " msg)))
+      (prompt (strcat "\n[DOITEXT] Thông báo: " msg)))
     (princ)
   )
 
@@ -229,14 +229,14 @@
   (vla-StartUndoMark doc)
 
   (prompt "\n===========================================================")
-  (prompt "\n[TGIRR] DOITEXT - CHUYEN DOI MTEXT SANG TEXT & GOM DANH SACH")
+  (prompt "\n[TGIRR] DOITEXT - CHUYỂN ĐỔI MTEXT SANG TEXT & GOM DANH SÁCH")
   (prompt "\n===========================================================")
 
   ;; Chon doi tuong MText / Text
   (setq ss (ssget "_:L" '((0 . "MTEXT,TEXT"))))
   (if (not ss)
     (progn
-      (prompt "\n[DOITEXT] Khong co doi tuong MTEXT hoac TEXT nao duoc chon.")
+      (prompt "\n[DOITEXT] Không có đối tượng MTEXT hoặc TEXT nào được chọn.")
       (vla-EndUndoMark doc)
       (setvar "CMDECHO" oldCmd)
       (setvar "OSMODE" oldOsm)
@@ -260,7 +260,7 @@
 
   (if (null itemList)
     (progn
-      (prompt "\n[DOITEXT] Khong tim thay noi dung chu hop le trong tap chon.")
+      (prompt "\n[DOITEXT] Không tìm thấy nội dung chữ hợp lệ trong tập chọn.")
       (vla-EndUndoMark doc)
       (setvar "CMDECHO" oldCmd)
       (setvar "OSMODE" oldOsm)
@@ -272,14 +272,14 @@
 
   ;; 1. Hoi che do chuyen doi: Gom danh sach (List) hay Tai cho (In-place)
   (initget "List In-place L I")
-  (setq mode (getkword "\nChon che do chuyen doi [Gom danh sach (List) / Tai cho (In-place)] <List>: "))
+  (setq mode (getkword "\nChọn chế độ chuyển đổi [Gom danh sách (List) / Tại chỗ (In-place)] <List>: "))
   (if (or (null mode) (= mode "L") (= mode "List"))
     (setq mode "List")
     (setq mode "In-place"))
 
   ;; 2. Hoi tuy chon xoa MText goc
   (initget "Co Khong Yes No C K Y N")
-  (setq delOpt (getkword "\nXoa doi tuong goc sau khi chuyen doi? [Co / Khong] <Co>: "))
+  (setq delOpt (getkword "\nXóa đối tượng gốc sau khi chuyển đổi? [Có / Không] <Có>: "))
   (if (or (null delOpt) (= (strcase delOpt) "CO") (= (strcase delOpt) "C") (= (strcase delOpt) "YES") (= (strcase delOpt) "Y"))
     (setq delOpt "Co")
     (setq delOpt "Khong"))
@@ -315,14 +315,14 @@
 
       ;; Diem chen mac dinh: diem chen cua doi tuong tren cung ben trai
       (setq ptDef (nth 2 (car sortedList)))
-      (setq ptPick (getpoint ptDef "\nChon diem chen danh sach TEXT <Diem goc tren cung>: "))
+      (setq ptPick (getpoint ptDef "\nChọn điểm chèn danh sách TEXT <Điểm gốc trên cùng>: "))
       (if ptPick
         (setq ptStart ptPick)
         (setq ptStart ptDef))
 
       ;; Khoang cach dong mac dinh = 1.5 * chieu cao chu
       (setq spDef (* 1.5 hDef))
-      (setq spInput (getdist ptStart (strcat "\nNhap khoang cach dong <" (rtos spDef 2 2) ">: ")))
+      (setq spInput (getdist ptStart (strcat "\nNhập khoảng cách dòng <" (rtos spDef 2 2) ">: ")))
       (if (and spInput (> spInput 0.0))
         (setq spacing spInput)
         (setq spacing spDef))
@@ -355,9 +355,9 @@
           (entdel (nth 0 item))))
 
       (prompt
-        (strcat "\n[DOITEXT] Hoan tat! Da gom "
-                (itoa (length sortedList)) " doi tuong thanh "
-                (itoa countLines) " dong TEXT danh sach thanh cong."))
+        (strcat "\n[DOITEXT] Hoàn tất! Đã gom "
+                (itoa (length sortedList)) " đối tượng thành "
+                (itoa countLines) " dòng TEXT danh sách thành công."))
     )
 
     ;; =======================================================================
@@ -398,9 +398,9 @@
       )
 
       (prompt
-        (strcat "\n[DOITEXT] Hoan tat! Da chuyen doi "
-                (itoa countEnt) " MText tai cho thanh "
-                (itoa countLines) " doi tuong TEXT."))
+        (strcat "\n[DOITEXT] Hoàn tất! Đã chuyển đổi "
+                (itoa countEnt) " MText tại chỗ thành "
+                (itoa countLines) " đối tượng TEXT."))
     )
   )
 
@@ -416,5 +416,5 @@
 (defun c:M2T () (c:DOITEXT))
 (defun c:MTEXT2TEXT () (c:DOITEXT))
 
-(prompt "\nTGIRR CAD LISP: Da nap lenh DOITEXT (lenh tat: M2T, MTEXT2TEXT).")
+(prompt "\nTGIRR CAD LISP: Đã nạp lệnh DOITEXT (lệnh tắt: M2T, MTEXT2TEXT).")
 (princ)

@@ -22,8 +22,8 @@ namespace Tgirrr.CadLisp
         readonly TextBox syntax = new TextBox();
         readonly CheckBox assign = Check("Chuyển đối tượng dùng nét cũ sang nét mới");
         readonly CheckBox selectedOnly = Check("Chỉ chuyển các đối tượng đang chọn");
-        readonly RadioButton version = Radio("Tạo nét mới / phiên bản mới (_V2)", true);
-        readonly RadioButton overwrite = Radio("Cập nhật định nghĩa gốc trong file", false);
+        readonly RadioButton version = Radio("TẠO MỚI / TẠO PHIÊN BẢN _V2", true);
+        readonly RadioButton overwrite = Radio("SỬA NÉT ĐANG CÓ (ghi lại file LIN)", false);
         readonly Canvas preview = new Canvas
         {
             Height = 205,
@@ -36,6 +36,10 @@ namespace Tgirrr.CadLisp
             TextWrapping = TextWrapping.Wrap,
             Margin = new Thickness(0, 4, 0, 4)
         };
+        readonly CheckBox autoBalance = Check("Tự căn chữ cân giữa hai đoạn gạch (khoảng sau = khoảng trước + chiều dài chữ)");
+
+        /// <summary>Chiều dài vùng chữ đo trong CAD (đơn vị bản vẽ); null nếu chưa đo được.</summary>
+        double? measuredTextWidth;
 
         string path = LinetypeService.DefaultPath;
         string originalName = "";
@@ -74,7 +78,7 @@ namespace Tgirrr.CadLisp
             });
             page.Children.Add(new TextBlock
             {
-                Text = "Nhập thông tin theo thứ tự bên dưới — phần xem trước sẽ cập nhật ngay.",
+                Text = "Tạo nét mới, chọn nét có sẵn hoặc sửa nét đang dùng trong bản vẽ. Xem trước cập nhật ngay.",
                 Foreground = MutedBrush,
                 Margin = new Thickness(0, 3, 0, 14)
             });
@@ -104,6 +108,7 @@ namespace Tgirrr.CadLisp
             AddField(geometry, "Khoảng trống trước chữ", before, null);
             AddField(geometry, "Chữ hiển thị trên nét", content, "VD: CẤP NƯỚC");
             geometry.Children.Add(spacingNote);
+            geometry.Children.Add(autoBalance);
             geometry.Children.Add(Button("Áp dụng khoảng cách đẹp", ApplySpacing, false));
 
             var detailGrid = new Grid { Margin = new Thickness(0, 8, 0, 0) };
@@ -140,14 +145,14 @@ namespace Tgirrr.CadLisp
             output.Children.Add(modes);
 
             var fileActions = new WrapPanel { Margin = new Thickness(0, 9, 0, 0) };
-            fileActions.Children.Add(Button("Chọn nét từ file", LoadFile, false));
-            fileActions.Children.Add(Button("Chọn nét từ bản vẽ", LoadDrawing, false));
-            fileActions.Children.Add(Button("Chọn file LIN", Choose, false));
+            fileActions.Children.Add(Button("1. CHỌN NÉT TỪ FILE LIN", LoadFile, false));
+            fileActions.Children.Add(Button("2. CHỌN NÉT ĐANG DÙNG TRONG CAD", LoadDrawing, false));
+            fileActions.Children.Add(Button("ĐỔI FILE LIN LƯU", Choose, false));
             fileActions.Children.Add(Button("Sao chép cú pháp", Copy, false));
             output.Children.Add(fileActions);
 
             var mainActions = new WrapPanel { Margin = new Thickness(0, 6, 0, 0) };
-            mainActions.Children.Add(Button("TẠO NÉT MỚI VÀ NẠP VÀO CAD", Create, true));
+            mainActions.Children.Add(Button("LƯU / NẠP NÉT VÀO CAD", Create, true));
             mainActions.Children.Add(Button("Đóng", (s, e) => Close(), false));
             output.Children.Add(mainActions);
 
@@ -296,9 +301,29 @@ namespace Tgirrr.CadLisp
                 var gapAfter = Math.Abs(N(after, "Khoảng sau"));
                 var textScale = Math.Abs(N(scale, "Tỷ lệ chữ"));
                 var yOffset = N(y, "Độ lệch Y");
-                var suggested = dashLength + 2 * gapBefore;
-                spacingNote.Text = "Gợi ý khoảng sau: " + dashLength.ToString("0.###") + " + 2 × " +
-                    gapBefore.ToString("0.###") + " = " + suggested.ToString("0.###");
+                var displayTextForMeasure = content.Text ?? "";
+                measuredTextWidth = MeasureTextInCad(displayTextForMeasure, style.Text.Trim(), textScale);
+                if (autoBalance.IsChecked == true && !string.IsNullOrWhiteSpace(displayTextForMeasure) && measuredTextWidth.HasValue)
+                {
+                    // Trong file LIN phần tử chữ KHÔNG chiếm chiều dài chu kỳ: khoảng trống
+                    // dành cho chữ chính là "khoảng trống sau chữ". Chữ cân giữa hai đoạn
+                    // gạch khi: khoảng sau = khoảng trước + chiều dài vùng chữ.
+                    var bal = (gapBefore + measuredTextWidth.Value).ToString("0.###", CultureInfo.InvariantCulture);
+                    if (after.Text.Replace(',', '.') != bal) after.Text = bal;
+                }
+                var suggested = dashLength + 2 * gapBefore + (measuredTextWidth ?? 0.0);
+                spacingNote.Text = measuredTextWidth.HasValue
+                    ? "Vùng chữ đo trong CAD dài " + measuredTextWidth.Value.ToString("0.###") +
+                      " • Chữ cân giữa hai đoạn gạch khi khoảng sau = khoảng trước + chiều dài chữ (chu kỳ: " +
+                      suggested.ToString("0.###") + ")."
+                    : (string.IsNullOrWhiteSpace(displayTextForMeasure)
+                        ? "Gợi ý khoảng sau: " + dashLength.ToString("0.###") + " + 2 × " + gapBefore.ToString("0.###") + " = " + (dashLength + 2 * gapBefore).ToString("0.###")
+                        : "Không đo được vùng chữ trong CAD — kiểm tra Text Style '" + style.Text.Trim() + "' và tỷ lệ chữ.");
+                if (measuredTextWidth.HasValue && !string.IsNullOrWhiteSpace(displayTextForMeasure)
+                    && gapAfter + 1e-9 < gapBefore + measuredTextWidth.Value)
+                    spacingNote.Text += " • CẢNH BÁO: khoảng sau (" + gapAfter.ToString("0.###") +
+                        ") nhỏ hơn khoảng trước + chiều dài chữ (" + (gapBefore + measuredTextWidth.Value).ToString("0.###") +
+                        ") → đoạn gạch kế tiếp sẽ đè lên chữ.";
 
                 syntax.Text = string.IsNullOrWhiteSpace(name.Text)
                     ? "Nhập Tên nét để xem cú pháp LIN hoàn chỉnh."
@@ -314,17 +339,20 @@ namespace Tgirrr.CadLisp
 
                 // Đo chữ ở đơn vị tương đối trước, sau đó cùng quy đổi mọi thành phần
                 // để ba chu kỳ LIN vừa khung xem trước và vẫn giữ đúng tỷ lệ với nhau.
-                var measureSize = Math.Max(textScale, 0.1);
-                var measured = new FormattedText(displayText, CultureInfo.CurrentUICulture,
-                    FlowDirection.LeftToRight, new Typeface("Segoe UI"), measureSize, Brushes.White, 1.0);
-                var textUnits = string.IsNullOrWhiteSpace(displayText) ? 0.0 : measured.WidthIncludingTrailingWhitespace;
-                var cycleUnits = dashLength + gapBefore + textUnits + gapAfter;
+                // Mô phỏng đúng ngữ nghĩa file LIN: phần tử chữ KHÔNG chiếm chiều dài
+                // chu kỳ; khoảng trống chữ nằm trong "khoảng trống sau chữ".
+                var cycleUnits = dashLength + gapBefore + gapAfter;
                 if (cycleUnits <= 0.000001)
                     throw new InvalidOperationException("Tổng chiều dài một chu kỳ nét phải lớn hơn 0.");
 
                 const int visibleCycles = 3;
                 var pixelsPerUnit = (right - left) / (cycleUnits * visibleCycles);
-                var fontPixels = Math.Max(8.0, textScale * pixelsPerUnit);
+                var fmt1 = new FormattedText(displayText, CultureInfo.CurrentUICulture,
+                    FlowDirection.LeftToRight, new Typeface("Segoe UI"), 1.0, Brushes.White, 1.0);
+                var widthPerFontUnit = string.IsNullOrWhiteSpace(displayText) ? 0.0 : fmt1.WidthIncludingTrailingWhitespace;
+                var desiredUnits = measuredTextWidth ?? (textScale * widthPerFontUnit);
+                var fontPixels = widthPerFontUnit > 1e-9 ? desiredUnits * pixelsPerUnit / widthPerFontUnit : 8.0;
+                if (fontPixels < 4) fontPixels = 4;
                 var textPreview = new FormattedText(displayText, CultureInfo.CurrentUICulture,
                     FlowDirection.LeftToRight, new Typeface("Segoe UI"), fontPixels, Brushes.White, 1.0);
                 var textWidth = string.IsNullOrWhiteSpace(displayText)
@@ -349,25 +377,24 @@ namespace Tgirrr.CadLisp
                         });
                     }
 
-                    x = dashEnd + gapBefore * pixelsPerUnit;
-                    if (!string.IsNullOrWhiteSpace(displayText) && x < right)
+                    var textX = dashEnd + gapBefore * pixelsPerUnit;
+                    if (!string.IsNullOrWhiteSpace(displayText) && textX < right)
                     {
                         var textBlock = new TextBlock
                         {
                             Text = displayText,
                             Foreground = Brushes.White,
-                            Background = preview.Background,
                             FontFamily = new FontFamily("Segoe UI"),
                             FontSize = fontPixels,
                             LineHeight = fontPixels,
                             Padding = new Thickness(0)
                         };
-                        Canvas.SetLeft(textBlock, x);
+                        Canvas.SetLeft(textBlock, textX);
                         Canvas.SetTop(textBlock, baselineY);
                         preview.Children.Add(textBlock);
-                        x += textWidth;
                     }
-                    x += gapAfter * pixelsPerUnit;
+                    // Chữ KHÔNG chiếm chiều dài chu kỳ: chu kỳ kế bắt đầu sau gapAfter.
+                    x = dashEnd + (gapBefore + gapAfter) * pixelsPerUnit;
                 }
 
                 var dimensions = new TextBlock
@@ -395,12 +422,57 @@ namespace Tgirrr.CadLisp
         {
             try
             {
-                after.Text = (N(dash, "Đoạn gạch") + 2 * N(before, "Khoảng trước"))
-                    .ToString("0.###", CultureInfo.InvariantCulture);
+                var text = content.Text ?? "";
+                var textScale = Math.Abs(N(scale, "Tỷ lệ chữ"));
+                var width = MeasureTextInCad(text, style.Text.Trim(), textScale);
+                if (!string.IsNullOrWhiteSpace(text) && !width.HasValue)
+                {
+                    MessageBox.Show("Không đo được vùng chữ trong CAD. Kiểm tra Text Style và tỷ lệ chữ.", "Không thể căn khoảng cách");
+                    return;
+                }
+                // Trong file LIN chữ không chiếm chiều dài chu kỳ: khoảng trống cho chữ
+                // nằm trong "khoảng trống sau chữ". Chữ cân giữa hai đoạn gạch khi:
+                // khoảng sau = khoảng trước + chiều dài vùng chữ.
+                var gap = N(before, "Khoảng trước");
+                var newAfter = gap + (width ?? 0.0);
+                after.Text = newAfter.ToString("0.###", CultureInfo.InvariantCulture);
+                if (width.HasValue)
+                    spacingNote.Text = "Đã căn: vùng chữ dài " + width.Value.ToString("0.###") +
+                        ", khoảng sau = " + gap.ToString("0.###") + " + " + width.Value.ToString("0.###") +
+                        " = " + newAfter.ToString("0.###") + " → chữ cân giữa hai đoạn gạch, gạch không đè chữ.";
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Không thể tính khoảng cách");
+            }
+        }
+
+        /// <summary>Đo chiều rộng vùng chữ theo đúng Text Style + tỷ lệ chữ trong bản vẽ.
+        /// Dùng DBText tạm trong transaction bị hủy nên không để lại đối tượng và không vào undo.</summary>
+        static double? MeasureTextInCad(string text, string styleName, double scale)
+        {
+            if (string.IsNullOrWhiteSpace(text) || scale <= 0) return null;
+            try
+            {
+                var doc = Gssoft.Gscad.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument;
+                if (doc == null) return null;
+                using (doc.LockDocument())
+                using (var tr = doc.TransactionManager.StartTransaction())
+                {
+                    var db = doc.Database;
+                    var table = (Gssoft.Gscad.DatabaseServices.TextStyleTable)tr.GetObject(db.TextStyleTableId, Gssoft.Gscad.DatabaseServices.OpenMode.ForRead);
+                    var styleId = table.Has(styleName) ? table[styleName] : db.Textstyle;
+                    var temp = new Gssoft.Gscad.DatabaseServices.DBText { TextString = text, Height = scale, TextStyleId = styleId };
+                    var ext = temp.GeometricExtents;
+                    var width = ext.MaxPoint.X - ext.MinPoint.X;
+                    temp.Dispose();
+                    // Không commit: DBText tạm biến mất, undo không bị bẩn.
+                    return width;
+                }
+            }
+            catch
+            {
+                return null;
             }
         }
 
@@ -445,13 +517,17 @@ namespace Tgirrr.CadLisp
                     LinetypeService.Save(path, final, Def());
                 }
 
+                // Khi sửa nét đang có, luôn chuyển đối tượng cũ sang phiên bản mới.
+                // AutoCAD/ZWCAD không cho thay nóng record cùng tên; nếu không chuyển
+                // đối tượng thì người dùng vẫn nhìn thấy nét cũ và tưởng thao tác thất bại.
+                var shouldAssign = overwriteMode || assign.IsChecked == true;
                 var moved = LinetypeService.LoadAndReplace(
-                    path, final, old, assign.IsChecked == true, selectedOnly.IsChecked == true);
+                    path, final, old, shouldAssign, selectedOnly.IsChecked == true);
                 MessageBox.Show(
                     "Đã nạp nét mới '" + final + "'.\n" +
                     "Định nghĩa gốc trong file: '" + old + "'.\n" +
                     "Đã chuyển " + moved + " đối tượng.\n\n" +
-                    "Lưu ý: AutoCAD không hỗ trợ thay nóng record cùng tên; bản vẽ hiện tại dùng '" + final + "'.",
+                    "Bản vẽ hiện tại dùng phiên bản '" + final + "' để bảo đảm nét đã sửa hiển thị đúng.",
                     "TGIRR", MessageBoxButton.OK, MessageBoxImage.Information);
                 originalName = final;
             }
@@ -480,6 +556,10 @@ namespace Tgirrr.CadLisp
             y.Text = definition.Y.ToString(CultureInfo.InvariantCulture);
             scale.Text = definition.Scale.ToString(CultureInfo.InvariantCulture);
             after.Text = definition.After.ToString(CultureInfo.InvariantCulture);
+            // Nét nạp vào có khoảng sau quá nhỏ sẽ khiến gạch đè lên chữ: tự căn lại.
+            var w = MeasureTextInCad(definition.Text ?? "", definition.Style ?? "Standard", Math.Abs(definition.Scale));
+            if (w.HasValue && definition.After + 1e-9 < definition.Before + w.Value)
+                after.Text = (definition.Before + w.Value).ToString("0.###", CultureInfo.InvariantCulture);
             RefreshView();
         }
 

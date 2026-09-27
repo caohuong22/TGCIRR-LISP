@@ -70,6 +70,9 @@ namespace Tgirrr.CadLisp {
     var jhTip=new RibbonToolTip{Title="JH — Gộp các Hatch thành 1",Content="Hợp nhất các Hatch phân mảnh giáp nhau thành 1 Hatch duy nhất và 1 đường bao chung trên Layer TG-BOUND.",ExpandedContent="Cách dùng:\n1. Chọn 2 hoặc nhiều Hatch phân mảnh giáp nhau.\n2. Bấm nút JH.\n3. Lệnh tự động triệt tiêu vách ngăn ở giữa, tạo 1 Hatch mới và 1 đường bao chung.",Command="Lệnh: JH (MH, JOINHATCH)"};
     var jhButton=new RibbonButton{Text="JH",ShowText=false,Size=RibbonItemSize.Large,Orientation=System.Windows.Controls.Orientation.Vertical,CommandHandler=new LispHandler("JH",true),Image=JoinHatchIcon(),LargeImage=JoinHatchIcon(),ToolTip=jhTip};
     boundSource.Items.Add(jhButton);
+    var cvplTip=new RibbonToolTip{Title="CVPL — Convert sang Polyline",Content="Chuyển LINE, ARC, CIRCLE, ELLIPSE, SPLINE, POLYLINE kiểu cũ và REGION thành LWPOLYLINE; giữ Layer/màu/nét; hỗ trợ UNDO 1 bước.",ExpandedContent="Cách dùng:\n1. Bấm nút CVPL.\n2. Quét chọn các đối tượng cần chuyển.\n3. ARC/CIRCLE chuyển chính xác bằng bulge; SPLINE/ELLIPSE rời rạc 128 điểm mẫu.\nGõ CVPLG (CV2PL) nếu muốn giữ nguyên đối tượng nguồn.",Command="Lệnh: CVPL (CVP) / CVPLG (CV2PL)"};
+    var cvplButton=new RibbonButton{Text="CVPL",ShowText=false,Size=RibbonItemSize.Large,Orientation=System.Windows.Controls.Orientation.Vertical,CommandHandler=new LispHandler("CVPL",true),Image=BoundaryIcon(),LargeImage=BoundaryIcon(),ToolTip=cvplTip};
+    boundSource.Items.Add(cvplButton);
     tab.Panels.Add(boundPanel);
     var measureSource=new RibbonPanelSource{Title="ĐO"};
     var measurePanel=new RibbonPanel{Source=measureSource};

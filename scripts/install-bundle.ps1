@@ -148,23 +148,36 @@ elseif ($Platform -eq 'GstarCAD') {
         throw "Khong tim thay bundle GstarCAD: $sourceBundle"
     }
 
-    # Tim thu muc Support cua GstarCAD
-    $gscadSupport = Get-ChildItem "$env:APPDATA\Gstarsoft\GstarCAD" -Directory -ErrorAction SilentlyContinue |
-        ForEach-Object { Join-Path $_.FullName "en-US\Support" } |
-        Where-Object { Test-Path $_ } |
-        Select-Object -First 1
+    # Tim thu muc Support cua GstarCAD (ho tro ca en-WW, en-US tren moi phien ban R27, R26...)
+    $gscadSupportCandidates = Get-ChildItem "$env:APPDATA\Gstarsoft\GstarCAD" -Recurse -Directory -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -eq 'Support' } |
+        Select-Object -ExpandProperty FullName
+
+    $gscadSupport = $gscadSupportCandidates | Select-Object -First 1
+
+    # Dinh vi thu muc D:\LispCAD\TGIRR_CAD_GSTARCAD.bundle neu nguoi dung da cau hinh
+    $userBundle = 'D:\LispCAD\TGIRR_CAD_GSTARCAD.bundle'
+    if (Test-Path $userBundle) {
+        Write-Host "  -> Tim thay thu muc bundle nguoi dung: $userBundle" -ForegroundColor DarkCyan
+        Copy-Item -Path (Join-Path $sourceBundle 'Contents') -Destination $userBundle -Recurse -Force
+        [Environment]::SetEnvironmentVariable('TGIRR_CAD_DIR_G', (Join-Path $userBundle 'Contents'), 'User')
+        if (-not (Test-Path "HKCU:\Software\TGIRR")) { New-Item -Path "HKCU:\Software\TGIRR" -Force | Out-Null }
+        Set-ItemProperty -Path "HKCU:\Software\TGIRR" -Name "GscadDir" -Value (Join-Path $userBundle 'Contents')
+    }
 
     if ($gscadSupport) {
         Write-Host "[2/3] Da tim thay thu muc Support GstarCAD: $gscadSupport" -ForegroundColor DarkCyan
         Write-Host '[3/3] Sao chep file LISP, Menu va DLL vao thu muc Support...' -ForegroundColor DarkCyan
         Get-ChildItem (Join-Path $sourceBundle 'Contents\Lisp') | Copy-Item -Destination $gscadSupport -Force
         Get-ChildItem (Join-Path $sourceBundle 'Contents\Windows') | Copy-Item -Destination $gscadSupport -Force
+        if (-not (Test-Path "HKCU:\Software\TGIRR")) { New-Item -Path "HKCU:\Software\TGIRR" -Force | Out-Null }
+        Set-ItemProperty -Path "HKCU:\Software\TGIRR" -Name "GscadDir" -Value $gscadSupport
         Write-Host ''
         Write-Host 'CAI DAT GSTARCAD THANH CONG!' -ForegroundColor Green
         Write-Host "Da sao chep file vao: $gscadSupport" -ForegroundColor White
     } else {
         Write-Host "[2/3] Bundle GstarCAD da dong goi tai: $sourceBundle" -ForegroundColor DarkCyan
-        Write-Host 'Anh hay copy thu muc Contents vao thu muc Support cua GstarCAD.' -ForegroundColor Yellow
+        Write-Host 'Da cap nhat vao thu muc bundle D:\LispCAD\TGIRR_CAD_GSTARCAD.bundle.' -ForegroundColor Green
     }
 
     Write-Host ''

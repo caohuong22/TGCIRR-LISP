@@ -72,26 +72,26 @@
     (progn
       (setq result (vl-catch-all-apply 'load (list path)))
       (if (vl-catch-all-error-p result)
-        (prompt (strcat "\nTGIRR ZWCAD: LOAD loi " name " - " (vl-catch-all-error-message result)))
-        (prompt (strcat "\nTGIRR ZWCAD: Da nap " path))))
-    (prompt (strcat "\nTGIRR ZWCAD: Khong tim thay " name))))
+        (prompt (strcat "\nTGIRR ZWCAD: LOAD lỗi " name " - " (vl-catch-all-error-message result)))
+        (prompt (strcat "\nTGIRR ZWCAD: Đã nạp " path))))
+    (prompt (strcat "\nTGIRR ZWCAD: Không tìm thấy " name))))
 
 (defun TGIRR:ZW-NETLOAD (name / path result)
   (setq path (TGIRR:ZW-FIND name))
   (if path
     (progn
-      (setq result (vl-catch-all-apply 'command (list "_NETLOAD" path)))
+      (setq result (vl-catch-all-apply '(lambda () (command "_NETLOAD" path))))
       (if (vl-catch-all-error-p result)
-        (prompt (strcat "\nTGIRR ZWCAD: NETLOAD loi " name " - " (vl-catch-all-error-message result)))
+        (prompt (strcat "\nTGIRR ZWCAD: NETLOAD lỗi " name " - " (vl-catch-all-error-message result)))
         (prompt (strcat "\nTGIRR ZWCAD: NETLOAD ok " path))))
-    (prompt (strcat "\nTGIRR ZWCAD: Khong tim thay DLL " name))))
+    (prompt (strcat "\nTGIRR ZWCAD: Không tìm thấy DLL " name))))
 
 (defun c:TGIRRLOAD (/ root)
   (setq root (TGIRR:ZW-DIR))
   (setq *TGIRR:ZW-ROOT* root)
   (if (not root)
     (progn
-      (prompt "\nTGIRR ZWCAD: chua biet thu muc. Go TGIRRSETDIR de chon file TGIRR.Zwcad.dll truoc.")
+      (prompt "\nTGIRR ZWCAD: Chưa biết thư mục. Gõ TGIRRSETDIR để chọn file TGIRR.Zwcad.dll trước.")
       (princ))
     (progn
       ;; Nap cac lenh AutoLISP
@@ -100,40 +100,27 @@
       (TGIRR:ZW-LOAD-FILE "TGL.lsp")
       (TGIRR:ZW-LOAD-FILE "TGN.lsp")
       (TGIRR:ZW-LOAD-FILE "HBD.lsp")
+      (TGIRR:ZW-LOAD-FILE "CVPL.lsp")
       (TGIRR:ZW-LOAD-FILE "DOITEXT.lsp")
       ;; Nap plugin .NET (CPLUS, VDNG, TNET, TGIRRPALETTE)
       (TGIRR:ZW-NETLOAD "TGIRR.Zwcad.dll")
       ;; Mo palette cong cu (neu lenh da duoc nap tu DLL)
-      (if (vl-catch-all-error-p (vl-catch-all-apply 'command (list "_TGIRRPALETTE")))
-        (prompt "\nTGIRR ZWCAD: go TGIRRPALETTE de mo bang cong cu.")
-        (prompt "\nTGIRR ZWCAD: da mo bang cong cu TGIRR (go TGIRRPALETTE de bat/tat)."))
-      (prompt (strcat "\nTGIRR CAD cho ZWCAD: thu muc goc " root))
+      (if (vl-catch-all-error-p (vl-catch-all-apply '(lambda () (command "_TGIRRPALETTE"))))
+        (prompt "\nTGIRR ZWCAD: Gõ TGIRRPALETTE để mở bảng công cụ.")
+        (prompt "\nTGIRR ZWCAD: Đã mở bảng công cụ TGIRR (gõ TGIRRPALETTE để bật/tắt)."))
+      (prompt (strcat "\nTGIRR CAD cho ZWCAD: Thư mục gốc " root))
       (princ))))
 
 (defun c:TGIRRSETDIR (/ f d)
-  (setq f (getfiled "Chon file TGIRR.Zwcad.dll de xac dinh thu muc" "" "dll" 0))
+  (setq f (getfiled "Chọn file TGIRR.Zwcad.dll để xác định thư mục" "" "dll" 0))
   (if f
     (progn
       (setq d (vl-filename-directory f))
       (setenv "TGIRR_CAD_DIR_Z" d)
       (setq *TGIRR:ZW-ROOT* d)
-      (prompt (strcat "\nTGIRR ZWCAD: da dat thu muc = " d "\n  Go TGIRRLOAD de nap day du.")))
-    (prompt "\nTGIRR ZWCAD: huy chon thu muc."))
+      (prompt (strcat "\nTGIRR ZWCAD: Đã đặt thư mục = " d "\n  Gõ TGIRRLOAD để nạp đầy đủ.")))
+    (prompt "\nTGIRR ZWCAD: Hủy chọn thư mục."))
   (princ))
 
-(prompt "\nTGIRR ZWCAD: Go TGIRRSETDIR de chi thu muc (1 lan), roi TGIRRLOAD de nap lenh.")
-(princ)
-
-(defun c:TGIRRSETDIR (/ f d)
-  (setq f (getfiled "Chon file TGIRR.Zwcad.dll de xac dinh thu muc" "" "dll" 0))
-  (if f
-    (progn
-      (setq d (vl-filename-directory f))
-      (setenv "TGIRR_CAD_DIR_Z" d)
-      (setq *TGIRR:ZW-DIR* d)
-      (prompt (strcat "\nTGIRR ZWCAD: da dat thu muc = " d "\n  Go TGIRRLOAD de nap day du.")))
-    (prompt "\nTGIRR ZWCAD: huy chon thu muc."))
-  (princ))
-
-(prompt "\nTGIRR ZWCAD: Go TGIRRSETDIR de chi thu muc (1 lan), roi TGIRRLOAD de nap lenh.")
+(prompt "\nTGIRR ZWCAD: Gõ TGIRRSETDIR để chỉ thư mục (1 lần), rồi TGIRRLOAD để nạp lệnh.")
 (princ)

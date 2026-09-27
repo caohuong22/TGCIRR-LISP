@@ -59,7 +59,7 @@ if ($targetNorm -in 'all', 'autocad') {
     $lispSource = Join-Path $root 'src\lisp'
     $lispTarget = Join-Path $root 'bundle\TGIRR_CAD_LISP.bundle\Contents\Lisp'
     if (-not (Test-Path $lispTarget)) { New-Item -ItemType Directory -Path $lispTarget -Force | Out-Null }
-    $allowed = @('SBS.lsp','TL.lsp','TGL.lsp','TGN.lsp','TGN.dcl','HBD.lsp','DOITEXT.lsp','TGIRRLoader.lsp')
+    $allowed = @('SBS.lsp','TL.lsp','TGL.lsp','TGN.lsp','TGN.dcl','HBD.lsp','CVPL.lsp','DOITEXT.lsp','TGIRRLoader.lsp')
     Get-ChildItem $lispTarget -File -ErrorAction SilentlyContinue | Where-Object { $_.Extension -in '.lsp','.dcl' } | Remove-Item -Force
     foreach ($file in $allowed) {
         Copy-Item (Join-Path $lispSource $file) $lispTarget -Force

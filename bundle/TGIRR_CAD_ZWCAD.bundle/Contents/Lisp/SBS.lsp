@@ -1,8 +1,96 @@
-;;; TGIRR CAD LISP - LENH SBS DA DUOC CUNG CAP
+;;; =============================================================
+;;; TGIRR CAD LISP - BO CONG CU LOC VA CHON DOI TUONG THEO MAU
+;;; 1. SBS : Chon doi tuong cung loai/mau trong Polyline bound (hoac toan ban ve neu khong chon bound)
+;;; 2. SBSE: Chon doi tuong trung khop chinh xac theo mau (Text, Block, Hatch, Dim...)
+;;; 3. SCH / SH: Chon nhanh tat ca Hatch cung Mau sac va Pattern theo mau (khong can bound)
+;;; =============================================================
 (vl-load-com)
 
-(defun c:SBS (/ entBound entMau edBound edMau typ pts ssAll ssNew i e ed
-                mauType mauLayer mauColor mauLtype mauName)
+;; Ham lay thong tin mau thuc te (ho tro ACI, TrueColor 420, ByLayer)
+(defun tgirr:get-color (ent / ed col62 col420 lay layEnt layCol layCol420)
+  (setq ed (entget ent))
+  (setq col62  (cdr (assoc 62 ed)))
+  (setq col420 (cdr (assoc 420 ed)))
+  (setq lay    (cdr (assoc 8 ed)))
+  (cond
+    ;; Neu doi tuong co TrueColor truc tiep (DXF 420)
+    (col420 (list 420 col420 (if col62 col62 256)))
+    ;; Neu doi tuong co mau ACI truc tiep (DXF 62 khac 256 va khac 0)
+    ((and col62 (/= col62 256) (/= col62 0)) (list 62 col62))
+    ;; Neu la ByLayer: tra cuu tu Layer Table
+    (T
+     (if (and lay (setq layEnt (tblsearch "LAYER" lay)))
+       (progn
+         (setq layCol420 (cdr (assoc 420 layEnt)))
+         (setq layCol    (cdr (assoc 62 layEnt)))
+         (setq layCol    (abs (if layCol layCol 7)))
+         (if layCol420
+           (list 420 layCol420 layCol)
+           (list 62 layCol)))
+       (list 62 7)))))
+
+;; So sanh 2 mau sac co tuong dong khong (ho tro TrueColor vs TrueColor, ACI vs ACI, TrueColor vs ACI)
+(defun tgirr:colors-match-p (c1 c2 / t1 v1 t2 v2 aci1 aci2 r1 g1 b1 r2 g2 b2)
+  (if (and c1 c2)
+    (progn
+      (setq t1 (car c1) v1 (cadr c1)
+            t2 (car c2) v2 (cadr c2))
+      (cond
+        ;; TH1: Cung la TrueColor 420
+        ((and (= t1 420) (= t2 420))
+         (setq r1 (lsh (logand v1 16711680) -16)
+               g1 (lsh (logand v1 65280) -8)
+               b1 (logand v1 255)
+               r2 (lsh (logand v2 16711680) -16)
+               g2 (lsh (logand v2 65280) -8)
+               b2 (logand v2 255))
+         ;; Cho phep dung sai mau RGB nho (khoang cach <= 15)
+         (and (<= (abs (- r1 r2)) 15)
+              (<= (abs (- g1 g2)) 15)
+              (<= (abs (- b1 b2)) 15)))
+
+        ;; TH2: Cung la ACI 62
+        ((and (= t1 62) (= t2 62))
+         (= v1 v2))
+
+        ;; TH3: 1 ben TrueColor 420, 1 ben ACI 62: so sanh ACI tuong duong (caddr)
+        ((and (= t1 420) (= t2 62))
+         (setq aci1 (caddr c1))
+         (and aci1 (= aci1 v2)))
+
+        ((and (= t1 62) (= t2 420))
+         (setq aci2 (caddr c2))
+         (and aci2 (= v1 aci2)))
+
+        (T nil)))
+    nil))
+
+;; Dinh dang chuoi mo ta mau sac
+(defun tgirr:format-color-str (colInfo / typ val)
+  (setq typ (car colInfo) val (cadr colInfo))
+  (cond
+    ((= typ 420)
+     (strcat "RGB (" (itoa (lsh (logand val 16711680) -16)) ","
+                     (itoa (lsh (logand val 65280) -8)) ","
+                     (itoa (logand val 255)) ")"))
+    ((= typ 62)
+     (strcat "Color " (itoa val)))
+    (T "ByLayer")))
+
+;; So sanh 2 ten Hatch Pattern (chuan hoa khong phan biet hoa thuong, bo dau * va _ o dau)
+(defun tgirr:match-hatch-pattern (p1 p2 / s1 s2)
+  (setq s1 (if (and p1 (/= p1 "")) (vl-string-trim " *_" (strcase p1)) "SOLID")
+        s2 (if (and p2 (/= p2 "")) (vl-string-trim " *_" (strcase p2)) "SOLID"))
+  (or (= s1 s2)
+      (wcmatch s1 (strcat "*" s2 "*"))
+      (wcmatch s2 (strcat "*" s1 "*"))))
+
+;;; -------------------------------------------------------------
+;;; LENH SBS: SELECT BY SAMPLE
+;;; -------------------------------------------------------------
+(defun c:SBS (/ entBound entMau edMau typ pts ssAll ssNew i e ed eType
+                mauType mauLayer mauColorInfo mauLtype mauName
+                get-poly-points point-in-poly text-in-poly-p mostly-inside-p)
 
   (vl-load-com)
 
@@ -14,27 +102,19 @@
         (setq pts '())
         (foreach x ed
           (if (= (car x) 10)
-            (setq pts (append pts (list (cdr x))))
-          )
-        )
-        pts
-      )
+            (setq pts (append pts (list (cdr x))))))
+        pts)
 
       ((= (cdr (assoc 0 ed)) "POLYLINE")
         (setq pts '())
         (setq en (entnext ent))
         (while (/= (cdr (assoc 0 (entget en))) "SEQEND")
           (if (= (cdr (assoc 0 (entget en))) "VERTEX")
-            (setq pts (append pts (list (cdr (assoc 10 (entget en))))))
-          )
-          (setq en (entnext en))
-        )
-        pts
-      )
+            (setq pts (append pts (list (cdr (assoc 10 (entget en)))))))
+          (setq en (entnext en)))
+        pts)
 
-      (T nil)
-    )
-  )
+      (T nil)))
 
   ;; Kiem tra mot diem co nam trong polygon hay khong (ray casting)
   (defun point-in-poly (pt poly / x y inside j i pi pj xi yi xj yj)
@@ -46,12 +126,9 @@
             xj (car pj) yj (cadr pj))
       (if (and (/= (> yi y) (> yj y))
                (< x (+ xi (/ (* (- xj xi) (- y yi)) (- yj yi)))))
-        (setq inside (not inside))
-      )
-      (setq j i i (1+ i))
-    )
-    inside
-  )
+        (setq inside (not inside)))
+      (setq j i i (1+ i)))
+    inside)
 
   ;; Kiem tra rieng cho TEXT va MTEXT: dung diem chen va tam chu thuc te, tranh o trong rong (Width) cua MTEXT
   (defun text-in-poly-p (ent poly / ed typ obj ins pmin pmax mn mx cx cy actW actH att dx dy)
@@ -93,7 +170,6 @@
       (T nil)))
 
   ;; Lay 9 diem mau tren bounding box; chap nhan neu >= 5 diem nam trong bound.
-  ;; TEXT/MTEXT dung ham kiem tra theo chu thuc te de tranh o trong (Width)
   (defun mostly-inside-p (ent poly / obj pmin pmax mn mx x1 x2 xm y1 y2 ym samples count result typ)
     (setq typ (cdr (assoc 0 (entget ent))))
     (if (vl-position typ '("TEXT" "MTEXT"))
@@ -118,119 +194,98 @@
               (if (point-in-poly p poly) (setq count (1+ count))))
             (>= count 5))))))
 
-  ;; Chon boundary
-  (prompt "\nChon vung bound bang Polyline kin: ")
+  ;; 1. Chon boundary (hoac Enter de chon khong can bound)
+  (prompt "\n[SBS] Chọn vùng bound bằng Polyline kín (Enter để lọc không cần bound): ")
   (setq entBound (car (entsel)))
 
-  (if (not entBound)
+  (setq pts nil)
+  (if entBound
     (progn
-      (prompt "\nChua chon boundary.")
-      (princ)
-      (exit)
-    )
-  )
+      (setq pts (get-poly-points entBound))
+      (if (not pts)
+        (prompt "\n[SBS] Vùng chọn không phải là Polyline kín. Chuyển sang lọc không cần bound."))))
 
-  (setq pts (get-poly-points entBound))
-
-  (if (not pts)
-    (progn
-      (prompt "\nBoundary phai la Polyline kin hoac Rectangle ve bang Polyline.")
-      (princ)
-      (exit)
-    )
-  )
-
-  ;; Chon doi tuong mau
-  (prompt "\nChon 1 doi tuong mau de loc cung thuoc tinh: ")
+  ;; 2. Chon doi tuong mau
+  (prompt "\n[SBS] Chọn 1 đối tượng mẫu để lọc cùng thuộc tính: ")
   (setq entMau (car (entsel)))
 
   (if (not entMau)
+    (prompt "\n[SBS] Chưa chọn đối tượng mẫu.")
     (progn
-      (prompt "\nChua chon doi tuong mau.")
-      (princ)
-      (exit)
-    )
-  )
+      ;; Lay thuoc tinh doi tuong mau
+      (setq edMau        (entget entMau))
+      (setq mauType      (cdr (assoc 0 edMau)))
+      (setq mauLayer     (cdr (assoc 8 edMau)))
+      (setq mauLtype     (cdr (assoc 6 edMau)))
+      (setq mauName      (cdr (assoc 2 edMau)))
+      (setq mauColorInfo (tgirr:get-color entMau))
 
-  ;; Lay thuoc tinh doi tuong mau
-  (setq edMau    (entget entMau))
-  (setq mauType  (cdr (assoc 0 edMau)))
-  (setq mauLayer (cdr (assoc 8 edMau)))
-  (setq mauColor (cdr (assoc 62 edMau)))
-  (setq mauLtype (cdr (assoc 6 edMau)))
-  (setq mauName  (cdr (assoc 2 edMau))) ; ten block / style / hatch pattern neu co
-
-  ;; Lay ca doi tuong nam trong va cat qua boundary.
-  ;; Sau do chi giu doi tuong co phan lon hinh hoc nam trong bound.
-  (setq ssAll (ssget "_CP" pts))
-
-  (if ssAll
-    (progn
-      (setq ssNew (ssadd))
-      (setq i 0)
-
-      (while (< i (sslength ssAll))
-        (setq e  (ssname ssAll i))
-        (setq ed (entget e))
-
-        ;; Loc cung thuoc tinh:
-        ;; - cung loai doi tuong
-        ;; - cung layer
-        ;; - cung color neu co
-        ;; - cung linetype neu co
-        ;; - neu la block thi cung ten block
-        (if
-          (and
-            (/= e entBound)
-            (= (cdr (assoc 0 ed)) mauType)
-            (= (cdr (assoc 8 ed)) mauLayer)
-
-            ;; Neu mau co color rieng thi so sanh color
-            ;; Neu khong co color 62, tuc ByLayer, thi cung ByLayer
-            (= (cdr (assoc 62 ed)) mauColor)
-
-            ;; Neu mau co linetype rieng thi so sanh linetype
-            (= (cdr (assoc 6 ed)) mauLtype)
-
-            ;; Doi tuong duoc phep de len boundary nhung phai nam phan lon trong bound
-            (mostly-inside-p e pts)
-
-            ;; Neu la INSERT/block thi so sanh ten block
-            (if (= mauType "INSERT")
-              (= (cdr (assoc 2 ed)) mauName)
-              T
-            )
-          )
-          (ssadd e ssNew)
-        )
-
-        (setq i (1+ i))
-      )
-
-      (if (> (sslength ssNew) 0)
+      ;; 3. Thu thap doi tuong ung vien
+      (if pts
+        (setq ssAll (ssget "_CP" pts))
         (progn
-          (sssetfirst nil ssNew)
-          (prompt
-            (strcat
-              "\nDa select "
-              (itoa (sslength ssNew))
-              " doi tuong cung thuoc tinh, nam phan lon trong bound."
-            )
-          )
-        )
-        (prompt "\nKhong tim thay doi tuong nao cung thuoc tinh trong bound.")
-      )
-    )
-    (prompt "\nKhong co doi tuong nao trong bound.")
-  )
+          (prompt "\n[SBS] Quét chọn vùng lọc theo mẫu (Enter để lọc toàn bộ bản vẽ): ")
+          (setq ssAll (ssget))
+          (if (not ssAll)
+            (setq ssAll (ssget "_X" (list (cons 410 (getvar "CTAB"))))))))
+
+      (if ssAll
+        (progn
+          (setq ssNew (ssadd))
+          (setq i 0)
+
+          (while (< i (sslength ssAll))
+            (setq e  (ssname ssAll i))
+            (setq ed (entget e))
+            (setq eType (cdr (assoc 0 ed)))
+
+            (if
+              (and
+                (/= e entBound)
+                (= eType mauType)
+                (= (cdr (assoc 8 ed)) mauLayer)
+
+                ;; So sanh mau sac thuc te (ACI, TrueColor, ByLayer)
+                (equal (tgirr:get-color e) mauColorInfo)
+
+                ;; So sanh linetype
+                (= (cdr (assoc 6 ed)) mauLtype)
+
+                ;; Neu co bound thi kiem tra nam trong bound
+                (if pts (mostly-inside-p e pts) T)
+
+                ;; Neu la Block thi so sanh ten block
+                (if (= mauType "INSERT")
+                  (= (cdr (assoc 2 ed)) mauName)
+                  T)
+
+                ;; Neu la Hatch thi so sanh pattern
+                (if (= mauType "HATCH")
+                  (tgirr:match-hatch-pattern (cdr (assoc 2 ed)) mauName)
+                  T))
+              (ssadd e ssNew))
+
+            (setq i (1+ i)))
+
+          (if (> (sslength ssNew) 0)
+            (progn
+              (sssetfirst nil ssNew)
+              (prompt
+                (strcat
+                  "\n[SBS] Đã chọn "
+                  (itoa (sslength ssNew))
+                  " đối tượng cùng thuộc tính"
+                  (if pts " nằm trong bound." " trên bản vẽ."))))
+            (prompt "\n[SBS] Không tìm thấy đối tượng nào cùng thuộc tính.")))
+        (prompt "\n[SBS] Không có đối tượng nào được tìm thấy."))))
 
   (princ)
 )
 
 ;;; -------------------------------------------------------------
 ;;; TGIRR CAD LISP - LENH SBSE (SELECT BY SAMPLE EXACT)
-;;; Loc doi tuong nam phan lon trong polyline kin, giong mau chinh xac
-;;; dac biet TEXT / MTEXT bat buoc trung noi dung chu, INSERT trung EffectiveName
+;;; Loc doi tuong giong mau chinh xac (TEXT/MTEXT trung noi dung, INSERT trung EffectiveName)
+;;; Co the loc trong Polyline bound hoac Enter de loc khong can bound
 ;;; -------------------------------------------------------------
 
 ;; Ham lam sach noi dung MTEXT de so sanh
@@ -270,9 +325,9 @@
     name
     (cdr (assoc 2 (entget ent)))))
 
-(defun c:SBSE (/ entBound entMau edMau mauType mauLayer mauColor mauLtype mauName
+(defun c:SBSE (/ entBound entMau edMau mauType mauLayer mauColorInfo mauLtype mauName
                  mauText mauCleanText mauBlock pts ssAll ssNew i e ed eType matchExact
-                 get-poly-pts pt-in-poly mostly-in-p eTxt)
+                 get-poly-pts pt-in-poly text-in-poly-p mostly-in-p eTxt)
   (vl-load-com)
 
   ;; Ham lay dinh polyline
@@ -306,7 +361,7 @@
       (setq j i i (1+ i)))
     inside)
 
-  ;; Kiem tra rieng cho TEXT va MTEXT: dung diem chen va tam chu thuc te, tranh o trong rong (Width) cua MTEXT
+  ;; Kiem tra rieng cho TEXT va MTEXT
   (defun text-in-poly-p (ent poly / ed typ obj ins pmin pmax mn mx cx cy actW actH att dx dy)
     (setq ed  (entget ent)
           typ (cdr (assoc 0 ed))
@@ -346,7 +401,6 @@
       (T nil)))
 
   ;; Lay 9 diem tren bounding box; chap nhan neu >= 5 diem nam trong bound.
-  ;; TEXT/MTEXT dung ham rieng tranh o trong Width.
   (defun mostly-in-p (ent poly / obj pmin pmax mn mx x1 x2 xm y1 y2 ym samples count result typ)
     (setq typ (cdr (assoc 0 (entget ent))))
     (if (vl-position typ '("TEXT" "MTEXT"))
@@ -371,121 +425,198 @@
               (if (pt-in-poly p poly) (setq count (1+ count))))
             (>= count 5))))))
 
-  ;; 1. Chon boundary
-  (prompt "\n[SBSE] Chon vung bound bang Polyline kin: ")
+  ;; 1. Chon boundary (hoac Enter de chon khong can bound)
+  (prompt "\n[SBSE] Chọn vùng bound bằng Polyline kín (Enter để lọc không cần bound): ")
   (setq entBound (car (entsel)))
-  (if (not entBound)
-    (prompt "\n[SBSE] Chua chon boundary.")
+  (setq pts nil)
+  (if entBound
     (progn
       (setq pts (get-poly-pts entBound))
       (if (not pts)
-        (prompt "\n[SBSE] Boundary phai la Polyline kin hoac Rectangle ve bang Polyline.")
+        (prompt "\n[SBSE] Vùng chọn không phải là Polyline kín. Chuyển sang lọc không cần bound."))))
+
+  ;; 2. Chon doi tuong mau
+  (prompt "\n[SBSE] Chọn 1 đối tượng mẫu để lọc CHÍNH XÁC (trùng nội dung text / block / hatch): ")
+  (setq entMau (car (entsel)))
+  (if (not entMau)
+    (prompt "\n[SBSE] Chưa chọn đối tượng mẫu.")
+    (progn
+      ;; 3. Lay thuoc tinh doi tuong mau
+      (setq edMau        (entget entMau))
+      (setq mauType      (cdr (assoc 0 edMau)))
+      (setq mauLayer     (cdr (assoc 8 edMau)))
+      (setq mauLtype     (cdr (assoc 6 edMau)))
+      (setq mauName      (cdr (assoc 2 edMau)))
+      (setq mauColorInfo (tgirr:get-color entMau))
+
+      ;; Neu mau la TEXT / MTEXT -> trich xuat noi dung chu
+      (if (vl-position mauType '("TEXT" "MTEXT"))
         (progn
-          ;; 2. Chon doi tuong mau
-          (prompt "\n[SBSE] Chon 1 doi tuong mau de loc CHINH XAC (trung noi dung text / block): ")
-          (setq entMau (car (entsel)))
-          (if (not entMau)
-            (prompt "\n[SBSE] Chua chon doi tuong mau.")
+          (setq mauText (tgirr:get-text entMau))
+          (setq mauCleanText (tgirr:clean-text mauText))))
+
+      ;; Neu mau la INSERT (Block) -> lay ten chuan (Dynamic Block)
+      (if (= mauType "INSERT")
+        (setq mauBlock (tgirr:get-block-name entMau)))
+
+      ;; 4. Thu thap doi tuong
+      (if pts
+        (setq ssAll (ssget "_CP" pts))
+        (progn
+          (prompt "\n[SBSE] Quét chọn vùng lọc theo mẫu (Enter để lọc toàn bộ bản vẽ): ")
+          (setq ssAll (ssget))
+          (if (not ssAll)
+            (setq ssAll (ssget "_X" (list (cons 410 (getvar "CTAB"))))))))
+
+      (if ssAll
+        (progn
+          (setq ssNew (ssadd))
+          (setq i 0)
+
+          (while (< i (sslength ssAll))
+            (setq e  (ssname ssAll i))
+            (setq ed (entget e))
+            (setq eType (cdr (assoc 0 ed)))
+
+            (if
+              (and
+                (/= e entBound)
+                (= (cdr (assoc 8 ed)) mauLayer)
+                (equal (tgirr:get-color e) mauColorInfo)
+                (= (cdr (assoc 6 ed)) mauLtype)
+                (if pts (mostly-in-p e pts) T))
+              (progn
+                (setq matchExact nil)
+
+                (cond
+                  ;; TH1: Mau la TEXT hoac MTEXT -> bat buoc trung noi dung chu
+                  ((vl-position mauType '("TEXT" "MTEXT"))
+                   (if (vl-position eType '("TEXT" "MTEXT"))
+                     (progn
+                       (setq eTxt (tgirr:get-text e))
+                       (if (or (= mauText eTxt)
+                               (= mauCleanText (tgirr:clean-text eTxt)))
+                         (setq matchExact T)))))
+
+                  ;; TH2: Mau la Block (INSERT) -> trung ten block
+                  ((= mauType "INSERT")
+                   (if (= eType "INSERT")
+                     (if (= mauBlock (tgirr:get-block-name e))
+                       (setq matchExact T))))
+
+                  ;; TH3: Mau la HATCH -> trung pattern, scale va goc xoay
+                  ((= mauType "HATCH")
+                   (if (= eType "HATCH")
+                     (if (and (tgirr:match-hatch-pattern (cdr (assoc 2 ed)) (cdr (assoc 2 edMau)))
+                              (equal (cdr (assoc 41 ed)) (cdr (assoc 41 edMau)) 1e-4)
+                              (equal (cdr (assoc 52 ed)) (cdr (assoc 52 edMau)) 1e-4))
+                       (setq matchExact T))))
+
+                  ;; TH4: Mau la CIRCLE hoac ARC -> trung ban kinh
+                  ((vl-position mauType '("CIRCLE" "ARC"))
+                   (if (= eType mauType)
+                     (if (equal (cdr (assoc 40 ed)) (cdr (assoc 40 edMau)) 1e-4)
+                       (setq matchExact T))))
+
+                  ;; TH5: Mau la DIMENSION -> trung DimStyle
+                  ((= mauType "DIMENSION")
+                   (if (= eType "DIMENSION")
+                     (if (= (cdr (assoc 3 ed)) (cdr (assoc 3 edMau)))
+                       (setq matchExact T))))
+
+                  ;; Mac dinh (LINE, LWPOLYLINE, SPLINE...): cung loai doi tuong
+                  (T
+                   (if (= eType mauType)
+                     (setq matchExact T))))
+
+                (if matchExact (ssadd e ssNew))))
+
+            (setq i (1+ i)))
+
+          (if (> (sslength ssNew) 0)
             (progn
-              ;; 3. Lay thuoc tinh doi tuong mau
-              (setq edMau    (entget entMau))
-              (setq mauType  (cdr (assoc 0 edMau)))
-              (setq mauLayer (cdr (assoc 8 edMau)))
-              (setq mauColor (cdr (assoc 62 edMau)))
-              (setq mauLtype (cdr (assoc 6 edMau)))
-              (setq mauName  (cdr (assoc 2 edMau)))
-
-              ;; Neu mau la TEXT / MTEXT -> trich xuat noi dung chu
-              (if (vl-position mauType '("TEXT" "MTEXT"))
-                (progn
-                  (setq mauText (tgirr:get-text entMau))
-                  (setq mauCleanText (tgirr:clean-text mauText))))
-
-              ;; Neu mau la INSERT (Block) -> lay ten chuan (Dynamic Block)
-              (if (= mauType "INSERT")
-                (setq mauBlock (tgirr:get-block-name entMau)))
-
-              ;; 4. Quet doi tuong trong boundary
-              (setq ssAll (ssget "_CP" pts))
-              (if ssAll
-                (progn
-                  (setq ssNew (ssadd))
-                  (setq i 0)
-
-                  (while (< i (sslength ssAll))
-                    (setq e  (ssname ssAll i))
-                    (setq ed (entget e))
-                    (setq eType (cdr (assoc 0 ed)))
-
-                    ;; Kiem tra cac tieu chi co ban: khac bound, cung layer, cung mau, cung linetype, nam trong bound
-                    (if
-                      (and
-                        (/= e entBound)
-                        (= (cdr (assoc 8 ed)) mauLayer)
-                        (= (cdr (assoc 62 ed)) mauColor)
-                        (= (cdr (assoc 6 ed)) mauLtype)
-                        (mostly-in-p e pts))
-                      (progn
-                        (setq matchExact nil)
-
-                        (cond
-                          ;; TH1: Mau la TEXT hoac MTEXT -> bat buoc cung la TEXT/MTEXT va TRUNG NOI DUNG CHU
-                          ((vl-position mauType '("TEXT" "MTEXT"))
-                           (if (vl-position eType '("TEXT" "MTEXT"))
-                             (progn
-                               (setq eTxt (tgirr:get-text e))
-                               (if (or (= mauText eTxt)
-                                       (= mauCleanText (tgirr:clean-text eTxt)))
-                                 (setq matchExact T)))))
-
-                          ;; TH2: Mau la Block (INSERT) -> phai trung ten block (ke ca Dynamic Block)
-                          ((= mauType "INSERT")
-                           (if (= eType "INSERT")
-                             (if (= mauBlock (tgirr:get-block-name e))
-                               (setq matchExact T))))
-
-                          ;; TH3: Mau la HATCH -> phai trung pattern, scale va goc xoay
-                          ((= mauType "HATCH")
-                           (if (= eType "HATCH")
-                             (if (and (= (cdr (assoc 2 ed)) (cdr (assoc 2 edMau)))
-                                      (equal (cdr (assoc 41 ed)) (cdr (assoc 41 edMau)) 1e-4)
-                                      (equal (cdr (assoc 52 ed)) (cdr (assoc 52 edMau)) 1e-4))
-                               (setq matchExact T))))
-
-                          ;; TH4: Mau la CIRCLE hoac ARC -> phai trung ban kinh
-                          ((vl-position mauType '("CIRCLE" "ARC"))
-                           (if (= eType mauType)
-                             (if (equal (cdr (assoc 40 ed)) (cdr (assoc 40 edMau)) 1e-4)
-                               (setq matchExact T))))
-
-                          ;; TH5: Mau la DIMENSION -> phai trung DimStyle
-                          ((= mauType "DIMENSION")
-                           (if (= eType "DIMENSION")
-                             (if (= (cdr (assoc 3 ed)) (cdr (assoc 3 edMau)))
-                               (setq matchExact T))))
-
-                          ;; Mac dinh (LINE, LWPOLYLINE, SPLINE,...): phai cung loai doi tuong
-                          (T
-                           (if (= eType mauType)
-                             (setq matchExact T))))
-
-                        (if matchExact (ssadd e ssNew))))
-
-                    (setq i (1+ i)))
-
-                  (if (> (sslength ssNew) 0)
-                    (progn
-                      (sssetfirst nil ssNew)
-                      (prompt
-                        (strcat
-                          "\n[SBSE] Da chon "
-                          (itoa (sslength ssNew))
-                          " doi tuong trung khop chinh xac theo mau trong bound.")))
-                    (prompt "\n[SBSE] Khong tim thay doi tuong nao trung khop chinh xac trong bound.")))
-                (prompt "\n[SBSE] Khong co doi tuong nao trong bound.")))))))))
-
+              (sssetfirst nil ssNew)
+              (prompt
+                (strcat
+                  "\n[SBSE] Đã chọn "
+                  (itoa (sslength ssNew))
+                  " đối tượng trùng khớp chính xác"
+                  (if pts " trong bound." " trên bản vẽ."))))
+            (prompt "\n[SBSE] Không tìm thấy đối tượng nào trùng khớp chính xác.")))
+        (prompt "\n[SBSE] Không tìm thấy đối tượng nào."))))
   (princ)
 )
 
-(prompt "\nTGIRR: Da nap lenh SBS va SBSE.")
+;;; -------------------------------------------------------------
+;;; TGIRR CAD LISP - LENH SCH / SH (SELECT COLOR HATCH)
+;;; Chon nhanh tat ca cac Hatch co cung Mau sac va Pattern theo mau
+;;; Hoan toan khong can duong Bound bao quanh!
+;;; -------------------------------------------------------------
+(defun c:SCH (/ entMau edMau patMau layMau colInfo ssCandidates ssSel idx cand edC layC patC colC)
+  (prompt "\n[SCH] Chọn 1 đối tượng HATCH làm mẫu: ")
+  (setq entMau (car (entsel)))
+  (if (and entMau (= (cdr (assoc 0 (entget entMau))) "HATCH"))
+    (progn
+      (setq edMau   (entget entMau)
+            patMau  (cdr (assoc 2 edMau))
+            layMau  (cdr (assoc 8 edMau))
+            colInfo (tgirr:get-color entMau))
+      (prompt
+        (strcat "\n[SCH] Mẫu: Layer = \"" layMau
+                "\", Pattern = \"" (if (and patMau (/= patMau "")) patMau "SOLID")
+                "\", Màu = " (tgirr:format-color-str colInfo)))
+      (prompt "\n[SCH] Quét chọn vùng lọc Hatch (Enter để chọn toàn bộ bản vẽ): ")
+      (setq ssCandidates (ssget '((0 . "HATCH"))))
+      (if (not ssCandidates)
+        (progn
+          (prompt "\n[SCH] Đang tìm tất cả Hatch trong không gian hiện hành...")
+          (setq ssCandidates
+            (ssget "_X"
+              (list
+                '(0 . "HATCH")
+                (cons 410 (getvar "CTAB")))))
+          (if (not ssCandidates)
+            (setq ssCandidates (ssget "_X" '((0 . "HATCH")))))))
+      (if ssCandidates
+        (progn
+          (setq ssSel (ssadd))
+          (setq idx 0)
+          (while (< idx (sslength ssCandidates))
+            (setq cand (ssname ssCandidates idx)
+                  edC  (entget cand)
+                  layC (cdr (assoc 8 edC))
+                  patC (cdr (assoc 2 edC))
+                  colC (tgirr:get-color cand))
+
+            ;; Tieu chi so khop thong minh va linh hoat:
+            ;; 1. Cung Layer chuyen dung (khong phai layer chung 0/DEFPOINTS)
+            ;; 2. Cung Mau sac thuc te va cung kieu Pattern
+            ;; 3. Cung Layer va cung Pattern (ke ca tren layer chung)
+            (setq sameLay (= (strcase layC) (strcase layMau))
+                  samePat (tgirr:match-hatch-pattern patC patMau)
+                  sameCol (tgirr:colors-match-p colC colInfo)
+                  isGenericLay (or (= (strcase layMau) "0")
+                                   (= (strcase layMau) "DEFPOINTS")
+                                   (= (strcase layMau) "HATCH")))
+
+            (if (or
+                  (and sameLay (not isGenericLay))
+                  (and sameCol samePat)
+                  (and sameLay samePat))
+              (ssadd cand ssSel))
+            (setq idx (1+ idx)))
+          (if (> (sslength ssSel) 0)
+            (progn
+              (sssetfirst nil ssSel)
+              (prompt
+                (strcat "\n[SCH] Đã chọn " (itoa (sslength ssSel)) " Hatch phù hợp theo mẫu (Layer: \"" layMau "\", Màu: " (tgirr:format-color-str colInfo) ").")))
+            (prompt "\n[SCH] Không tìm thấy Hatch nào phù hợp với mẫu.")))
+        (prompt "\n[SCH] Không tìm thấy đối tượng Hatch nào.")))
+    (prompt "\n[SCH] Đối tượng được chọn không phải là HATCH."))
+  (princ)
+)
+
+(defun c:SH () (c:SCH))
+
+(prompt "\nTGIRR: Đã nạp lệnh SBS, SBSE và SCH/SH (chọn Hatch theo màu mẫu).")
 (princ)

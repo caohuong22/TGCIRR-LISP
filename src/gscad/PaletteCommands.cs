@@ -13,23 +13,33 @@ namespace Tgirrr.CadLisp {
  /// </summary>
  public sealed class PaletteCommands {
   static PaletteSet _ps;
+  static readonly Guid PaletteId = new Guid("4A5F71BD-560C-4A2D-A537-88D83B106F79");
 
   [CommandMethod("TGIRRPALETTE")]
   public void Show() {
-   if (_ps == null) {
-    _ps = new PaletteSet("TGIRR CAD");
-    _ps.Style = PaletteSetStyles.ShowAutoHideButton |
-                PaletteSetStyles.ShowCloseButton |
-                PaletteSetStyles.ShowPropertiesMenu;
-    _ps.DockEnabled = DockSides.Left | DockSides.Right;
-    _ps.MinimumSize = new System.Drawing.Size(250, 320);
-    _ps.Size = new System.Drawing.Size(280, 420);
-    _ps.AddVisual("TGIRR CAD", new PaletteContent());
-    _ps.Visible = true;
-   } else {
-    _ps.Visible = !_ps.Visible;
+   try {
+    if (_ps == null) {
+     _ps = new PaletteSet("TGIRR CAD", PaletteId);
+     _ps.Style = PaletteSetStyles.ShowAutoHideButton |
+                 PaletteSetStyles.ShowCloseButton |
+                 PaletteSetStyles.ShowPropertiesMenu |
+                 PaletteSetStyles.Snappable;
+     _ps.DockEnabled = DockSides.Left | DockSides.Right | DockSides.Top | DockSides.Bottom;
+     _ps.MinimumSize = new System.Drawing.Size(260, 360);
+     _ps.Size = new System.Drawing.Size(290, 460);
+     try { _ps.Dock = DockSides.None; } catch { }
+     _ps.AddVisual("TGIRR CAD", new PaletteContent());
+     _ps.Visible = true;
+    } else {
+     _ps.Visible = !_ps.Visible;
+    }
+    if (_ps.Visible) {
+     try { _ps.Activate(0); } catch { }
+    }
+   } catch (System.Exception ex) {
+    var ed = Gssoft.Gscad.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument?.Editor;
+    ed?.WriteMessage("\n[TGIRR] Loi bat Palette TGIRR CAD: " + ex.Message + "\n");
    }
-   if (_ps.Visible) _ps.Activate(0);
   }
  }
 
@@ -72,6 +82,10 @@ namespace Tgirrr.CadLisp {
      "JH — Gộp các Hatch thành 1",
      "Hợp nhất các Hatch phân mảnh giáp nhau thành 1 Hatch duy nhất và tạo đường bao chung trên layer TG-BOUND.",
      "Lệnh: JH (hoặc MH, JOINHATCH)", CyanAccent, true, false),
+    MakeActionButton("CVPL", "Convert sang Polyline",
+     "CVPL — Convert LINE/ARC/CIRCLE/SPLINE sang Polyline",
+     "Chuyển LINE, ARC, CIRCLE, ELLIPSE, SPLINE, POLYLINE kiểu cũ và REGION thành LWPOLYLINE; giữ layer/màu/nét; UNDO 1 bước. Gõ CVPLG để giữ đối tượng nguồn.",
+     "Lệnh: CVPL (hoặc CVP, CVPLG)", CyanAccent, true, false),
     MakeActionButton("SBS", "Chọn theo mẫu",
      "SBS — Chọn đối tượng giống mẫu trong vùng",
      "Chọn các đối tượng nằm trong Polyline kín có cùng layer, màu sắc, kiểu nét hoặc tên Block với mẫu.",
@@ -94,8 +108,8 @@ namespace Tgirrr.CadLisp {
      "TNET — Tạo nét vẽ có chữ (LIN)",
      "Mở hộp thoại trực quan thiết kế nét vẽ AutoCAD/GstarCAD có chữ và nạp trực tiếp vào bản vẽ.",
      "Cửa sổ: TNET", GreenAccent, false, false),
-    MakeActionButton("TGL", "Tạo 23 Layer tưới chuẩn",
-     "TGL — Tạo bộ Layer tiêu chuẩn",
+    MakeActionButton("TGL", "Tạo Layer chuẩn hoặc thêm Layer vào kho",
+     "TGL — Tạo bộ Layer tiêu chuẩn / thêm Layer vào kho",
      "Khởi tạo nhanh bộ 23 layer chuẩn TGIRR (tên, màu, nét) và đặt TG-DRIP làm layer hiện hành.",
      "Lệnh: TGL", GreenAccent, false, true)
    ));

@@ -28,16 +28,29 @@
   (setq r (vl-catch-all-apply 'vl-file-directory-p (list dir)))
   (and (not (vl-catch-all-error-p r)) r))
 
-;; Xac dinh thu muc goc - KHONG dung ROAMABLEROOTPREFIX (de tranh duong dan bi loi).
-(defun TGIRR:G-DIR (/ dll loader)
-  (cond
-    (*TGIRR:G-ROOT*)
-    ((getenv "TGIRR_CAD_DIR_G"))
-    ((setq dll (TGIRR:FINDFILE-SAFE "TGIRR.Gscad.dll"))
-     (vl-filename-directory dll))
-    ((setq loader (TGIRR:FINDFILE-SAFE "TGIRRLoaderG.lsp"))
-     (vl-filename-directory loader))
-    (t nil)))
+;; Xac dinh thu muc goc - ho tro bien moi truong, registry, bundle mac dinh va search path.
+(defun TGIRR:G-DIR (/ dll loader reg candidates match)
+  (setq reg (vl-registry-read "HKEY_CURRENT_USER\\Software\\TGIRR" "GscadDir"))
+  (setq candidates
+    (list
+      *TGIRR:G-ROOT*
+      (getenv "TGIRR_CAD_DIR_G")
+      reg
+      (if (setq dll (TGIRR:FINDFILE-SAFE "TGIRR.Gscad.dll")) (vl-filename-directory dll))
+      (if (setq loader (TGIRR:FINDFILE-SAFE "TGIRRLoaderG.lsp")) (vl-filename-directory loader))
+      "D:\\LispCAD\\TGIRR_CAD_GSTARCAD.bundle\\Contents"
+      "D:\\LispCAD\\TGIRR_CAD_GSTARCAD.bundle\\Contents\\Windows"
+      (strcat (getenv "APPDATA") "\\Gstarsoft\\GstarCAD\\R27\\en-WW\\Support")
+      (strcat (getenv "APPDATA") "\\Gstarsoft\\GstarCAD\\R27\\en-US\\Support")
+    ))
+  (foreach d candidates
+    (if (and (not match)
+             d
+             (or (TGIRR:DIR-EXISTS d)
+                 (TGIRR:FINDFILE-SAFE (strcat (TGIRR:TRIM-SLASH d) "\\TGIRR.Gscad.dll"))
+                 (TGIRR:FINDFILE-SAFE (strcat (TGIRR:TRIM-SLASH d) "\\Windows\\TGIRR.Gscad.dll"))))
+      (setq match (TGIRR:TRIM-SLASH d))))
+  match)
 
 ;; Danh sach thu muc ung vien - chi cac thu muc TON TAI, dang chuan hoa (khong \ cuoi).
 (defun TGIRR:G-CANDIDATES (/ base parent lst d)
@@ -72,68 +85,63 @@
     (progn
       (setq result (vl-catch-all-apply 'load (list path)))
       (if (vl-catch-all-error-p result)
-        (prompt (strcat "\nTGIRR GstarCAD: LOAD loi " name " - " (vl-catch-all-error-message result)))
-        (prompt (strcat "\nTGIRR GstarCAD: Da nap " path))))
-    (prompt (strcat "\nTGIRR GstarCAD: Khong tim thay " name))))
+        (prompt (strcat "\nTGIRR GstarCAD: LOAD lỗi " name " - " (vl-catch-all-error-message result)))
+        (prompt (strcat "\nTGIRR GstarCAD: Đã nạp " path))))
+    (prompt (strcat "\nTGIRR GstarCAD: Không tìm thấy " name))))
 
 (defun TGIRR:G-NETLOAD (name / path result)
   (setq path (TGIRR:G-FIND name))
   (if path
     (progn
-      (setq result (vl-catch-all-apply 'command (list "_NETLOAD" path)))
+      (setq result (vl-catch-all-apply '(lambda () (command "_NETLOAD" path))))
       (if (vl-catch-all-error-p result)
-        (prompt (strcat "\nTGIRR GstarCAD: NETLOAD loi " name " - " (vl-catch-all-error-message result)))
+        (prompt (strcat "\nTGIRR GstarCAD: NETLOAD lỗi " name " - " (vl-catch-all-error-message result)))
         (prompt (strcat "\nTGIRR GstarCAD: NETLOAD ok " path))))
-    (prompt (strcat "\nTGIRR GstarCAD: Khong tim thay DLL " name))))
+    (prompt (strcat "\nTGIRR GstarCAD: Không tìm thấy DLL " name))))
 
 (defun c:TGIRRLOAD (/ root)
   (setq root (TGIRR:G-DIR))
   (setq *TGIRR:G-ROOT* root)
   (if (not root)
     (progn
-      (prompt "\nTGIRR GstarCAD: chua biet thu muc. Go TGIRRSETDIR de chon file TGIRR.Gscad.dll truoc.")
+      (prompt "\nTGIRR GstarCAD: Chưa biết thư mục. Gõ TGIRRSETDIR để chọn file TGIRR.Gscad.dll trước.")
       (princ))
     (progn
+      ;; Luu lai vao registry de lan sau mo CAD tu dong nhan
+      (vl-registry-write "HKEY_CURRENT_USER\\Software\\TGIRR" "GscadDir" root)
+      (setenv "TGIRR_CAD_DIR_G" root)
       ;; Nap cac lenh AutoLISP
       (TGIRR:G-LOAD-FILE "SBS.lsp")
       (TGIRR:G-LOAD-FILE "TL.lsp")
       (TGIRR:G-LOAD-FILE "TGL.lsp")
       (TGIRR:G-LOAD-FILE "TGN.lsp")
       (TGIRR:G-LOAD-FILE "HBD.lsp")
+      (TGIRR:G-LOAD-FILE "CVPL.lsp")
       (TGIRR:G-LOAD-FILE "DOITEXT.lsp")
       ;; Nap plugin .NET (CPLUS, VDNG, TNET, TGIRRPALETTE)
       (TGIRR:G-NETLOAD "TGIRR.Gscad.dll")
       ;; Mo palette cong cu (neu lenh da duoc nap tu DLL)
-      (if (vl-catch-all-error-p (vl-catch-all-apply 'command (list "_TGIRRPALETTE")))
-        (prompt "\nTGIRR GstarCAD: go TGIRRPALETTE de mo bang cong cu.")
-        (prompt "\nTGIRR GstarCAD: da mo bang cong cu TGIRR (go TGIRRPALETTE de bat/tat)."))
-      (prompt (strcat "\nTGIRR CAD cho GstarCAD: thu muc goc " root))
+      (if (vl-catch-all-error-p (vl-catch-all-apply '(lambda () (command "TGIRRPALETTE"))))
+        (prompt "\nTGIRR GstarCAD: Gõ TGIRRPALETTE để mở bảng công cụ.")
+        (prompt "\nTGIRR GstarCAD: Đã mở bảng công cụ TGIRR (gõ TGIRRPALETTE để bật/tắt)."))
+      (prompt (strcat "\nTGIRR CAD cho GstarCAD: Thư mục gốc " root))
       (princ))))
 
 (defun c:TGIRRSETDIR (/ f d)
-  (setq f (getfiled "Chon file TGIRR.Gscad.dll de xac dinh thu muc" "" "dll" 0))
+  (setq f (getfiled "Chọn file TGIRR.Gscad.dll để xác định thư mục" "" "dll" 0))
   (if f
     (progn
       (setq d (vl-filename-directory f))
       (setenv "TGIRR_CAD_DIR_G" d)
+      (vl-registry-write "HKEY_CURRENT_USER\\Software\\TGIRR" "GscadDir" d)
       (setq *TGIRR:G-ROOT* d)
-      (prompt (strcat "\nTGIRR GstarCAD: da dat thu muc = " d "\n  Go TGIRRLOAD de nap day du.")))
-    (prompt "\nTGIRR GstarCAD: huy chon thu muc."))
+      (prompt (strcat "\nTGIRR GstarCAD: Đã đặt thư mục = " d "\n  Đang nạp đầy đủ..."))
+      (c:TGIRRLOAD))
+    (prompt "\nTGIRR GstarCAD: Hủy chọn thư mục."))
   (princ))
 
-(prompt "\nTGIRR GstarCAD: Go TGIRRSETDIR de chi thu muc (1 lan), roi TGIRRLOAD de nap lenh.")
-(princ)
-
-(defun c:TGIRRSETDIR (/ f d)
-  (setq f (getfiled "Chon file TGIRR.Gscad.dll de xac dinh thu muc" "" "dll" 0))
-  (if f
-    (progn
-      (setq d (vl-filename-directory f))
-      (setenv "TGIRR_CAD_DIR_G" d)
-      (setq *TGIRR:G-DIR* d)
-      (prompt (strcat "\nTGIRR GstarCAD: da dat thu muc = " d "\n  Go TGIRRLOAD de nap day du.")))
-    (prompt "\nTGIRR GstarCAD: huy chon thu muc."))
-  (princ))
-
-(prompt "\nTGIRR GstarCAD: Go TGIRRSETDIR de chi thu muc (1 lan), roi TGIRRLOAD de nap lenh.")
+;; Tu dong khoi tao khi mo GstarCAD
+(if (TGIRR:G-DIR)
+  (c:TGIRRLOAD)
+  (prompt "\nTGIRR GstarCAD: Gõ TGIRRSETDIR để chỉ thư mục (1 lần duy nhất)."))
 (princ)

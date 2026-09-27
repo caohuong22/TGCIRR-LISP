@@ -23,7 +23,7 @@ $winDir   = Join-Path $bundle 'Contents\Windows'
 New-Item -ItemType Directory -Force -Path $lispDir, $winDir | Out-Null
 
 # LISP files (same as AutoCAD version, plus the GstarCAD loader)
-$allowedLisp = @('SBS.lsp','TL.lsp','TGL.lsp','TGN.lsp','TGN.dcl','HBD.lsp','DOITEXT.lsp','TGIRRLoaderG.lsp')
+$allowedLisp = @('SBS.lsp','TL.lsp','TGL.lsp','TGN.lsp','TGN.dcl','HBD.lsp','CVPL.lsp','DOITEXT.lsp','TGIRRLoaderG.lsp')
 Get-ChildItem $lispDir -File -ErrorAction SilentlyContinue | Where-Object { $_.Extension -in '.lsp','.dcl' } | Remove-Item -Force
 foreach ($f in $allowedLisp) {
   Copy-Item (Join-Path $root "src\lisp\$f") $lispDir -Force
