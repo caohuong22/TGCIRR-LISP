@@ -80,7 +80,9 @@
   (setq path (TGIRR:ZW-FIND name))
   (if path
     (progn
-      (setq result (vl-catch-all-apply '(lambda () (command "_NETLOAD" path))))
+      ;; ZWCAD cần Enter kết thúc NETLOAD; nếu bỏ đối số rỗng, command stack
+      ;; vẫn còn mở và loader tiếp theo thường trả về "Function cancelled".
+      (setq result (vl-catch-all-apply '(lambda () (command "_.NETLOAD" path ""))))
       (if (vl-catch-all-error-p result)
         (prompt (strcat "\nTGIRR ZWCAD: NETLOAD lỗi " name " - " (vl-catch-all-error-message result)))
         (prompt (strcat "\nTGIRR ZWCAD: NETLOAD ok " path))))
