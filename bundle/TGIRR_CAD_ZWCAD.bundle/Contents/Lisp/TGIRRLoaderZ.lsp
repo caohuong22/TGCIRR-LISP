@@ -104,10 +104,11 @@
       (TGIRR:ZW-LOAD-FILE "DOITEXT.lsp")
       ;; Nap plugin .NET (CPLUS, VDNG, TNET, TGIRRPALETTE)
       (TGIRR:ZW-NETLOAD "TGIRR.Zwcad.dll")
-      ;; Mo palette cong cu (neu lenh da duoc nap tu DLL)
-      (if (vl-catch-all-error-p (vl-catch-all-apply '(lambda () (command "_TGIRRPALETTE"))))
-        (prompt "\nTGIRR ZWCAD: Gõ TGIRRPALETTE để mở bảng công cụ.")
-        (prompt "\nTGIRR ZWCAD: Đã mở bảng công cụ TGIRR (gõ TGIRRPALETTE để bật/tắt)."))
+      ;; Không tự gọi command TGIRRPALETTE ngay trong lúc NETLOAD.
+      ;; Một số bản ZWCAD còn giữ command stack của NETLOAD; gọi command lồng
+      ;; tại đây sẽ khiến input bị chuyển thành "Needs a point or Last".
+      ;; DLL đã được nạp; người dùng gõ TGIRRPALETTE sau khi loader kết thúc.
+      (prompt "\nTGIRR ZWCAD: Đã nạp plugin. Gõ TGIRRPALETTE để mở bảng công cụ.")
       (prompt (strcat "\nTGIRR CAD cho ZWCAD: Thư mục gốc " root))
       (princ))))
 
