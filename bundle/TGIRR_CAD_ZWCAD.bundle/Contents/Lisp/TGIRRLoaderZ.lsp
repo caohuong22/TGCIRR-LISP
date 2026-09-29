@@ -88,6 +88,18 @@
         (prompt (strcat "\nTGIRR ZWCAD: NETLOAD ok " path))))
     (prompt (strcat "\nTGIRR ZWCAD: Không tìm thấy DLL " name))))
 
+;; Xếp lệnh mở Palette sau khi TGIRRLOAD kết thúc hẳn. Không dùng COMMAND
+;; lồng trực tiếp vì ZWCAD còn đang ở command stack của NETLOAD.
+(defun TGIRR:ZW-QUEUE-PALETTE (/ app doc result)
+  (setq result
+    (vl-catch-all-apply
+      '(lambda ()
+         (setq app (vlax-get-acad-object)
+               doc (vla-get-ActiveDocument app))
+         (vla-SendCommand doc "TGIRRPALETTE "))))
+  (if (vl-catch-all-error-p result)
+    (prompt "\nTGIRR ZWCAD: Hãy gõ TGIRRPALETTE để mở bảng công cụ.")))
+
 (defun c:TGIRRLOAD (/ root)
   (setq root (TGIRR:ZW-DIR))
   (setq *TGIRR:ZW-ROOT* root)
@@ -109,8 +121,9 @@
       ;; Không tự gọi command TGIRRPALETTE ngay trong lúc NETLOAD.
       ;; Một số bản ZWCAD còn giữ command stack của NETLOAD; gọi command lồng
       ;; tại đây sẽ khiến input bị chuyển thành "Needs a point or Last".
-      ;; DLL đã được nạp; người dùng gõ TGIRRPALETTE sau khi loader kết thúc.
-      (prompt "\nTGIRR ZWCAD: Đã nạp plugin. Gõ TGIRRPALETTE để mở bảng công cụ.")
+      ;; DLL đã được nạp; xếp Palette chạy sau khi loader kết thúc.
+      (prompt "\nTGIRR ZWCAD: Đã nạp plugin, đang mở bảng công cụ...")
+      (TGIRR:ZW-QUEUE-PALETTE)
       (prompt (strcat "\nTGIRR CAD cho ZWCAD: Thư mục gốc " root))
       (princ))))
 
