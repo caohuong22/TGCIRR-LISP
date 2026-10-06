@@ -40,6 +40,8 @@ class Tests {
   var grid=DripFillGeometry.Fill(new[]{P(0,0),P(10,0),P(10,5),P(0,5)},1,new DripVector(1,0));
   var fromEdge=DripFillGeometry.Fill(new[]{P(0,0),P(10,0),P(10,5),P(0,5)},1,new DripVector(1,0),0.0);
   Check("edge origin equals grid when origin on grid",grid.Count==fromEdge.Count);
+  Check("rows terminate on offset boundary",fromEdge.All(s=>Math.Abs(s.Start.X-0)<1e-9&&Math.Abs(s.End.X-10)<1e-9));
+  Check("rows preserve requested spacing",fromEdge.Zip(fromEdge.Skip(1),(a,b)=>Math.Abs((b.Start.Y-a.Start.Y)-1.0)<1e-9).All(x=>x));
   var half=DripFillGeometry.Fill(new[]{P(0,0),P(10,0),P(10,5),P(0,5)},1,new DripVector(1,0),0.5);
   Check("edge origin offsets rows",half.Count==5&&half.All(s=>Math.Abs((s.Start.Y-0.5)%1.0)<1e-9||Math.Abs((s.Start.Y-0.5)%1.0-1.0)<1e-9));
   Console.WriteLine($"VDNG regression: {passed} tests passed.");

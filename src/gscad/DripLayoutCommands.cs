@@ -168,6 +168,22 @@ namespace Tgirrr.CadLisp {
          tr.AddNewlyCreatedDBObject(c, true);
          segments++;
         }
+        // A selected curved edge may be too short, reversed, or separated
+        // from the inset region for geometric extension. Never leave the
+        // boundary empty: fall back to clipped straight rows in that region.
+        if (curved.Count == 0) {
+         var fillSegments = DripLayoutService.Fill(region, window.Spacing, direction, rowOrigin);
+         regionLength = fillSegments.Sum(s => s.Length);
+         foreach (var s in fillSegments) {
+          if (s.Length > bestLen) {
+           bestLen = s.Length;
+           bestMidX = (s.StartPoint.X + s.EndPoint.X) / 2;
+           bestMidY = (s.StartPoint.Y + s.EndPoint.Y) / 2;
+           bestZ = s.StartPoint.Z;
+          }
+         }
+         AppendSegments(tr, space, layerId, fillSegments, ref segments);
+        }
        } else {
         var fillSegments = DripLayoutService.Fill(region, window.Spacing, direction, rowOrigin);
         regionLength = fillSegments.Sum(s => s.Length);
@@ -198,6 +214,8 @@ namespace Tgirrr.CadLisp {
        }
        totalLength += regionLength;
        boundaryLength += regionLength;
+       // The inset boundary is the perimeter/header pipe. Keep exactly the
+       // single selected inward offset; branch rows terminate on this loop.
        region.LayerId = layerId;
        region.ColorIndex = 256;
        region.LineWeight = LineWeight.ByLayer;

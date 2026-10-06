@@ -9,7 +9,7 @@ namespace Tgirrr.CadLisp {
  public sealed class DripLayoutWindow : Window {
   static double lastInsetMeters = 0.1, lastSpacingMeters = 0.33;
   static bool lastSerpentine = true, lastAnnotate = true;
-  static bool lastUseDirection, lastUseEdge;
+  static bool lastUseDirection, lastUseEdge = true;
   static double? lastDirX, lastDirY;
 
   readonly TextBox inset = Input(0), spacing = Input(0);
