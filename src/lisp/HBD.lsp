@@ -39,6 +39,13 @@
   layer-name
 )
 
+;; Kiem tra phan mem CAD hien hanh co phai la AutoCAD hay khong
+(defun HBD:is-autocad (/ prod)
+  (setq prod (strcase (getvar "PRODUCT")))
+  (and (vl-string-search "AUTOCAD" prod)
+       (not (vl-string-search "ZWCAD" prod))
+       (not (vl-string-search "GSTARCAD" prod))))
+
 ;; Chuyen doi ename thanh selection set 1 doi tuong
 (defun HBD:ename-to-ss (ent / ss)
   (setq ss (ssadd))
@@ -185,11 +192,18 @@
 
 ;; Chuyen doi 1 SPLINE (hoac ELLIPSE) thanh LWPOLYLINE khep kin bang vlax-curve
 (defun HBD:spline-to-polyline (ent / obj lay col62 col420 isClosed pStart pEnd totalLen
-                                     nSeg dStep pts d pt newPl dxf)
-  (setq obj (vlax-ename->vla-object ent))
-  (if (vl-catch-all-error-p (vl-catch-all-apply 'vlax-curve-getEndParam (list obj)))
+                                     nSeg dStep pts d pt newPl dxf result)
+  ;; Do not let a bad/proxy curve call escape to AutoCAD's native layer.  On
+  ;; AutoCAD 2023 one malformed SPLINE/ELLIPSE can otherwise terminate acad.exe
+  ;; with an access violation instead of returning a VL error.
+  (setq obj (vl-catch-all-apply 'vlax-ename->vla-object (list ent)))
+  (if (or (vl-catch-all-error-p obj)
+          (vl-catch-all-error-p (vl-catch-all-apply 'vlax-curve-getEndParam (list obj))))
     nil
     (progn
+      (setq result
+        (vl-catch-all-apply
+      '(lambda ()
       (setq lay      (cdr (assoc 8 (entget ent)))
             col62    (assoc 62 (entget ent))
             col420   (assoc 420 (entget ent))
@@ -233,6 +247,7 @@
               newPl)
             ent))
         ent))))
+      (if (vl-catch-all-error-p result) nil result))))
 
 ;; Dong polyline mot cach AN TOAN: chi dat Closed khi 2 dau da trung/khap gan nhau.
 ;; Neu duong bao con ho (dau-cuoi lech qua dung sai) -> GIU NGUYEN, KHONG noi tat
@@ -245,11 +260,12 @@
       (setq pStart (vl-catch-all-apply 'vlax-curve-getStartPoint (list obj)))
       (setq pEnd   (vl-catch-all-apply 'vlax-curve-getEndPoint   (list obj)))
       (if (and (not (vl-catch-all-error-p pStart))
-               (not (vl-catch-all-error-p pEnd)))
+               (not (vl-catch-all-error-p pEnd))
+               pStart pEnd)
         (progn
           (setq dist (distance pStart pEnd))
-          ;; Dung sai 1e-4 ~ da trung nhau -> an toan de dong kin
-          (if (or (< dist 1e-4) (= (vla-get-Closed obj) :vlax-true))
+          ;; Dung sai 0.05m (5cm) ~ hai dau da giap nhau -> an toan de dong kin thanh Polygon
+          (if (or (< dist 0.05) (= (vla-get-Closed obj) :vlax-true))
             (vl-catch-all-apply 'vla-put-Closed (list obj :vlax-true))))))
   ent))
 
@@ -303,10 +319,13 @@
            (while (wcmatch (getvar "CMDNAMES") "*JOIN*")
              (command ""))))
 
-      ;; 2. Neu van con Line hoac Arc roi, dung PEDIT Join
+      ;; 2. Neu van con Line hoac Arc roi tren cac nen tang CAD khac (ZWCAD/GstarCAD), dung PEDIT Join an toan
+      ;; Tren AutoCAD, _.JOIN va bo ham spline-to-polyline xu ly sach se 100%,
+      ;; khong chay hop thoai PEDIT de tranh loi Crash / Access Violation.
       (setq resEnts (HBD:get-new-entities lastBefore))
-      (if (or (not resEnts)
-              (vl-some '(lambda (e) (member (cdr (assoc 0 (entget e))) '("LINE" "ARC"))) resEnts))
+      (if (and (not (HBD:is-autocad))
+               (or (not resEnts)
+                   (vl-some '(lambda (e) (member (cdr (assoc 0 (entget e))) '("LINE" "ARC"))) resEnts)))
         (progn
           (setq oldPedit (getvar "PEDITACCEPT"))
           (vl-catch-all-apply 'setvar (list "PEDITACCEPT" 1))
@@ -315,17 +334,7 @@
                (command "_.PEDIT" "_M" ss "" "_J" 0.05 "")
                (while (wcmatch (getvar "CMDNAMES") "*PEDIT*")
                  (command ""))))
-          (if oldPedit (vl-catch-all-apply 'setvar (list "PEDITACCEPT" oldPedit)))
-
-          ;; Fallback voi chuoi "_Y" neu CAD yeu cau xac nhan Convert Lines to Polylines
-          (setq resEnts (HBD:get-new-entities lastBefore))
-          (if (or (not resEnts)
-                  (vl-some '(lambda (e) (member (cdr (assoc 0 (entget e))) '("LINE" "ARC"))) resEnts))
-            (vl-catch-all-apply
-              '(lambda ()
-                 (command "_.PEDIT" "_M" ss "" "_Y" "_J" 0.05 "")
-                 (while (wcmatch (getvar "CMDNAMES") "*PEDIT*")
-                   (command "")))))))
+          (if oldPedit (vl-catch-all-apply 'setvar (list "PEDITACCEPT" oldPedit)))))
 
       ;; 3. Thu thap cac entity tao ra va dam bao Closed
       ;;    Luu y: mot so CAD sua doi entity tai cho (JOIN/PEDIT giu nguyen ename)
@@ -427,54 +436,250 @@
     (if (and e (entget e)) (ssadd e ss)))
   ss)
 
-(defun HBD:generate-boundary-single (hatch-ent / ss ok lastEnt created loose polys joined resList)
-  (setq lastEnt (entlast))
-  (setq ss (HBD:ename-to-ss hatch-ent))
-  ;; Thu lenh HATCHGENERATEBOUNDARY (co tren AutoCAD 2011+, ZWCAD, GstarCAD)
-  (setq ok (vl-cmdf "_.HATCHGENERATEBOUNDARY" ss ""))
-  (if (not ok)
-    ;; Fallback qua -HATCHEDIT
-    (setq ok (vl-cmdf "_.-HATCHEDIT" hatch-ent "_B" "_P" "_N")))
-  (setq created (HBD:get-new-entities lastEnt))
-  (if created
+;; Trich xuat duong bao Polyline/Line/Arc truc tiep tu du lieu DXF cua doi tuong HATCH
+;; Khong goi lenh AutoCAD -> An toan 100%, phong ngua triet de loi Access Violation / Crash tren CAD 2025
+(defun HBD:extract-dxf-boundary (hatch-ent / ed cur totalLoops outList pType isPoly hasBulge isClosed
+                                            numVerts pts bulges i b pl dxf numEdges eType
+                                            pStart pEnd pCenter radius angStart angEnd isCcw eLine eArc
+                                            dxf38 dxf210 targetLay)
+  (setq ed (entget hatch-ent))
+  (if (and ed (= (cdr (assoc 0 ed)) "HATCH"))
     (progn
-      ;; Phan loai: manh roi (LINE/ARC/SPLINE/ELLIPSE) vs duong bao co san
-      (setq loose
-        (vl-remove-if-not
-          '(lambda (e)
-             (and (entget e)
-                  (member (cdr (assoc 0 (entget e))) '("LINE" "ARC" "SPLINE" "ELLIPSE"))))
-          created))
-      (setq polys
-        (vl-remove-if-not
-          '(lambda (e)
-             (and (entget e)
-                  (member (cdr (assoc 0 (entget e))) '("LWPOLYLINE" "POLYLINE" "REGION"))))
-          created))
-      ;; JOIN cac manh roi thanh (cac) Polyline kep kin
-      (setq joined '())
-      (if loose
-        (setq joined (HBD:join-pieces-to-polylines (HBD:list-to-ss loose))))
-      ;; Don dep manh roi con sot lai sau JOIN (tranh rac tren ban ve)
-      (foreach e loose
-        (if (and e (entget e)
-                 (member (cdr (assoc 0 (entget e))) '("LINE" "ARC")))
-          (vl-catch-all-apply 'entdel (list e))))
-      (setq resList (HBD:clean-all-to-polylines (append polys joined)))
-      ;; Neu van chua co Polyline nao (join that bai) -> thu lai bang PEDIT join
-      ;; toan bo entity con song sot
-      (if (and (not resList) created)
-        (setq resList
-          (HBD:join-pieces-to-polylines
-            (HBD:list-to-ss
-              (vl-remove-if-not
-                '(lambda (e)
-                   (and e (entget e)
-                        (member (cdr (assoc 0 (entget e)))
-                                '("LINE" "ARC" "SPLINE" "ELLIPSE" "LWPOLYLINE" "POLYLINE"))))
-                created)))))
-      resList)
-    nil))
+      (setq targetLay (if (and *HBD:target-layer* (/= *HBD:target-layer* "")) *HBD:target-layer* "0"))
+      (setq dxf38  (assoc 38 ed))
+      (setq dxf210 (assoc 210 ed))
+      (setq cur (member (assoc 91 ed) ed))
+      (if cur
+        (progn
+          (setq totalLoops (cdr (car cur))
+                cur (cdr cur)
+                outList '())
+          (while (and cur (> totalLoops 0))
+            ;; Tim den ma 92 (Boundary path type)
+            (while (and cur (/= (caar cur) 92))
+              (setq cur (cdr cur)))
+            (if cur
+              (progn
+                (setq pType (cdar cur)
+                      cur (cdr cur)
+                      isPoly (/= (logand pType 4) 0))
+                (if isPoly
+                  ;; --- LOOP DANG POLYLINE ---
+                  (progn
+                    (setq hasBulge nil isClosed 1 numVerts 0)
+                    (while (and cur (not (member (caar cur) '(92 75 97 10))))
+                      (cond
+                        ((= (caar cur) 72) (setq hasBulge (= (cdar cur) 1)))
+                        ((= (caar cur) 73) (setq isClosed (cdar cur)))
+                        ((= (caar cur) 93) (setq numVerts (cdar cur))))
+                      (setq cur (cdr cur)))
+                    (setq pts '() bulges '())
+                    (while (and cur (or (= (caar cur) 10) (= (caar cur) 42)) (> numVerts 0))
+                      (if (= (caar cur) 10)
+                        (progn
+                          (setq pts (cons (list (cadar cur) (caddar cur)) pts))
+                          (setq numVerts (1- numVerts))
+                          (setq cur (cdr cur))
+                          (if (and cur (= (caar cur) 42))
+                            (progn
+                              (setq bulges (cons (cdar cur) bulges))
+                              (setq cur (cdr cur)))
+                            (setq bulges (cons 0.0 bulges))))
+                        (setq cur (cdr cur))))
+                    (setq pts (reverse pts)
+                          bulges (reverse bulges))
+                    (if (>= (length pts) 2)
+                      (progn
+                        (setq dxf
+                          (list
+                            '(0 . "LWPOLYLINE")
+                            '(100 . "AcDbEntity")
+                            (cons 8 targetLay)
+                            '(100 . "AcDbPolyline")
+                            (cons 90 (length pts))
+                            (cons 70 (if (/= isClosed 0) 1 0))))
+                        (if dxf38  (setq dxf (append dxf (list dxf38))))
+                        (if dxf210 (setq dxf (append dxf (list dxf210))))
+                        (setq i 0)
+                        (while (< i (length pts))
+                          (setq dxf (append dxf (list (cons 10 (nth i pts)))))
+                          (setq b (nth i bulges))
+                          (if (and b (/= b 0.0))
+                            (setq dxf (append dxf (list (cons 42 b)))))
+                          (setq i (1+ i)))
+                        (setq pl (entmakex dxf))
+                        (if pl (setq outList (cons pl outList))))))
+                  ;; --- LOOP DANG EDGES (LINE, CIRCULAR ARC, ...) ---
+                  (progn
+                    (setq numEdges 0)
+                    (while (and cur (not (member (caar cur) '(92 75 97 72))))
+                      (if (= (caar cur) 93) (setq numEdges (cdar cur)))
+                      (setq cur (cdr cur)))
+                    (while (and cur (> numEdges 0) (= (caar cur) 72))
+                      (setq eType (cdar cur)
+                            cur (cdr cur))
+                      (cond
+                        ;; Line edge
+                        ((= eType 1)
+                         (setq pStart nil pEnd nil)
+                         (if (and cur (= (caar cur) 10)) (setq pStart (cdar cur) cur (cdr cur)))
+                         (if (and cur (= (caar cur) 11)) (setq pEnd   (cdar cur) cur (cdr cur)))
+                         (if (and pStart pEnd)
+                           (setq eLine (entmakex
+                                         (list
+                                           '(0 . "LINE")
+                                           '(100 . "AcDbEntity")
+                                           (cons 8 targetLay)
+                                           '(100 . "AcDbLine")
+                                           (cons 10 (list (car pStart) (cadr pStart) 0.0))
+                                           (cons 11 (list (car pEnd)   (cadr pEnd)   0.0)))))
+                           (if eLine (setq outList (cons eLine outList)))))
+                        ;; Circular Arc edge
+                        ((= eType 2)
+                         (setq pCenter nil radius nil angStart nil angEnd nil isCcw 1)
+                         (if (and cur (= (caar cur) 10)) (setq pCenter (cdar cur) cur (cdr cur)))
+                         (if (and cur (= (caar cur) 40)) (setq radius  (cdar cur) cur (cdr cur)))
+                         (if (and cur (= (caar cur) 50)) (setq angStart (cdar cur) cur (cdr cur)))
+                         (if (and cur (= (caar cur) 51)) (setq angEnd   (cdar cur) cur (cdr cur)))
+                         (if (and cur (= (caar cur) 73)) (setq isCcw    (cdar cur) cur (cdr cur)))
+                         (if (and pCenter radius angStart angEnd)
+                           (progn
+                             (if (= isCcw 0)
+                               (setq eArc (entmakex
+                                            (list
+                                              '(0 . "ARC")
+                                              '(100 . "AcDbEntity")
+                                              (cons 8 targetLay)
+                                              '(100 . "AcDbCircle")
+                                              (cons 10 (list (car pCenter) (cadr pCenter) 0.0))
+                                              (cons 40 radius)
+                                              '(100 . "AcDbArc")
+                                              (cons 50 angEnd)
+                                              (cons 51 angStart))))
+                               (setq eArc (entmakex
+                                            (list
+                                              '(0 . "ARC")
+                                              '(100 . "AcDbEntity")
+                                              (cons 8 targetLay)
+                                              '(100 . "AcDbCircle")
+                                              (cons 10 (list (car pCenter) (cadr pCenter) 0.0))
+                                              (cons 40 radius)
+                                              '(100 . "AcDbArc")
+                                              (cons 50 angStart)
+                                              (cons 51 angEnd)))))
+                             (if eArc (setq outList (cons eArc outList))))))
+                        ;; Bo qua edge chua ho tro
+                        (T
+                         (while (and cur (not (member (caar cur) '(72 92 75 97))))
+                           (setq cur (cdr cur))))
+                      )
+                      (setq numEdges (1- numEdges)))
+                    ;; Bo qua phan con lai cua loop
+                    (while (and cur (not (member (caar cur) '(92 75 97))))
+                      (setq cur (cdr cur))))))
+              (setq totalLoops (1- totalLoops))))
+          outList)))))
+
+(defun HBD:generate-boundary-single (hatch-ent / lastEnt created hatchLay layRec layLocked loose polys joined resList)
+  (if (not (and hatch-ent (entget hatch-ent)
+                (= (cdr (assoc 0 (entget hatch-ent))) "HATCH")))
+    nil
+    (progn
+      (setq lastEnt (entlast))
+
+      ;; 1. Kiem tra va mo khoa tam thoi Layer cua Hatch neu bi khoa
+      (setq hatchLay (cdr (assoc 8 (entget hatch-ent))))
+      (setq layRec (if hatchLay (tblsearch "LAYER" hatchLay)))
+      (setq layLocked (and layRec (= (logand (cdr (assoc 70 layRec)) 4) 4)))
+      (if layLocked
+        (vl-catch-all-apply
+          '(lambda ()
+             (setvar "CMDECHO" 0)
+             (command "_.-LAYER" "_Unlock" hatchLay ""))))
+
+      ;; 2. Phuong phap 1 (Chuan & An toan nhat tren AutoCAD, ZWCAD, GstarCAD):
+      ;; Dung _.-HATCHEDIT voi tuy chon _B (recreate Boundary), _P (Polyline), _N (No associate).
+      ;; TUYET DOI KHONG DUNG HATCHGENERATEBOUNDARY tren AutoCAD vi gay Fatal Error Access Violation (0x002a)
+      ;; tren AutoCAD 2021-2026 khi gap Hatch co lo dao hoac bien cong phuc tap.
+      (vl-catch-all-apply
+        '(lambda ()
+           (vl-cmdf "_.-HATCHEDIT" hatch-ent "_B" "_P" "_N")
+           (while (wcmatch (getvar "CMDNAMES") "*HATCH*")
+             (command ""))))
+
+      (setq created (HBD:get-new-entities lastEnt))
+
+      ;; 3. Neu vl-cmdf bi tu choi tren mot so ban ve, thu lai bang (command ...)
+      (if (not created)
+        (progn
+          (vl-catch-all-apply
+            '(lambda ()
+               (command "_.-HATCHEDIT" hatch-ent "_B" "_P" "_N")
+               (while (wcmatch (getvar "CMDNAMES") "*HATCH*")
+                 (command ""))))
+          (setq created (HBD:get-new-entities lastEnt))))
+
+      ;; 4. Fallback 2: Tren ZWCAD hoac GstarCAD neu -HATCHEDIT chua ho tro, thu HATCHGENERATEBOUNDARY
+      ;; (Tuyet doi khong goi tren AutoCAD vi loi Access Violation 0x002a)
+      (if (and (not created) (not (HBD:is-autocad)))
+        (progn
+          (vl-catch-all-apply
+            '(lambda ()
+               (vl-cmdf "_.HATCHGENERATEBOUNDARY" hatch-ent "")
+               (while (wcmatch (getvar "CMDNAMES") "*HATCH*")
+                 (command ""))))
+          (setq created (HBD:get-new-entities lastEnt))))
+
+      ;; 5. Fallback 3: Trich xuat boundary truc tiep tu du lieu DXF cua Hatch
+      ;; (Doc du lieu entity, khong dung lenh AutoCAD nao -> an toan 100%)
+      (if (not created)
+        (setq created (HBD:extract-dxf-boundary hatch-ent)))
+
+      ;; Khoi phuc trang thai khoa layer neu truoc do bi khoa
+      (if layLocked
+        (vl-catch-all-apply
+          '(lambda ()
+             (setvar "CMDECHO" 0)
+             (command "_.-LAYER" "_Lock" hatchLay ""))))
+
+      (if created
+        (progn
+          ;; Phan loai: manh roi (LINE/ARC/SPLINE/ELLIPSE) vs duong bao co san
+          (setq loose
+            (vl-remove-if-not
+              '(lambda (e)
+                 (and (entget e)
+                      (member (cdr (assoc 0 (entget e))) '("LINE" "ARC" "SPLINE" "ELLIPSE"))))
+              created))
+          (setq polys
+            (vl-remove-if-not
+              '(lambda (e)
+                 (and (entget e)
+                      (member (cdr (assoc 0 (entget e))) '("LWPOLYLINE" "POLYLINE" "REGION"))))
+              created))
+          ;; JOIN cac manh roi thanh (cac) Polyline kep kin
+          (setq joined '())
+          (if loose
+            (setq joined (HBD:join-pieces-to-polylines (HBD:list-to-ss loose))))
+          ;; Don dep manh roi con sot lai sau JOIN (tranh rac tren ban ve)
+          (foreach e loose
+            (if (and e (entget e)
+                     (member (cdr (assoc 0 (entget e))) '("LINE" "ARC")))
+              (vl-catch-all-apply 'entdel (list e))))
+          (setq resList (HBD:clean-all-to-polylines (append polys joined)))
+          ;; Neu van chua co Polyline nao -> thu lai bang join toan bo entity con song sot
+          (if (and (not resList) created)
+            (setq resList
+              (HBD:join-pieces-to-polylines
+                (HBD:list-to-ss
+                  (vl-remove-if-not
+                    '(lambda (e)
+                       (and e (entget e)
+                            (member (cdr (assoc 0 (entget e)))
+                                    '("LINE" "ARC" "SPLINE" "ELLIPSE" "LWPOLYLINE" "POLYLINE"))))
+                    created)))))
+          resList)
+        nil))))
 
 ;; Lay Bounding Box cua 1 entity
 (defun HBD:get-bbox (ent / obj pmin pmax)
@@ -633,26 +838,41 @@
 ;;; THUAT TOAN LOC LO DAO (OUTER-ONLY)
 ;;; ==========================================================================
 
-;; Lay danh sach toa do dinh cua 1 polyline de kiem tra hinh hoc
-(defun HBD:get-poly-pts (ent / ed pts)
-  (setq ed (entget ent) pts '())
-  (foreach x ed
-    (if (= (car x) 10)
-      (setq pts (cons (list (cadr x) (caddr x)) pts))))
-  (reverse pts))
+;; Lay danh sach toa do dinh cua 1 polyline de kiem tra hinh hoc (ho tro ca LWPOLYLINE va POLYLINE cu)
+(defun HBD:get-poly-pts (ent / ed pts eSub edSub)
+  (if (and ent (setq ed (entget ent)))
+    (cond
+      ((= (cdr (assoc 0 ed)) "LWPOLYLINE")
+       (setq pts '())
+       (foreach x ed
+         (if (= (car x) 10)
+           (setq pts (cons (list (cadr x) (caddr x)) pts))))
+       (reverse pts))
+      ((= (cdr (assoc 0 ed)) "POLYLINE")
+       (setq pts '() eSub (entnext ent))
+       (while (and eSub (setq edSub (entget eSub)) (/= (cdr (assoc 0 edSub)) "SEQEND"))
+         (if (= (cdr (assoc 0 edSub)) "VERTEX")
+           (setq pts (cons (list (cadr (assoc 10 edSub)) (caddr (assoc 10 edSub))) pts)))
+         (setq eSub (entnext eSub)))
+       (reverse pts))
+      (T nil))
+    nil))
 
-;; Kiem tra diem nam trong polygon (ray-casting)
+;; Kiem tra diem nam trong polygon (ray-casting an toan voi moi loai toa do va kich thuoc tap diem)
 (defun HBD:pt-in-poly (pt poly / x y inside j i pi pj xi yi xj yj)
-  (setq x (car pt) y (cadr pt) inside nil j (1- (length poly)) i 0)
-  (while (< i (length poly))
-    (setq pi (nth i poly) pj (nth j poly)
-          xi (car pi) yi (cadr pi)
-          xj (car pj) yj (cadr pj))
-    (if (and (/= (> yi y) (> yj y))
-             (< x (+ xi (/ (* (- xj xi) (- y yi)) (- yj yi)))))
-      (setq inside (not inside)))
-    (setq j i i (1+ i)))
-  inside)
+  (if (and pt (listp pt) poly (listp poly) (>= (length poly) 3))
+    (progn
+      (setq x (car pt) y (cadr pt) inside nil j (1- (length poly)) i 0)
+      (while (< i (length poly))
+        (setq pi (nth i poly) pj (nth j poly)
+              xi (car pi) yi (cadr pi)
+              xj (car pj) yj (cadr pj))
+        (if (and xi yi xj yj (/= (> yi y) (> yj y))
+                 (< x (+ xi (/ (* (- xj xi) (- y yi)) (- yj yi)))))
+          (setq inside (not inside)))
+        (setq j i i (1+ i)))
+      inside)
+    nil))
 
 ;; Loc chi lay bao ngoai: chi xoa cac lo dao nam ben trong cac duong bao khac,
 ;; bao toan 100% cac tham co/bon cay doc lap khac tren ban ve
@@ -679,10 +899,13 @@
           (vl-remove-if
             '(lambda (item / eB ptB)
                (setq eB (car item))
-               (setq ptB (vlax-curve-getStartPoint (vlax-ename->vla-object eB)))
-               (if (HBD:pt-in-poly ptB ptsA)
+               (setq ptB (vl-catch-all-apply 'vlax-curve-getStartPoint (list (vlax-ename->vla-object eB))))
+               (if (and (not (vl-catch-all-error-p ptB))
+                        ptB
+                        (>= (length ptsA) 3)
+                        (HBD:pt-in-poly ptB ptsA))
                  (progn
-                   (if (entget eB) (entdel eB))
+                   (if (entget eB) (vl-catch-all-apply 'entdel (list eB)))
                    T) ; la lo dao cua pA -> xoa khoi ban ve va khoi danh sach
                  nil))
             sorted)))
@@ -691,15 +914,17 @@
 ;;; ==========================================================================
 ;;; LENH HBD: Ve duong bao Boundary cho Hatch co
 ;;; ==========================================================================
-(defun c:HBD (/ oldCmdecho oldOsmode *error* doc undoStarted entInitial
-                ssSel preSel opt entMau edMau patMau layMau colInfoMau
-                ssCandidates idx cand edC
+(defun c:HBD (/ oldCmdecho oldOsmode oldClayer oldHp *error* doc undoStarted entInitial
+                ssSel preSel selRes hEntClick opt entMau edMau patMau layMau colInfoMau
+                ssCandidates idx cand edC bbMau bbC sameNear
                 hatchList totalHatches totalBounds i hEnt
                 createdEnts allCreated finalBounds e bEnt)
 
   (setq doc (vla-get-ActiveDocument (vlax-get-acad-object)))
   (setq oldCmdecho (getvar "CMDECHO"))
-  (setq oldOsmode   (getvar "OSMODE"))
+  (setq oldOsmode  (getvar "OSMODE"))
+  (setq oldClayer  (getvar "CLAYER"))
+  (setq oldHp      (if (getvar "HPQUICKPREVIEW") (getvar "HPQUICKPREVIEW") nil))
   (setq undoStarted nil)
   (setq entInitial  nil)
 
@@ -714,7 +939,9 @@
               (vl-catch-all-apply 'entdel (list e)))))
         (vl-catch-all-apply 'vla-EndUndoMark (list doc))))
     (if oldCmdecho (setvar "CMDECHO" oldCmdecho))
-    (if oldOsmode (setvar "OSMODE"  oldOsmode))
+    (if oldOsmode  (setvar "OSMODE"  oldOsmode))
+    (if oldClayer  (setvar "CLAYER"  oldClayer))
+    (if oldHp      (setvar "HPQUICKPREVIEW" oldHp))
     (if (and msg (not (wcmatch (strcase msg) "*CANCEL*,*QUIT*,*BREAK*")))
       (prompt (strcat "\nTGIRR HBD Lỗi: " msg)))
     (princ))
@@ -729,28 +956,38 @@
       (setq ssSel preSel)
       (sssetfirst nil nil))
     (progn
-      ;; Hien thi menu lua chon
+      ;; Hien thi menu lua chon: Ho tro ca Click chuot truc tiep vao 1 Hatch, an Enter de quet chon, hoac nhap Menu
       (initget "M T J D L")
-      (setq opt
-        (getkword
+      (setq selRes
+        (entsel
           (strcat
-            "\n[HBD] Chọn Hatch cỏ hoặc [Mẫu(M) / Tất cả(T) / Hợp nhất("
+            "\n[HBD] Click chọn 1 Hatch cỏ hoặc [Mẫu(M) / Tất cả(T) / Hợp nhất("
             (if *HBD:union-bounds* "Bật" "Tắt")
             "-J) / Đảo("
             (if *HBD:outer-only* "Chỉ ngoài" "Cả đảo")
-            "-D) / Layer(L)]: ")))
+            "-D) / Layer(L)] <Quét chọn nhiều>: ")))
 
       (cond
-        ;; Tuy chon M: Chon theo hatch mau (Layer, Pattern va Mau sac)
-        ((= opt "M")
+        ;; 1. Nguoi dung click chuot truc tiep vao 1 Hatch
+        ((listp selRes)
+          (setq hEntClick (car selRes))
+          (if (and hEntClick (entget hEntClick) (= (cdr (assoc 0 (entget hEntClick))) "HATCH"))
+            (setq ssSel (HBD:ename-to-ss hEntClick))
+            (progn
+              (prompt "\nĐối tượng click chọn không phải là HATCH. Vui lòng quét chọn:")
+              (setq ssSel (ssget '((0 . "HATCH")))))))
+
+        ;; 2. Tuy chon M: Chon theo hatch mau (Layer, Pattern va Mau sac)
+        ((= selRes "M")
           (prompt "\nChọn 1 đối tượng HATCH cỏ làm mẫu: ")
           (setq entMau (car (entsel)))
-          (if (and entMau (= (cdr (assoc 0 (entget entMau))) "HATCH"))
+          (if (and entMau (entget entMau) (= (cdr (assoc 0 (entget entMau))) "HATCH"))
             (progn
               (setq edMau      (entget entMau)
                     patMau     (cdr (assoc 2 edMau))
                     layMau     (cdr (assoc 8 edMau))
-                    colInfoMau (HBD:get-color-info entMau))
+                    colInfoMau (HBD:get-color-info entMau)
+                    bbMau      (HBD:get-bbox entMau))
               (prompt
                 (strcat "\nMẫu đã chọn: Layer = \"" layMau
                         "\", Pattern = \"" (if (and patMau (/= patMau "")) patMau "SOLID")
@@ -771,6 +1008,8 @@
               (if ssCandidates
                 (progn
                   (setq ssSel (ssadd))
+                  ;; Dam bao chinh Hatch mau luon luon duoc giu trong danh sach
+                  (ssadd entMau ssSel)
                   (setq idx 0)
                   (while (< idx (sslength ssCandidates))
                     (setq cand (ssname ssCandidates idx)
@@ -783,17 +1022,19 @@
                     ;; 1. Cung Mau sac + cung Pattern (chac chan nhat, bat ke Layer)
                     ;; 2. Cung Layer chuyen dung (khong phai layer chung) + cung Pattern
                     ;; 3. Cung Layer chuyen dung + cung Mau sac
-                    ;; -> Da bo dieu kien "chi can cung Layer la nhan" vi gay chon nham
-                    ;;    cac hatch khac mau / khac pattern nam tren cung Layer
                     (setq sameLay (= (strcase layC) (strcase layMau))
                           samePat (HBD:pattern-match-p patC patMau)
                           sameCol (HBD:colors-match-p colC colInfoMau)
+                          bbC (HBD:get-bbox cand)
+                          sameNear (and sameCol bbMau bbC
+                                         (HBD:bbox-overlap-p bbMau bbC))
                           isGenericLay (or (= (strcase layMau) "0")
                                            (= (strcase layMau) "DEFPOINTS")
                                            (= (strcase layMau) "HATCH")))
 
                     (if (or
                           (and sameCol samePat)
+                          sameNear
                           (and sameLay (not isGenericLay) samePat)
                           (and sameLay (not isGenericLay) sameCol))
                       (ssadd cand ssSel))
@@ -805,11 +1046,14 @@
                             (itoa (sslength ssSel))
                             " Hatch phù hợp với mẫu (Layer: \"" layMau
                             "\", Màu: " (HBD:format-color-str colInfoMau) ").")))
-                (setq ssSel nil)))
-            (prompt "\nĐối tượng được chọn không phải là HATCH.")))
+                (progn
+                  (setq ssSel (ssadd))
+                  (ssadd entMau ssSel))))
+            (if entMau
+              (prompt "\nĐối tượng được chọn không phải là HATCH."))))
 
-        ;; Tuy chon T: Chon tat ca Hatch trong khong gian hien hanh
-        ((= opt "T")
+        ;; 3. Tuy chon T: Chon tat ca Hatch trong khong gian hien hanh
+        ((= selRes "T")
           (prompt "\nĐang tìm tất cả Hatch trong Model/Layout hiện hành...")
           (setq ssSel
             (ssget "_X"
@@ -817,8 +1061,8 @@
                 '(0 . "HATCH")
                 (cons 410 (getvar "CTAB"))))))
 
-        ;; Tuy chon J: Bat/tat che do tu dong hop nhat cac duong bao giap nhau lam 1
-        ((= opt "J")
+        ;; 4. Tuy chon J: Bat/tat che do tu dong hop nhat cac duong bao giap nhau lam 1
+        ((= selRes "J")
           (setq *HBD:union-bounds* (not *HBD:union-bounds*))
           (prompt
             (strcat
@@ -829,8 +1073,8 @@
           (prompt "\nQuét chọn các Hatch cần tạo đường bao: ")
           (setq ssSel (ssget '((0 . "HATCH")))))
 
-        ;; Tuy chon D: Dao che do chi lay duong bao ngoai hay giu ca dao
-        ((= opt "D")
+        ;; 5. Tuy chon D: Dao che do chi lay duong bao ngoai hay giu ca dao
+        ((= selRes "D")
           (setq *HBD:outer-only* (not *HBD:outer-only*))
           (prompt
             (strcat
@@ -841,8 +1085,8 @@
           (prompt "\nQuét chọn các Hatch cần tạo đường bao: ")
           (setq ssSel (ssget '((0 . "HATCH")))))
 
-        ;; Tuy chon L: Thay doi Layer dich
-        ((= opt "L")
+        ;; 6. Tuy chon L: Thay doi Layer dich
+        ((= selRes "L")
           (setq opt
             (getstring
               (strcat "\nNhập tên Layer đích <" *HBD:target-layer* ">: ")))
@@ -852,7 +1096,7 @@
           (prompt "\nQuét chọn các Hatch cần tạo đường bao: ")
           (setq ssSel (ssget '((0 . "HATCH")))))
 
-        ;; Mac dinh: Quet chon truc tiep
+        ;; 7. Mac dinh (An Enter / Space): Quet chon truc tiep bang ssget
         (T
           (prompt "\nQuét chọn các Hatch cỏ cần tạo đường bao: ")
           (setq ssSel (ssget '((0 . "HATCH"))))))))
@@ -864,8 +1108,10 @@
       (setvar "CMDECHO" oldCmdecho)
       (princ))
     (progn
-      ;; Dam bao layer dich ton tai
+      ;; Dam bao layer dich ton tai va tam dat lam CLAYER
       (HBD:ensure-layer *HBD:target-layer* 7 "Continuous")
+      (setvar "CLAYER" *HBD:target-layer*)
+      (if oldHp (vl-catch-all-apply 'setvar (list "HPQUICKPREVIEW" 0)))
 
       ;; Bat dau danh dau Undo
       (vla-StartUndoMark doc)
@@ -930,6 +1176,8 @@
       (vla-EndUndoMark doc)
       (setq undoStarted nil)
 
+      (if oldClayer (setvar "CLAYER"  oldClayer))
+      (if oldHp     (setvar "HPQUICKPREVIEW" oldHp))
       (setvar "CMDECHO" oldCmdecho)
       (setvar "OSMODE"  oldOsmode)
 
@@ -951,13 +1199,15 @@
 ;;; LENH JH (JOIN HATCH): Gop cac Hatch phan manh giap nhau thanh 1 Hatch duy nhat
 ;;; va tao 1 duong bao chung duy nhat tren Layer TG-BOUND
 ;;; ==========================================================================
-(defun c:JH (/ oldCmdecho oldOsmode doc undoStarted entInitial
+(defun c:JH (/ oldCmdecho oldOsmode oldClayer oldHp doc undoStarted entInitial
                ssSel hatchList firstEnt edFirst patName patScale patAngle patLayer patColor
                allBounds created finalBounds polySS hEnt bEnt e)
 
   (setq doc (vla-get-ActiveDocument (vlax-get-acad-object)))
   (setq oldCmdecho (getvar "CMDECHO"))
-  (setq oldOsmode   (getvar "OSMODE"))
+  (setq oldOsmode  (getvar "OSMODE"))
+  (setq oldClayer  (getvar "CLAYER"))
+  (setq oldHp      (if (getvar "HPQUICKPREVIEW") (getvar "HPQUICKPREVIEW") nil))
   (setq undoStarted nil)
   (setq entInitial  nil)
 
@@ -970,7 +1220,9 @@
               (vl-catch-all-apply 'entdel (list e)))))
         (vl-catch-all-apply 'vla-EndUndoMark (list doc))))
     (if oldCmdecho (setvar "CMDECHO" oldCmdecho))
-    (if oldOsmode (setvar "OSMODE"  oldOsmode))
+    (if oldOsmode  (setvar "OSMODE"  oldOsmode))
+    (if oldClayer  (setvar "CLAYER"  oldClayer))
+    (if oldHp      (setvar "HPQUICKPREVIEW" oldHp))
     (if (and msg (not (wcmatch (strcase msg) "*CANCEL*,*QUIT*,*BREAK*")))
       (prompt (strcat "\nTGIRR JH Lỗi: " msg)))
     (princ))
@@ -1020,6 +1272,9 @@
         (progn
           (prompt "\nKhông sinh được boundary cho các Hatch đã chọn.")
           (vla-EndUndoMark doc)
+          (setq undoStarted nil)
+          (if oldClayer (setvar "CLAYER"  oldClayer))
+          (if oldHp     (setvar "HPQUICKPREVIEW" oldHp))
           (setvar "CMDECHO" oldCmdecho)
           (princ))
         (progn
@@ -1069,6 +1324,8 @@
           (vla-EndUndoMark doc)
           (setq undoStarted nil)
 
+          (if oldClayer (setvar "CLAYER"  oldClayer))
+          (if oldHp     (setvar "HPQUICKPREVIEW" oldHp))
           (setvar "CMDECHO" oldCmdecho)
           (setvar "OSMODE"  oldOsmode)
 
