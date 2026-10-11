@@ -1,27 +1,58 @@
 # Danh sách lệnh TGIRR CAD LISP
 
-Dưới đây là toàn bộ lệnh **hiện đang hoạt động** trong tab Ribbon **TGIRR CAD LISP**. Mỗi lệnh đều có nút trên Ribbon; các lệnh đánh dấu "Có" cũng có thể gõ trực tiếp từ dòng lệnh AutoCAD.
+Toàn bộ lệnh **đang hoạt động** của TGIRR. Mỗi lệnh đều có nút trên cả hai bề mặt giao diện:
 
+- **AutoCAD**: tab Ribbon **TGIRR CAD LISP** (`TGIRRRIBBON` để mở/active tab).
+- **ZWCAD & GstarCAD**: bảng công cụ Palette **TGIRR CAD** (`TGIRRPALETTE`), palette Quick Tools riêng chứa các nút đã ghim ★ (`TGIRRQUICK`), và menu kéo xuống `TGIRR &CAD` (`MENULOAD` file `TGIRR_CAD.mnu`).
+
+Nhập/nhan/tooltip của mọi lệnh khai báo **một lần** trong [`src/catalog/tools.json`](../src/catalog/tools.json); bảng dưới đây, menu và danh muc palette được sinh từ file đó bằng `scripts/gen-catalog.ps1` (chạy `scripts/test-palette.ps1` để bắt lệch).
+
+<!-- BEGIN GENERATED COMMAND TABLE (source: src/catalog/tools.json) -->
 | Nhóm (Panel) | Lệnh | Chức năng | Gõ trực tiếp? |
 |---|---|---|---|
-| GIAO DIỆN | TGIRRPALETTE | Bật/tắt bảng công cụ Palette (ZWCAD & GstarCAD) | Có (`TGIRRPALETTE`) |
-| GIAO DIỆN | TGIRRQUICK | Bật/tắt palette Quick Tools riêng — chứa các nút đã ghim ★ (ZWCAD & GstarCAD) | Có (`TGIRRQUICK`) |
-| CHỌN | SBS | Chọn đối tượng giống mẫu nằm phần lớn trong Polyline kín | Có (`SBS`) |
-| CHỌN | SBSE | Chọn chính xác theo mẫu trong Polyline kín (bắt buộc trùng nội dung chữ TEXT/MTEXT, tên Block) | Có (`SBSE`) |
 | RANH GIỚI | HBD | Vẽ đường bao Polyline (Boundary) quanh Hatch cỏ, tự gán Layer `TG-BOUND` | Có (`HBD`, `BH`, `TGBOUND`) |
 | RANH GIỚI | JH | Gộp các Hatch phân mảnh giáp nhau thành 1 Hatch duy nhất + 1 Boundary chung | Có (`JH`, `MH`, `JOINHATCH`) |
 | RANH GIỚI | SP2PL | Chuyển đổi nhanh các đối tượng Spline và Region thành Polyline khép kín | Có (`SP2PL`, `REG2PL`, `C2PL`) |
 | RANH GIỚI | CVPL | Convert LINE, ARC, CIRCLE, ELLIPSE, SPLINE, POLYLINE kiểu cũ, REGION sang LWPOLYLINE (xóa nguồn); `CVPLG` giữ nguồn | Có (`CVPL`, `CVP`, `CVPLG`, `CV2PL`) |
-| ĐO | TL | Cộng tổng chiều dài các đường đã chọn trước | Có (`TL`) |
-| VĂN BẢN | DOITEXT | Chuyển MText sang Text tại chỗ hoặc gom nhiều MText thành 1 danh sách cột thẳng hàng | Có (`DOITEXT`, `M2T`) |
-| VĂN BẢN | CPLUS | Copy TEXT/MTEXT/Multileader/Attribute/Dimension Override theo số, chữ A–Z hoặc danh sách | Có (`CPLUS`) |
-| ĐÁNH SỐ | TGN | Đánh số đối tượng / vùng tưới bằng nhãn tròn/ellipse | Có (`TGN`) |
-| LAYER | TGL | Tạo bộ Layer tiêu chuẩn và đặt `TG-DRIP` làm layer hiện hành | Có (`TGL`) |
+| CHỌN | SBS | Chọn đối tượng giống mẫu nằm phần lớn trong Polyline kín | Có (`SBS`) |
+| CHỌN | SBSE | Chọn chính xác theo mẫu trong Polyline kín (bắt buộc trùng nội dung chữ TEXT/MTEXT, tên Block) | Có (`SBSE`) |
 | TƯỚI | VDNG | Vẽ dây nhỏ giọt bên trong Boundary kín (tự tạo layer `TG-DRIP`) — chọn hướng dây thủ công, nối zigzag liên tục, ghi chú + thống kê chiều dài | Có (`VDNG`) |
 | NÉT VẼ | TNET | Mở hộp thoại tạo/chỉnh sửa nét vẽ có chữ (file LIN); tự đo chiều dài vùng chữ trong CAD để căn chữ cân giữa hai đoạn gạch | Có (`TNET`) |
+| LAYER | TGL | Tạo bộ Layer tiêu chuẩn và đặt `TG-DRIP` làm layer hiện hành | Có (`TGL`) |
+| ĐO | TL | Cộng tổng chiều dài các đường đã chọn trước | Có (`TL`) |
+| ĐÁNH SỐ | TGN | Đánh số đối tượng / vùng tưới bằng nhãn tròn/ellipse | Có (`TGN`) |
+| VĂN BẢN | CPLUS | Copy TEXT/MTEXT/Multileader/Attribute/Dimension Override theo số, chữ A–Z hoặc danh sách | Có (`CPLUS`) |
+| VĂN BẢN | DOITEXT | Chuyển MText sang Text tại chỗ hoặc gom nhiều MText thành 1 danh sách cột thẳng hàng | Có (`DOITEXT`, `M2T`) |
+| GIAO DIỆN | TGIRRPALETTE | Bật/tắt bảng công cụ Palette (ZWCAD & GstarCAD) | Có (`TGIRRPALETTE`) |
+| GIAO DIỆN | TGIRRQUICK | Bật/tắt palette Quick Tools riêng — chứa các nút đã ghim ★ (ZWCAD & GstarCAD) | Có (`TGIRRQUICK`) |
+<!-- END GENERATED COMMAND TABLE -->
+
+## Nguồn giao diện duy nhất (dành cho lập trình viên)
+
+Tên nút, tooltip, nhóm, thứ tự mục menu và các dòng trong bảng trên **chỉ khai báo một lần**
+trong [`src/catalog/tools.json`](../src/catalog/tools.json). Sửa file đó rồi chạy:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/gen-catalog.ps1   # sinh menu + ToolCatalog + bang lenh
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/port-zwcad.ps1     # dong bo ban port ZWCAD
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/port-gscad.ps1     # dong bo ban port GstarCAD
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-palette.ps1   # kiem tra lech + chay test
+```
+
+Dầu ra của `gen-catalog.ps1` (không sửa tay):
+
+| File sinh ra | Dùng cho |
+|---|---|
+| `src/menu/TGIRR_CAD.mnu` (+ 2 bundle) | menu kéo xuống ZWCAD/GstarCAD |
+| `src/shared/ToolCatalog.generated.cs` (+ 2 bản port, 1 bản link vào Ribbon) | palette, Quick Tools, nút + tooltip Ribbon |
+| bảng giữa 2 marker `GENERATED COMMAND TABLE` trong tài liệu này | tài liệu lệnh |
+
+Mã nguồn palette thật nằm ở `src/shared/` (`PaletteCommands.cs`, `PaletteContent.cs`, `PaletteState.cs`);
+`src/zwcad/` và `src/gscad/` là bản port tự động (thay namespace + tên host), nên **không sửa trực tiếp**
+hai file `Palette*.cs` trong đó. `scripts/port-verify.ps1` và `tests/Palette.Regression` sẽ báo lỗi nếu
+bản port hoặc menu/tài liệu bị lệch khỏi nguồn.
 
 ## Chi tiết lệnh VDNG (Rải dây nhỏ giọt trong Boundary)
-
 - **Lệnh gọi**: `VDNG`.
 - **Mục đích**: Rải các đường dây nhỏ giọt song song bên trong một hoặc nhiều Boundary kín (`LWPOLYLINE` hoặc `CIRCLE`), tất cả đặt trên Layer chuẩn `TG-DRIP` (màu 34, tự tạo nếu chưa có).
 - **Tham số trong hộp thoại**:

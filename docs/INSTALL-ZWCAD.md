@@ -19,7 +19,11 @@ Bản port chạy trên **ZWCAD 2026** (API .NET `ZwSoft.ZwCAD.*`, runtime .NET 
 1. **Giao diện:** ZWCAD **không có API lập trình Ribbon** như AutoCAD (`Autodesk.Windows.RibbonTab`). Thay vào đó bản port dùng **PaletteSet dockable** (bảng công cụ neo được, API `ZwSoft.ZwCAD.Windows.PaletteSet`) chứa các nút bấm tương tự Ribbon:
    - Gõ `TGIRRPALETTE` để mở/đóng bảng công cụ **TGIRR CAD** (loader `TGIRRLOAD` tự mở sau khi nạp).
    - Palette **tự nhớ vị trí, kích thước và trạng thái neo (dock)** giữa các lần mở CAD (lưu tại `%APPDATA%\TGIRR\palette-state.txt` — host không tự lưu nên plugin tự ghi khi di chuyển/thay đổi kích thước/ẩn).
-   - **Quick Tools (palette riêng)**: rê chuột vào bất kỳ nút công cụ nào trong palette TGIRR CAD sẽ thấy ☆ ở góc phải — bấm để **ghim nút đó vào palette "TGIRR QUICK TOOLS" riêng biệt** (dockable, dock/kéo thả độc lập với palette chính; bấm ★ để bỏ ghim). Gõ `TGIRRQUICK` để ẩn/hiện palette Quick Tools. Danh sách ghim (`%APPDATA%\TGIRR\quick-tools.txt`) và vị trí/kích thước/dock (`%APPDATA%\TGIRR\quick-palette-state.txt`) đều được nhớ giữa các phiên CAD.
+   - **Quick Tools (palette riêng)**: mỗi nút đều có ★ ở góc phải (đang hiện mờ khi chưa ghim, rõ khi đã ghim) — bấm ★ để **ghim nút đó vào palette "TGIRR QUICK TOOLS" riêng biệt** (dockable, dock/kéo thả độc lập với palette chính; bấm ★ lần nữa để bỏ ghim). Gõ `TGIRRQUICK` để ẩn/hiện palette Quick Tools. Quick Tools **tự mở khi có nút ghim và tự ẩn khi bỏ ghim hết**; ★ được đồng bộ hai chiều giữa hai palette.
+   - **Tìm nhanh lệnh**: gõ vào ô *Tìm lệnh* ở đầu palette (phím tắt `Ctrl+F`, `Enter` chạy lệnh khớp đầu tiên, `Esc` xoá lọc). Tìm được cả theo mã lệnh, tên nút và biệt danh (`BH`, `M2T`, `CVPLG`...).
+   - **Thu gọn nhóm**: bấm vào tiêu đề nhóm (RANH GIỚI & BIÊN DẠNG / THIẾT KẾ & HỆ THỐNG / GHI CHÚ & TIỆN ÍCH) để đóng/mở; trạng thái thu gọn được nhớ (`%APPDATA%\TGIRR\palette-layout.txt`).
+   - Danh sách ghim (`%APPDATA%\TGIRR\quick-tools.txt`), vị trí/kích thước/dock từng palette (`palette-state.txt`, `quick-palette-state.txt`) đều được nhớ giữa các phiên CAD; ghi file theo kiểu atomic nên không hỏng dữ liệu khi CAD bị crash. Lệnh bị xoá/đổi tên sẽ tự được gỡ khỏi danh sách ghim.
+   - Đầu palette có hai nút: **⚡ Quick** (ẩn/hiện Quick Tools) và **⟳ Nạp lại** (chạy `TGIRRLOAD`).
    - Ngoài ra vẫn có menu kéo xuống `TGIRR_CAD.mnu` (dùng `MENULOAD`) và các **lệnh** gõ trực tiếp:
    - `SBS`, `TL`, `TGL`, `TGN` — lệnh AutoLISP
    - `CPLUS`, `VDNG`, `TNET` — lệnh .NET (`[CommandMethod]`)

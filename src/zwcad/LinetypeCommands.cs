@@ -9,7 +9,7 @@ namespace Tgirrr.CadLisp {
  public sealed class LinetypeCommands {
   [CommandMethod("TNET")]
   public void Run() {
-   Application.ShowModalWindow(new LinetypeWindow());
+   ZwSoft.ZwCAD.ApplicationServices.Core.Application.ShowModalWindow(new LinetypeWindow());
   }
  }
 }

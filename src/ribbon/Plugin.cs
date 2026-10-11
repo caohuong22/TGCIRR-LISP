@@ -3,6 +3,7 @@ using Autodesk.Windows;
 using System;
 using System.Windows;
 using System.Windows.Input;
+using System.Collections.Generic;
 using System.Windows.Media;
 [assembly: ExtensionApplication(typeof(Tgirrr.CadLisp.Plugin))]
 namespace Tgirrr.CadLisp {
@@ -43,7 +44,6 @@ namespace Tgirrr.CadLisp {
     var ed=doc?.Editor;
     ed?.WriteMessage("\n[TGIRR] Đã hiển thị Ribbon Tab 'TGIRR CAD LISP'.\n");
   }
-
   static void Build(){
     var ribbon=ComponentManager.Ribbon;
     if(ribbon==null)return;
@@ -53,62 +53,53 @@ namespace Tgirrr.CadLisp {
       return;
     }
     var tab=new RibbonTab{Id="TGIRR_TAB",Title="TGIRR CAD LISP",IsVisible=true};
-    var source=new RibbonPanelSource{Title="CHỌN"};
-    var panel=new RibbonPanel{Source=source};
-    var tip=new RibbonToolTip{Title="SBS — Chọn đối tượng giống mẫu trong vùng",Content="Chọn các đối tượng nằm trong Polyline kín và có cùng loại, Layer, màu, kiểu nét với đối tượng mẫu. Nếu mẫu là Block, lệnh còn so sánh tên Block.",ExpandedContent="Cách dùng:\n1. Chọn Polyline kín làm vùng bao.\n2. Chọn một đối tượng mẫu.\n3. Các đối tượng giống mẫu nằm phần lớn trong vùng sẽ được chọn.",Command="Lệnh tắt: SBS"};
-    var button=new RibbonButton{Text="SBS",ShowText=false,Size=RibbonItemSize.Large,Orientation=System.Windows.Controls.Orientation.Vertical,CommandHandler=new LispHandler("SBS"),Image=Icon(),LargeImage=Icon(),ToolTip=tip};
-    source.Items.Add(button);
-    var sbseTip=new RibbonToolTip{Title="SBSE — Chọn chính xác theo mẫu (trùng chữ)",Content="Chọn các đối tượng nằm trong Polyline kín có cùng loại, Layer, màu, kiểu nét, cùng tên Block (kể cả Dynamic Block) và BẮT BUỘC trùng nội dung chữ với TEXT/MTEXT.",ExpandedContent="Cách dùng:\n1. Chọn Polyline kín làm vùng bao.\n2. Chọn một đối tượng mẫu.\n3. Chỉ các đối tượng hoàn toàn trùng khớp (cùng nội dung chữ, tên block,...) nằm trong vùng sẽ được chọn.",Command="Lệnh: SBSE"};
-    var sbseButton=new RibbonButton{Text="SBSE",ShowText=false,Size=RibbonItemSize.Large,Orientation=System.Windows.Controls.Orientation.Vertical,CommandHandler=new LispHandler("SBSE"),Image=ExactSelectIcon(),LargeImage=ExactSelectIcon(),ToolTip=sbseTip};
-    source.Items.Add(sbseButton);
-    tab.Panels.Add(panel);
-    var boundSource=new RibbonPanelSource{Title="RANH GIỚI"};
-    var boundPanel=new RibbonPanel{Source=boundSource};
-    var hbdTip=new RibbonToolTip{Title="HBD — Vẽ đường bao Hatch cỏ",Content="Tự động tạo đường bao Polyline kín (Boundary) quanh các đối tượng Hatch cỏ trên Layer TG-BOUND.",ExpandedContent="Cách dùng:\n1. Chọn trước các Hatch rồi bấm nút HBD (hoặc bấm nút rồi quét chọn).\n2. Dùng tùy chọn M để lọc theo mẫu cỏ, J để tự động hợp nhất mảng giáp nhau.\n3. Đường bao tạo thành nằm trên Layer TG-BOUND.",Command="Lệnh: HBD (BH, TGBOUND)"};
-    var hbdButton=new RibbonButton{Text="HBD",ShowText=false,Size=RibbonItemSize.Large,Orientation=System.Windows.Controls.Orientation.Vertical,CommandHandler=new LispHandler("HBD",true),Image=BoundaryIcon(),LargeImage=BoundaryIcon(),ToolTip=hbdTip};
-    boundSource.Items.Add(hbdButton);
-    var jhTip=new RibbonToolTip{Title="JH — Gộp các Hatch thành 1",Content="Hợp nhất các Hatch phân mảnh giáp nhau thành 1 Hatch duy nhất và 1 đường bao chung trên Layer TG-BOUND.",ExpandedContent="Cách dùng:\n1. Chọn 2 hoặc nhiều Hatch phân mảnh giáp nhau.\n2. Bấm nút JH.\n3. Lệnh tự động triệt tiêu vách ngăn ở giữa, tạo 1 Hatch mới và 1 đường bao chung.",Command="Lệnh: JH (MH, JOINHATCH)"};
-    var jhButton=new RibbonButton{Text="JH",ShowText=false,Size=RibbonItemSize.Large,Orientation=System.Windows.Controls.Orientation.Vertical,CommandHandler=new LispHandler("JH",true),Image=JoinHatchIcon(),LargeImage=JoinHatchIcon(),ToolTip=jhTip};
-    boundSource.Items.Add(jhButton);
-    var cvplTip=new RibbonToolTip{Title="CVPL — Convert sang Polyline",Content="Chuyển LINE, ARC, CIRCLE, ELLIPSE, SPLINE, POLYLINE kiểu cũ và REGION thành LWPOLYLINE; giữ Layer/màu/nét; hỗ trợ UNDO 1 bước.",ExpandedContent="Cách dùng:\n1. Bấm nút CVPL.\n2. Quét chọn các đối tượng cần chuyển.\n3. ARC/CIRCLE chuyển chính xác bằng bulge; SPLINE/ELLIPSE rời rạc 128 điểm mẫu.\nGõ CVPLG (CV2PL) nếu muốn giữ nguyên đối tượng nguồn.",Command="Lệnh: CVPL (CVP) / CVPLG (CV2PL)"};
-    var cvplButton=new RibbonButton{Text="CVPL",ShowText=false,Size=RibbonItemSize.Large,Orientation=System.Windows.Controls.Orientation.Vertical,CommandHandler=new LispHandler("CVPL",true),Image=BoundaryIcon(),LargeImage=BoundaryIcon(),ToolTip=cvplTip};
-    boundSource.Items.Add(cvplButton);
-    tab.Panels.Add(boundPanel);
-    var measureSource=new RibbonPanelSource{Title="ĐO"};
-    var measurePanel=new RibbonPanel{Source=measureSource};
-    var measureTip=new RibbonToolTip{Title="TL — Tính tổng chiều dài",Content="Cộng tổng chiều dài của các Line, Polyline, Arc, Circle, Spline và Ellipse đã được chọn trước.",ExpandedContent="Cách dùng:\n1. Chọn trước toàn bộ đối tượng cần tính.\n2. Bấm nút TL.\n3. Tổng chiều dài sẽ hiện trong hộp thoại.",Command="Lệnh tắt: TL"};
-    var measureButton=new RibbonButton{Text="TL",ShowText=false,Size=RibbonItemSize.Large,Orientation=System.Windows.Controls.Orientation.Vertical,CommandHandler=new LispHandler("TL",true),Image=MeasureIcon(),LargeImage=MeasureIcon(),ToolTip=measureTip};
-    measureSource.Items.Add(measureButton);
-    tab.Panels.Add(measurePanel);
-    var textSource=new RibbonPanelSource{Title="VĂN BẢN"};
-    var textPanel=new RibbonPanel{Source=textSource};
-    var copyTip=new RibbonToolTip{Title="CPLUS — Copy theo quy luật",Content="Copy TEXT, MTEXT, Multileader, Attribute Block hoặc Dimension Override theo số, chữ A–Z hay danh sách.",ExpandedContent="Chọn nội dung cần tăng trong UI rồi bấm liên tiếp các điểm đặt. Khi chọn Attribute, CPLUS copy nguyên Block và chỉ đổi đúng Attribute đã chọn.",Command="Lệnh: CPLUS"};
-    var copyButton=new RibbonButton{Text="CPLUS",ShowText=false,Size=RibbonItemSize.Large,Orientation=System.Windows.Controls.Orientation.Vertical,CommandHandler=new LispHandler("CPLUS"),Image=CopyNumberIcon(),LargeImage=CopyNumberIcon(),ToolTip=copyTip};
-    textSource.Items.Add(copyButton);
-    var numberTip=new RibbonToolTip{Title="TGN — Đánh số đối tượng / vùng tưới",Content="Tạo số thứ tự căn giữa trong khung tròn hoặc ellipse trên Layer TG-number màu trắng.",ExpandedContent="Chọn phạm vi, số bắt đầu, bước nhảy, kích thước khung và chiều cao chữ trong hộp thoại. Có thể chọn thứ tự thủ công, tự sắp xếp theo tọa độ hoặc theo một đường dẫn Polyline; chọn điểm bắt đầu hay nhấn Enter/Space để dùng đầu path.",Command="Lệnh: TGN"};
-    var numberButton=new RibbonButton{Text="TGN",ShowText=false,Size=RibbonItemSize.Large,Orientation=System.Windows.Controls.Orientation.Vertical,CommandHandler=new LispHandler("TGN"),Image=CopyNumberIcon(),LargeImage=CopyNumberIcon(),ToolTip=numberTip};
-    textSource.Items.Add(numberButton);
-    var doiTextTip=new RibbonToolTip{Title="DOITEXT — Chuyển MText sang Text & Gom danh sách",Content="Chuyển đổi MText sang Text. Hỗ trợ 2 chế độ: gom nhiều MText thành 1 danh sách cột thẳng hàng (List) hoặc tách dòng tại chỗ (In-place).",ExpandedContent="Cách dùng:\n1. Bấm nút DOITEXT hoặc gõ M2T.\n2. Chọn các đối tượng MText cần chuyển.\n3. Chọn chế độ List (gom danh sách) hoặc In-place (tại chỗ).\n4. Pick điểm đặt và khoảng cách dòng nếu chọn List.",Command="Lệnh: DOITEXT (M2T)"};
-    var doiTextButton=new RibbonButton{Text="DOITEXT",ShowText=false,Size=RibbonItemSize.Large,Orientation=System.Windows.Controls.Orientation.Vertical,CommandHandler=new LispHandler("DOITEXT"),Image=DoiTextIcon(),LargeImage=DoiTextIcon(),ToolTip=doiTextTip};
-    textSource.Items.Add(doiTextButton);
-    tab.Panels.Add(textPanel);
-    var layerSource=new RibbonPanelSource{Title="LAYER"};
-    var layerPanel=new RibbonPanel{Source=layerSource};
-    var layerTip=new RibbonToolTip{Title="TGL — Tạo Layer tiêu chuẩn",Content="Tạo bộ 23 Layer TGIRR với đúng tên, màu và kiểu nét Continuous; các Layer đã có sẽ được giữ nguyên.",ExpandedContent="Cách dùng:\n1. Bấm nút TGL.\n2. Lệnh tự tạo các Layer còn thiếu.\n3. Layer TG-DRIP được đặt làm Layer hiện hành.",Command="Lệnh tắt: TGL"};
-    var layerButton=new RibbonButton{Text="TGL",ShowText=false,Size=RibbonItemSize.Large,Orientation=System.Windows.Controls.Orientation.Vertical,CommandHandler=new LispHandler("TGL"),Image=LayerIcon(),LargeImage=LayerIcon(),ToolTip=layerTip};
-    layerSource.Items.Add(layerButton);
-    tab.Panels.Add(layerPanel);
-    var lineSource=new RibbonPanelSource{Title="NÉT VẼ"};
-    var linePanel=new RibbonPanel{Source=lineSource};
-    var lineTip=new RibbonToolTip{Title="TNET — Tạo nét vẽ AutoCAD",Content="Mở cửa sổ tạo nét đơn giản hoặc nét có chữ, xem trước, lưu file LIN và nạp trực tiếp vào bản vẽ.",ExpandedContent="Nhập tên, đoạn gạch, khoảng trống, nội dung chữ và tỷ lệ; sau đó bấm Tạo và nạp vào CAD.",Command="Cửa sổ TNET"};
-    var lineButton=new RibbonButton{Text="TNET",ShowText=false,Size=RibbonItemSize.Large,Orientation=System.Windows.Controls.Orientation.Vertical,CommandHandler=new WindowHandler(),Image=LinetypeIcon(),LargeImage=LinetypeIcon(),ToolTip=lineTip};
-    lineSource.Items.Add(lineButton);
-    var dripTip=new RibbonToolTip{Title="VDNG — Vẽ dây nhỏ giọt",Content="Vẽ tự do có bo cong hoặc Offset theo đường bao trên Layer TG-DRIP màu 34.",ExpandedContent="TuDo: vẽ Polyline rồi tự bo góc. Offset: chọn đường bao và phía bên trong bồn.",Command="Lệnh: VDNG"};
-    var dripButton=new RibbonButton{Text="VDNG",ShowText=false,Size=RibbonItemSize.Large,Orientation=System.Windows.Controls.Orientation.Vertical,CommandHandler=new LispHandler("VDNG"),Image=CopyNumberIcon(),LargeImage=CopyNumberIcon(),ToolTip=dripTip};
-    lineSource.Items.Add(dripButton);
-    tab.Panels.Add(linePanel);
+    // Moi panel + nut sinh tu TgToolCatalog (nguồn src/catalog/tools.json),
+    // nen tooltip cua Ribbon khong the lech voi palette / menu / docs.
+    foreach (TgToolCatalog.TgRibbonPanel def in TgToolCatalog.RibbonPanels){
+      var items=new List<RibbonItem>();
+      foreach (TgToolInfo tool in def.Items){
+        if(tool==null)continue;
+        var tip=new RibbonToolTip{Title=tool.TipTitle,Content=tool.TipDesc,Command=tool.TipCommand};
+        if(!string.IsNullOrEmpty(tool.TipUsage)) tip.ExpandedContent="Cách dùng:\n"+tool.TipUsage;
+        var image=IconFor(TgToolCatalog.RibbonIconByKey(tool.Id));
+        items.Add(new RibbonButton{
+          Text=tool.Id,
+          ShowText=false,
+          Size=RibbonItemSize.Large,
+          Orientation=System.Windows.Controls.Orientation.Vertical,
+          CommandHandler=HandlerFor(tool),
+          Image=image,
+          LargeImage=image,
+          ToolTip=tip
+        });
+      }
+      if(items.Count==0)continue;
+      var source=new RibbonPanelSource{Title=def.Title};
+      foreach (RibbonItem item in items) source.Items.Add(item);
+      tab.Panels.Add(new RibbonPanel{Source=source});
+    }
     ribbon.Tabs.Add(tab);
     tab.IsActive=true;
+  }
+
+  /// <summary>"window" = mo hop thoai dung rieng (TNET); con lai go lenh qua command line.</summary>
+  static System.Windows.Input.ICommand HandlerFor(TgToolInfo tool){
+    if(tool.Runner=="window") return new WindowHandler(tool.Cmd);
+    return new LispHandler(tool.Cmd,tool.KeepSelection);
+  }
+
+  static ImageSource IconFor(string key){
+    switch(key){
+      case "exact": return ExactSelectIcon();
+      case "boundary": return BoundaryIcon();
+      case "joinhatch": return JoinHatchIcon();
+      case "measure": return MeasureIcon();
+      case "layers": return LayerIcon();
+      case "linetype": return LinetypeIcon();
+      case "copynumber": return CopyNumberIcon();
+      case "dotext": return DoiTextIcon();
+      default: return Icon();
+    }
   }
   static ImageSource Icon(){var g=new DrawingGroup();var cyan=new SolidColorBrush(Color.FromRgb(78,190,232));var white=new SolidColorBrush(Color.FromRgb(232,239,247));var muted=new SolidColorBrush(Color.FromRgb(132,150,170));var yellow=new SolidColorBrush(Color.FromRgb(255,196,61));var dark=new SolidColorBrush(Color.FromArgb(180,30,40,53));var boundary=new Pen(cyan,1.6){DashStyle=new DashStyle(new double[]{2.2,1.4},0)};var fine=new Pen(white,1.35);var dim=new Pen(muted,1.1);var focus=new Pen(yellow,1.8);g.Children.Add(new GeometryDrawing(dark,null,new RectangleGeometry(new Rect(1,1,30,30),3,3)));g.Children.Add(new GeometryDrawing(null,boundary,new RectangleGeometry(new Rect(4,5,24,21),1,1)));g.Children.Add(new GeometryDrawing(null,dim,new EllipseGeometry(new Point(10,12),3.2,3.2)));g.Children.Add(new GeometryDrawing(null,dim,new LineGeometry(new Point(17,9),new Point(24,14))));g.Children.Add(new GeometryDrawing(null,fine,new RectangleGeometry(new Rect(7,18,6,4))));g.Children.Add(new GeometryDrawing(null,focus,new EllipseGeometry(new Point(21,20),3.5,3.5)));var cursor=new StreamGeometry();using(var c=cursor.Open()){c.BeginFigure(new Point(24,22),true,true);c.LineTo(new Point(29,29),true,false);c.LineTo(new Point(25.5,28),true,false);c.LineTo(new Point(23.5,31),true,false);c.LineTo(new Point(22,23),true,false);}cursor.Freeze();g.Children.Add(new GeometryDrawing(white,new Pen(new SolidColorBrush(Color.FromRgb(25,32,43)),0.8),cursor));var image=new DrawingImage(g);image.Freeze();return image;}
   static ImageSource ExactSelectIcon(){var g=new DrawingGroup();var cyan=new SolidColorBrush(Color.FromRgb(78,190,232));var white=new SolidColorBrush(Color.FromRgb(232,239,247));var yellow=new SolidColorBrush(Color.FromRgb(255,196,61));var dark=new SolidColorBrush(Color.FromArgb(180,30,40,53));var boundary=new Pen(cyan,1.6){DashStyle=new DashStyle(new double[]{2.2,1.4},0)};g.Children.Add(new GeometryDrawing(dark,null,new RectangleGeometry(new Rect(1,1,30,30),3,3)));g.Children.Add(new GeometryDrawing(null,boundary,new RectangleGeometry(new Rect(3,4,26,22),1,1)));var fT=new FormattedText("T",System.Globalization.CultureInfo.InvariantCulture,FlowDirection.LeftToRight,new Typeface("Segoe UI Bold"),10,cyan,1);g.Children.Add(new GeometryDrawing(cyan,null,fT.BuildGeometry(new Point(6,7))));var fEq=new FormattedText("=",System.Globalization.CultureInfo.InvariantCulture,FlowDirection.LeftToRight,new Typeface("Segoe UI Bold"),12,yellow,1);g.Children.Add(new GeometryDrawing(yellow,null,fEq.BuildGeometry(new Point(14,6))));var cursor=new StreamGeometry();using(var c=cursor.Open()){c.BeginFigure(new Point(24,22),true,true);c.LineTo(new Point(29,29),true,false);c.LineTo(new Point(25.5,28),true,false);c.LineTo(new Point(23.5,31),true,false);c.LineTo(new Point(22,23),true,false);}cursor.Freeze();g.Children.Add(new GeometryDrawing(white,new Pen(new SolidColorBrush(Color.FromRgb(25,32,43)),0.8),cursor));var image=new DrawingImage(g);image.Freeze();return image;}
@@ -124,5 +115,5 @@ namespace Tgirrr.CadLisp {
   static ImageSource DoiTextIcon(){var g=new DrawingGroup();var dark=new SolidColorBrush(Color.FromArgb(180,30,40,53));var cyan=new SolidColorBrush(Color.FromRgb(78,190,232));var white=new SolidColorBrush(Color.FromRgb(232,239,247));var yellow=new SolidColorBrush(Color.FromRgb(255,196,61));g.Children.Add(new GeometryDrawing(dark,null,new RectangleGeometry(new Rect(1,1,30,30),3,3)));var fM=new FormattedText("M",System.Globalization.CultureInfo.InvariantCulture,FlowDirection.LeftToRight,new Typeface("Segoe UI Bold"),11,cyan,1);g.Children.Add(new GeometryDrawing(cyan,null,fM.BuildGeometry(new Point(3,5))));g.Children.Add(new GeometryDrawing(null,new Pen(yellow,1.5),new LineGeometry(new Point(14,11),new Point(18,11))));var arrow=new StreamGeometry();using(var c=arrow.Open()){c.BeginFigure(new Point(17,8.5),true,true);c.LineTo(new Point(20.5,11),true,false);c.LineTo(new Point(17,13.5),true,false);}arrow.Freeze();g.Children.Add(new GeometryDrawing(yellow,null,arrow));var fT=new FormattedText("T",System.Globalization.CultureInfo.InvariantCulture,FlowDirection.LeftToRight,new Typeface("Segoe UI Bold"),11,white,1);g.Children.Add(new GeometryDrawing(white,null,fT.BuildGeometry(new Point(22,5))));var linePen=new Pen(cyan,1.4);var linePenMuted=new Pen(white,1.2);g.Children.Add(new GeometryDrawing(null,linePen,new LineGeometry(new Point(4,20),new Point(27,20))));g.Children.Add(new GeometryDrawing(null,linePenMuted,new LineGeometry(new Point(4,24),new Point(23,24))));g.Children.Add(new GeometryDrawing(null,linePen,new LineGeometry(new Point(4,28),new Point(26,28))));g.Children.Add(new GeometryDrawing(yellow,null,new EllipseGeometry(new Point(2,20),1,1)));g.Children.Add(new GeometryDrawing(yellow,null,new EllipseGeometry(new Point(2,24),1,1)));g.Children.Add(new GeometryDrawing(yellow,null,new EllipseGeometry(new Point(2,28),1,1)));var image=new DrawingImage(g);image.Freeze();return image;}
  }
  public sealed class LispHandler:ICommand{readonly string command;readonly bool preserveSelection;public LispHandler(string value,bool keepSelection=false){command=value;preserveSelection=keepSelection;}public event EventHandler CanExecuteChanged{add{}remove{}}public bool CanExecute(object parameter)=>Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument!=null;public void Execute(object parameter){var doc=Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;if(doc!=null)doc.SendStringToExecute((preserveSelection?"":"\x1b\x1b")+"_."+command+" ",true,false,false);}}
- public sealed class WindowHandler:ICommand{public event EventHandler CanExecuteChanged{add{}remove{}}public bool CanExecute(object parameter)=>Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument!=null;public void Execute(object parameter){var doc=Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;if(doc!=null)doc.SendStringToExecute("\x1b\x1b"+"_.TNET ",true,false,false);}}
+ public sealed class WindowHandler:ICommand{readonly string command;public WindowHandler(string value){command=value;}public event EventHandler CanExecuteChanged{add{}remove{}}public bool CanExecute(object parameter)=>Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument!=null;public void Execute(object parameter){var doc=Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;if(doc!=null)doc.SendStringToExecute((command=="TNET"?"\x1b\x1b":"")+"_."+command+" ",true,false,false);}}
 }

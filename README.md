@@ -30,3 +30,19 @@ Thư viện AutoLISP + .NET tiếng Việt gồm công cụ bố trí tưới, �
   - [Hướng dẫn cài đặt GstarCAD (Palette + Menu)](docs/INSTALL-GSTARCAD.md)
   - [Danh mục lệnh TGIRR CAD](docs/COMMANDS.md)
 
+## Kiểm thử và danh mục giao diện
+
+- **Danh mục lệnh là nguồn duy nhất**: [`src/catalog/tools.json`](src/catalog/tools.json) khai báo tên nút,
+  tooltip, nhóm palette, mục menu, dòng tài liệu và nút/thứ tự Ribbon cho cả 3 nền tảng.
+  Sinh lại các file giao diện: `powershell -File scripts/gen-catalog.ps1`
+  (kiểm tra lệch: thêm `-Check`).
+- **Bản port ZWCAD/GstarCAD tự sinh** từ `src/ribbon` + `src/shared`: `scripts/port-zwcad.ps1`,
+  `scripts/port-gscad.ps1`; kiểm tra không lệch nguồn: `scripts/port-verify.ps1`.
+- **Test hồi quy**:
+  ```powershell
+  powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-palette.ps1  # catalog + port + state stores
+  powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-vdng.ps1     # build, package, soi hash DLL, VDNG
+  powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-cplus.ps1    # CPLUS
+  ```
+- **Đồng bộ bản đã cài vào AutoCAD** (không build lại): `scripts/sync-bundle.ps1`.
+

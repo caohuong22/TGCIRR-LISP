@@ -22,7 +22,7 @@ namespace Tgirrr.CadLisp {
    DripLayoutWindow window;
    while (true) {
     window = new DripLayoutWindow(doc.Database.Insunits);
-    if (Application.ShowModalWindow(window) != true) {
+    if (ZwSoft.ZwCAD.ApplicationServices.Core.Application.ShowModalWindow(window) != true) {
      if (!window.PickDirectionRequested) return;
      var pDir1 = ed.GetPoint(new PromptPointOptions("\nChọn điểm 1 xác định HƯỚNG dây nhỏ giọt: "));
      if (pDir1.Status != PromptStatus.OK) return;
@@ -35,7 +35,7 @@ namespace Tgirrr.CadLisp {
      if (Math.Abs(dv.X) < 1e-9 && Math.Abs(dv.Y) < 1e-9) { ed.WriteMessage("\nVDNG: 2 điểm trùng nhau — hủy chọn hướng."); return; }
      var next = new DripLayoutWindow(doc.Database.Insunits);
      next.SetDirection(dv.X, dv.Y);
-     if (Application.ShowModalWindow(next) != true) return;
+     if (ZwSoft.ZwCAD.ApplicationServices.Core.Application.ShowModalWindow(next) != true) return;
      window = next;
      break;
     }

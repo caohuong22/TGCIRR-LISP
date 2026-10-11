@@ -29,6 +29,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Danh muc lenh sinh tu src/catalog/tools.json (scripts/gen-catalog.ps1).
+         Namespace cua no la Tgirrr.CadLisp nen Ribbon dung chung metadata tooltip/nut. -->
+    <Compile Include="..\shared\ToolCatalog.generated.cs" Link="ToolCatalog.generated.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="AcCoreMgd">
       <HintPath>$(AutoCADDir)accoremgd.dll</HintPath>
       <HintPath Condition="!Exists('$(AutoCADDir)accoremgd.dll')">$(AutoCADDir)AcCoreMgd.dll</HintPath>
