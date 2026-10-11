@@ -19,6 +19,7 @@ ID_TGIRR_VDNG    [Rai day nho giot (&VDNG)]^C^CVDNG
 ID_TGIRR_TNET    [Tao net ve co chu (&TNET)]^C^CTNET
                  [--]
 ID_TGIRR_PALETTE [Bang cong cu Palette (&PALETTE)]^C^CTGIRRPALETTE
+ID_TGIRR_QUICK   [Palette Quick Tools da ghim (&QUICK)]^C^CTGIRRQUICK
 
 ***HELPSTRINGS
 ID_TGIRR_SBS     [Chon cac doi tuong giong mau nam phan lon trong Polyline kin]
@@ -34,3 +35,4 @@ ID_TGIRR_CPLUS   [Copy TEXT/MTEXT/Multileader/Attribute/Dimension theo quy luat]
 ID_TGIRR_VDNG    [Ve day nho giot ben trong Boundary kin]
 ID_TGIRR_TNET    [Mo hop thoai tao/chinh sua net ve co chu (file LIN)]
 ID_TGIRR_PALETTE [Bat hoac tat bang cong cu TGIRR CAD Palette]
+ID_TGIRR_QUICK   [Bat hoac tat palette Quick Tools rieng (cac nut da ghim bang sao ☆)]

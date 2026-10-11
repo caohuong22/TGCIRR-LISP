@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,6 +14,7 @@ namespace Tgirrr.CadLisp {
  /// </summary>
  public sealed class PaletteCommands {
   static PaletteSet _ps;
+  static PaletteGeometryKeeper _keeper;
   static readonly Guid PaletteId = new Guid("4A5F71BD-560C-4A2D-A537-88D83B106F79");
 
   [CommandMethod("TGIRRPALETTE")]
@@ -25,12 +27,17 @@ namespace Tgirrr.CadLisp {
                  PaletteSetStyles.ShowPropertiesMenu |
                  PaletteSetStyles.Snappable;
      _ps.DockEnabled = DockSides.Left | DockSides.Right | DockSides.Top | DockSides.Bottom;
-     _ps.MinimumSize = new System.Drawing.Size(260, 360);
-     _ps.Size = new System.Drawing.Size(290, 460);
-     try { _ps.Dock = DockSides.None; } catch { }
+     _ps.MinimumSize = new System.Drawing.Size(260, 300);
+     // Tu luu/phuc hoi vi tri, kich thuoc, trang thai neo: %APPDATA%\TGIRR\palette-state.txt
+     _keeper = new PaletteGeometryKeeper(_ps, "palette-state.txt", 290, 460, 260, 300);
+     _keeper.ApplyAndAttach();
      _ps.AddVisual("TGIRR CAD", new PaletteContent());
      _ps.Visible = true;
+     _keeper.PostShow();
+     // Palette Quick Tools RIENG (dockable doc lap): tu mo neu da co nut ghim tu phien truoc
+     QuickPalette.EnsureSynced();
     } else {
+     if (_ps.Visible && _keeper != null) _keeper.PersistNow();
      _ps.Visible = !_ps.Visible;
     }
     if (_ps.Visible) {
@@ -40,6 +47,239 @@ namespace Tgirrr.CadLisp {
     var ed = ZwSoft.ZwCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument?.Editor;
     ed?.WriteMessage("\n[TGIRR] Loi bat Palette TGIRR CAD: " + ex.Message + "\n");
    }
+  }
+
+ }
+
+ /// <summary>
+ /// Lenh TGIRRQUICK + quan ly palette Quick Tools RIENG: mot PaletteSet dockable doc lap
+ /// chua cac nut duoc ghim (★ tu Palette TGIRR CAD). Tu mo khi co nut ghim, tu an khi bo ghim het.
+ /// Vi tri/kich thuoc/trang thai neo nho rieng qua %APPDATA%\TGIRR\quick-palette-state.txt.
+ /// </summary>
+ public sealed class QuickPalette {
+  static PaletteSet _qp;
+  static PaletteGeometryKeeper _keeper;
+  static QuickToolsContent _content;
+  static readonly Guid QuickId = new Guid("9B2F6C31-4E7A-4D5F-8A1C-3F7E2B9D5C46");
+
+  [CommandMethod("TGIRRQUICK")]
+  public void Toggle() {
+   try {
+    if (PaletteContent.PinnedCount == 0) {
+     var ed = ZwSoft.ZwCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument?.Editor;
+     ed?.WriteMessage("\n[TGIRR] Quick Tools dang trong — mo Palette TGIRR CAD, bam ☆ o nut cong cu de ghim vao Quick Tools.\n");
+     return;
+    }
+    if (_qp == null) { Create(); return; }
+    if (_qp.Visible && _keeper != null) _keeper.PersistNow();
+    _qp.Visible = !_qp.Visible;
+   } catch (System.Exception ex) {
+    var ed = ZwSoft.ZwCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument?.Editor;
+    ed?.WriteMessage("\n[TGIRR] Loi bat/tat Quick Tools: " + ex.Message + "\n");
+   }
+  }
+
+  /// <summary>Goi khi palette chinh mo (dau phien CAD): co nut ghim thi tao + hien Quick Tools.</summary>
+  internal static void EnsureSynced() {
+   try {
+    if (PaletteContent.PinnedCount > 0 && _qp == null) Create();
+    else if (_content != null) _content.Refresh();
+   } catch { }
+  }
+
+  /// <summary>Goi khi danh sach ghim thay doi: cap nhat noi dung, hien khi co ghim, an khi bo het.</summary>
+  internal static void OnPinsChanged() {
+   try {
+    if (_content != null) _content.Refresh();
+    if (PaletteContent.PinnedCount == 0) {
+     if (_qp != null) { try { _qp.Visible = false; } catch { } }
+     return;
+    }
+    if (_qp == null) Create();
+    else { try { _qp.Visible = true; } catch { } }
+   } catch { }
+  }
+
+  static void Create() {
+   // Chac chan Catalog da duoc xay (nguoi dung co the go TGIRRQUICK truoc khi mo palette chinh)
+   if (!PaletteContent.HasCatalog) { var warm = new PaletteContent(); GC.KeepAlive(warm); }
+   _qp = new PaletteSet("TGIRR QUICK TOOLS", QuickId);
+   _qp.Style = PaletteSetStyles.ShowAutoHideButton |
+               PaletteSetStyles.ShowCloseButton |
+               PaletteSetStyles.ShowPropertiesMenu |
+               PaletteSetStyles.Snappable;
+   _qp.DockEnabled = DockSides.Left | DockSides.Right | DockSides.Top | DockSides.Bottom;
+   _qp.MinimumSize = new System.Drawing.Size(150, 64);
+   _keeper = new PaletteGeometryKeeper(_qp, "quick-palette-state.txt", 300, 130, 150, 64);
+   _keeper.ApplyAndAttach();
+   _content = new QuickToolsContent();
+   _qp.AddVisual("Quick Tools", _content);
+   _qp.Visible = true;
+   _keeper.PostShow();
+  }
+ }
+
+ /// <summary>
+ /// Tu luu + phuc hoi dock/vi tri/kich thuoc cua mot PaletteSet qua %APPDATA%\TGIRR\(ten file)
+ /// (host CAD khong tu nho giua cac phien). Chong ca cac truong hop host "quen": bo qua Size
+ /// dat truoc khi hien, reset kich thuoc luc layout, khong ban event SizeChanged khi keo tha.
+ /// </summary>
+ sealed class PaletteGeometryKeeper {
+  readonly PaletteSet ps;
+  readonly string fileName;
+  readonly int defW, defH, minW, minH;
+  int[] savedGeom;
+  System.Windows.Threading.DispatcherTimer pollTimer;
+  int lastDock = int.MinValue, lastX = int.MinValue, lastY = int.MinValue, lastW = int.MinValue, lastH = int.MinValue;
+
+  internal PaletteGeometryKeeper(PaletteSet ps, string fileName, int defW, int defH, int minW, int minH) {
+   this.ps = ps; this.fileName = fileName;
+   this.defW = defW; this.defH = defH; this.minW = minW; this.minH = minH;
+  }
+
+  /// <summary>Phuc hoi dock/vi tri/kich thuoc da luu (Dock truoc, Size/Location sau) va gan event — goi TRUOC khi Visible=true.</summary>
+  internal void ApplyAndAttach() {
+   int dock = 0, x = -1, y = -1, w = defW, h = defH;
+   bool have = PaletteStateStore.TryLoad(fileName, ref dock, ref x, ref y, ref w, ref h);
+   w = Math.Max(minW, Math.Min(w, 4000));
+   h = Math.Max(minH, Math.Min(h, 4000));
+   savedGeom = new[] { have ? dock : 0, x, y, w, h };
+   bool docked = false;
+   if (have && dock != 0) {
+    try { ps.Dock = (DockSides)dock; docked = true; } catch { }
+   }
+   if (!docked) { try { ps.Dock = DockSides.None; } catch { } }
+   SetSizeClamped(w, h);
+   // Chi dat vi tri khi noi (dock thi host tu xep) va con nam tren man hinh ao (tranh man hinh phu bi rut).
+   if (!docked && have && x >= 0 && y >= 0 && IsOnVirtualScreen(x, y)) {
+    try { ps.Location = new System.Drawing.Point(x, y); } catch { }
+   }
+   ps.SizeChanged += (s, e) => Persist(e.Width, e.Height);
+   ps.PaletteSetMoved += (s, e) => Persist(null, null);
+   ps.Saving += (s, e) => Persist(null, null);
+   ps.StateChanged += (s, e) => { if (e.NewState == StateEventIndex.Hide) Persist(null, null); };
+  }
+
+  /// <summary>Goi SAU khi Visible=true: ap lai geometry (host hay bo qua gia tri dat truoc khi hien),
+  /// giu dung gia tri da luu ~2.25s dau (host co the reset nhieu lan luc layout), roi dua polling bat thay doi.</summary>
+  internal void PostShow() {
+   if (savedGeom == null) return;
+   System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() => {
+    ReapplySavedGeometry();
+    Persist(savedGeom[3], savedGeom[4]);
+   }), System.Windows.Threading.DispatcherPriority.Loaded);
+   var settle = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(450) };
+   int ticks = 0;
+   settle.Tick += (s, e) => {
+    ticks++;
+    try {
+     var sz = ps.Size;
+     if (sz.Width != savedGeom[3] || sz.Height != savedGeom[4]) ReapplySavedGeometry();
+    } catch { }
+    if (ticks >= 5) { settle.Stop(); Persist(savedGeom[3], savedGeom[4]); }
+   };
+   settle.Start();
+   StartPolling();
+  }
+
+  internal void PersistNow() { Persist(null, null); }
+
+  void ReapplySavedGeometry() {
+   try { if (!ps.Visible) return; } catch { return; }
+   SetSizeClamped(savedGeom[3], savedGeom[4]);
+   if (savedGeom[0] == 0 && savedGeom[1] >= 0 && savedGeom[2] >= 0 && IsOnVirtualScreen(savedGeom[1], savedGeom[2])) {
+    try { ps.Location = new System.Drawing.Point(savedGeom[1], savedGeom[2]); } catch { }
+   }
+  }
+
+  void SetSizeClamped(int w, int h) {
+   try { ps.Size = new System.Drawing.Size(Math.Max(minW, Math.Min(w, 4000)), Math.Max(minH, Math.Min(h, 4000))); } catch { }
+  }
+
+  /// <summary>Doc trang thai hien tai (uu tien kich thuoc that tu event args) va ghi file khi hop le.</summary>
+  void Persist(int? widthOverride, int? heightOverride) {
+   try {
+    if (ps == null) return;
+    int dock = 0, x = 0, y = 0, w = 0, h = 0;
+    try { dock = (int)ps.Dock; } catch { }
+    try { x = ps.Location.X; y = ps.Location.Y; } catch { }
+    try { w = ps.Size.Width; h = ps.Size.Height; } catch { }
+    if (widthOverride.HasValue && widthOverride.Value > 0) w = widthOverride.Value;
+    if (heightOverride.HasValue && heightOverride.Value > 0) h = heightOverride.Value;
+    if (w <= 0 || h <= 0) return;
+    lastDock = dock; lastX = x; lastY = y; lastW = w; lastH = h;
+    PaletteStateStore.Save(fileName, dock, x, y, w, h);
+   } catch { }
+  }
+
+  /// <summary>Polling nhe trong luc palette hien — du phong khi host khong ban event luc keo tha.</summary>
+  void StartPolling() {
+   if (pollTimer != null) return;
+   pollTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(700) };
+   pollTimer.Tick += (s, e) => {
+    try {
+     if (!ps.Visible) return;
+     int dock = 0, x = 0, y = 0, w = 0, h = 0;
+     try { dock = (int)ps.Dock; } catch { }
+     try { x = ps.Location.X; y = ps.Location.Y; } catch { }
+     try { w = ps.Size.Width; h = ps.Size.Height; } catch { }
+     if (dock != lastDock || x != lastX || y != lastY || w != lastW || h != lastH) Persist(null, null);
+    } catch { }
+   };
+   pollTimer.Start();
+  }
+
+  static bool IsOnVirtualScreen(int x, int y) {
+   double l = SystemParameters.VirtualScreenLeft, t = SystemParameters.VirtualScreenTop;
+   double w = SystemParameters.VirtualScreenWidth, h = SystemParameters.VirtualScreenHeight;
+   return x + 60 > l && x < l + w && y + 20 > t && y < t + h;
+  }
+ }
+
+ /// <summary>Luu dock/vi tri/kich thuoc cua tung Palette vao %APPDATA%\TGIRR\(ten file), dinh dang "v1 dock x y w h".</summary>
+ static class PaletteStateStore {
+  static string StateDir { get { return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TGIRR"); } }
+  static string FileFor(string name) { return System.IO.Path.Combine(StateDir, name); }
+  internal static void Save(string file, int dock, int x, int y, int w, int h) {
+   try {
+    System.IO.Directory.CreateDirectory(StateDir);
+    System.IO.File.WriteAllText(FileFor(file), "v1 " + dock + " " + x + " " + y + " " + w + " " + h);
+   } catch { }
+  }
+  internal static bool TryLoad(string file, ref int dock, ref int x, ref int y, ref int w, ref int h) {
+   try {
+    if (!System.IO.File.Exists(FileFor(file))) return false;
+    var parts = System.IO.File.ReadAllText(FileFor(file)).Split(' ');
+    if (parts.Length < 6 || parts[0] != "v1") return false;
+    dock = int.Parse(parts[1]); x = int.Parse(parts[2]); y = int.Parse(parts[3]);
+    w = int.Parse(parts[4]); h = int.Parse(parts[5]);
+    return true;
+   } catch { return false; }
+  }
+ }
+
+ /// <summary>Luu danh sach nut duoc ghim vao %APPDATA%\TGIRR\quick-tools.txt (dinh dang "v1 CMD|CMD...").</summary>
+ static class QuickToolStore {
+  static string StateDir { get { return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TGIRR"); } }
+  static string StateFile { get { return System.IO.Path.Combine(StateDir, "quick-tools.txt"); } }
+  internal static void Save(List<string> pins) {
+   try {
+    System.IO.Directory.CreateDirectory(StateDir);
+    System.IO.File.WriteAllText(StateFile, "v1 " + string.Join("|", pins.ToArray()));
+   } catch { }
+  }
+  internal static List<string> Load() {
+   var list = new List<string>();
+   try {
+    if (!System.IO.File.Exists(StateFile)) return list;
+    var txt = System.IO.File.ReadAllText(StateFile);
+    if (!txt.StartsWith("v1 ")) return list;
+    foreach (var s in txt.Substring(3).Split('|')) {
+     var t = s.Trim();
+     if (t.Length > 0 && !list.Contains(t)) list.Add(t);
+    }
+   } catch { }
+   return list;
   }
  }
 
@@ -138,7 +378,7 @@ namespace Tgirrr.CadLisp {
 
    // Footer
    root.Children.Add(new TextBlock {
-    Text = "Gõ TGIRRPALETTE để ẩn / hiện bảng công cụ",
+    Text = "Gõ TGIRRPALETTE để ẩn / hiện • Bấm ☆ ở mỗi nút để ghim vào palette Quick Tools riêng (TGIRRQUICK)",
     Foreground = new SolidColorBrush(Color.FromRgb(100, 116, 139)),
     FontSize = 10.5,
     TextAlignment = TextAlignment.Center,
@@ -268,7 +508,43 @@ namespace Tgirrr.CadLisp {
    return card;
   }
 
-  static Button MakeActionButton(
+  // ----- Quick tools: danh muc nut + danh sach ghim — hien thi tren palette Quick Tools RIENG -----
+  internal sealed class QuickToolInfo {
+   internal readonly string Cmd, Label, TipTitle, TipDesc, TipCmd;
+   internal readonly Color Accent;
+   internal readonly bool KeepSelection;
+   internal QuickToolInfo(string cmd, string label, string t, string d, string c, Color a, bool k) {
+    Cmd = cmd; Label = label; TipTitle = t; TipDesc = d; TipCmd = c; Accent = a; KeepSelection = k;
+   }
+  }
+  static readonly Dictionary<string, QuickToolInfo> Catalog = new Dictionary<string, QuickToolInfo>();
+  static readonly List<string> Pinned = QuickToolStore.Load();
+
+  internal static bool HasCatalog { get { return Catalog.Count > 0; } }
+  internal static int PinnedCount { get { return Pinned.Count; } }
+
+  /// <summary>Danh sach nut duoc ghim theo thu tu ghim (chi tra ve nut con trong Catalog).</summary>
+  internal static List<QuickToolInfo> PinnedInfos() {
+   var list = new List<QuickToolInfo>();
+   foreach (var cmd in Pinned) {
+    QuickToolInfo info;
+    if (Catalog.TryGetValue(cmd, out info)) list.Add(info);
+   }
+   return list;
+  }
+
+  static bool IsPinned(string cmd) { return Pinned.Contains(cmd); }
+
+  static bool TogglePin(string cmd) {
+   bool now;
+   if (Pinned.Contains(cmd)) { Pinned.Remove(cmd); now = false; }
+   else { Pinned.Add(cmd); now = true; }
+   QuickToolStore.Save(Pinned);
+   QuickPalette.OnPinsChanged();
+   return now;
+  }
+
+  internal static Button MakeActionButton(
    string cmd,
    string label,
    string tipTitle,
@@ -276,8 +552,10 @@ namespace Tgirrr.CadLisp {
    string tipCmd,
    Color accent,
    bool keepSelection,
-   bool isWide
+   bool isWide,
+   bool pinned = false
   ) {
+   Catalog[cmd] = new QuickToolInfo(cmd, label, tipTitle, tipDesc, tipCmd, accent, keepSelection);
    var b = new Button {
     Template = ButtonTemplate,
     Height = isWide ? 29 : 31,
@@ -314,6 +592,31 @@ namespace Tgirrr.CadLisp {
    DockPanel.SetDock(badge, Dock.Left);
    dock.Children.Add(badge);
 
+   // Sao ghim Quick tools: hover moi hien (nút đã ghim thì hiện luôn), bam de ghim/bo ghim
+   bool starred = pinned || IsPinned(cmd);
+   var pin = new TextBlock {
+    Text = starred ? "★" : "☆",
+    FontSize = 12,
+    Background = Brushes.Transparent,
+    Foreground = new SolidColorBrush(starred ? AmberAccent : MutedText),
+    VerticalAlignment = VerticalAlignment.Center,
+    Margin = new Thickness(0, 0, 2, 0),
+    Cursor = Cursors.Hand,
+    ToolTip = starred ? "Bỏ ghim khỏi Quick tools" : "Ghim lên Quick tools",
+    Opacity = starred ? 1 : 0
+   };
+   pin.PreviewMouseLeftButtonDown += (s, e) => e.Handled = true;
+   pin.PreviewMouseLeftButtonUp += (s, e) => {
+    e.Handled = true;
+    bool now = TogglePin(cmd);
+    pin.Text = now ? "★" : "☆";
+    pin.Foreground = new SolidColorBrush(now ? AmberAccent : MutedText);
+    pin.ToolTip = now ? "Bỏ ghim khỏi Quick tools" : "Ghim lên Quick tools";
+    pin.Opacity = now ? 1 : 0;
+   };
+   DockPanel.SetDock(pin, Dock.Right);
+   dock.Children.Add(pin);
+
    // Nhan chuc nang
    var text = new TextBlock {
     Text = label,
@@ -338,10 +641,16 @@ namespace Tgirrr.CadLisp {
    b.MouseEnter += (s, e) => {
     b.Background = hoverBg;
     b.BorderBrush = hoverBorder;
+    bool p2 = IsPinned(cmd);
+    pin.Text = p2 ? "★" : "☆";
+    pin.Foreground = new SolidColorBrush(p2 ? AmberAccent : MutedText);
+    pin.ToolTip = p2 ? "Bỏ ghim khỏi Quick tools" : "Ghim lên Quick tools";
+    pin.Opacity = 1;
    };
    b.MouseLeave += (s, e) => {
     b.Background = normalBg;
     b.BorderBrush = normalBorder;
+    pin.Opacity = IsPinned(cmd) ? 1 : 0;
    };
    b.PreviewMouseLeftButtonDown += (s, e) => {
     b.Background = pressedBg;
@@ -415,6 +724,36 @@ namespace Tgirrr.CadLisp {
    var doc = ZwSoft.ZwCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument;
    if (doc != null) {
     doc.SendStringToExecute((keepSelection ? "" : "\x1b\x1b") + cmd + " ", true, false, false);
+   }
+  }
+ }
+
+ /// <summary>
+ /// Noi dung WPF cua palette Quick Tools RIENG: WrapPanel cac nut duoc ghim (★),
+ /// dung chung kieu nut va tooltip voi PaletteContent. Bam ★ tren nut de bo ghim.
+ /// </summary>
+ sealed class QuickToolsContent : UserControl {
+  readonly WrapPanel panel = new WrapPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(7, 5, 3, 1) };
+
+  public QuickToolsContent() {
+   Background = new SolidColorBrush(Color.FromRgb(24, 32, 43));
+   Content = new ScrollViewer {
+    Content = panel,
+    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+    HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
+   };
+   Refresh();
+  }
+
+  internal void Refresh() {
+   panel.Children.Clear();
+   foreach (var info in PaletteContent.PinnedInfos()) {
+    var b = PaletteContent.MakeActionButton(info.Cmd, info.Label, info.TipTitle, info.TipDesc, info.TipCmd, info.Accent, info.KeepSelection, false, true);
+    b.Height = 27;
+    b.MinWidth = 120;
+    b.Margin = new Thickness(0, 0, 4, 4);
+    b.HorizontalAlignment = HorizontalAlignment.Left;
+    panel.Children.Add(b);
    }
   }
  }

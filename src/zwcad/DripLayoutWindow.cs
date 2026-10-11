@@ -24,7 +24,7 @@ namespace Tgirrr.CadLisp {
 
   internal double Inset, Spacing;
   internal bool Serpentine, Annotate, UseEdge;
-  /// <summary>Hướng dây do người dùng chỉ định (đã chuẩn hóa); null = tự động theo cạnh dài nhất.</summary>
+  /// <summary>Hướng dây do người dùng chỉ định (đã chuẩn hóa); null = tự động theo trục dài của Boundary.</summary>
   internal double? DirX, DirY;
   readonly UnitsValue drawingUnits;
   UnitsValue displayedUnit;
@@ -100,7 +100,7 @@ namespace Tgirrr.CadLisp {
     Padding = new Thickness(10, 8, 10, 8),
     Margin = new Thickness(0, 10, 0, 10),
     Child = new TextBlock {
-     Text = "Không chọn hướng: dây rải theo cạnh dài nhất của Boundary. Đường offset phía trong được giữ lại để nối các đầu dây.",
+     Text = "Không chọn hướng: dây rải THẲNG song song trục dài của Boundary. Đường offset phía trong được giữ lại để nối các đầu dây.",
      TextWrapping = TextWrapping.Wrap,
      Foreground = new SolidColorBrush(Color.FromRgb(171, 190, 207))
     }
@@ -195,7 +195,7 @@ namespace Tgirrr.CadLisp {
     if (deg < 0) deg += 360;
     directionHint.Text = "Hướng hiện tại: " + deg.ToString("0.#") + "° — bấm RẢI DÂY để áp dụng, hoặc bấm XÓA HƯỚNG ĐÃ CHỌN để chọn lại cho ô khác.";
    } else {
-    directionHint.Text = "Chưa chọn hướng — dây rải theo cạnh dài nhất. Tích chọn rồi bấm RẢI DÂY để chỉ 2 điểm xác định hướng.";
+    directionHint.Text = "Chưa chọn hướng — dây rải thẳng song song trục dài của Boundary. Tích chọn rồi bấm RẢI DÂY để chỉ 2 điểm xác định hướng.";
    }
    directionHint.Margin = new Thickness(22, 2, 0, 6);
   }

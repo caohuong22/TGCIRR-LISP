@@ -52,11 +52,13 @@ namespace Tgirrr.CadLisp {
    double seedRadius = 0;
    if (window.UseEdge) {
     var pe = ed.GetPoint(new PromptPointOptions("\nVDNG: Pick 1 điểm trên cạnh chuẩn của Boundary (thẳng: offset song song; cong: bám cong theo cung): "));
-    if (pe.Status != PromptStatus.OK) return;
-    var pick = new Point2d(pe.Value.X, pe.Value.Y);
+    bool picked = pe.Status == PromptStatus.OK;
+    if (!picked && pe.Status != PromptStatus.Cancel) return;
+    var pick = picked ? new Point2d(pe.Value.X, pe.Value.Y) : new Point2d(0, 0);
     double bestDist = double.MaxValue;
+    // Bấm Esc ở bước pick: bỏ qua hẳn việc tìm cạnh chuẩn để rơi về hướng trục dài của Boundary (không thoát lệnh).
     using (var tr0 = doc.TransactionManager.StartTransaction()) {
-     foreach (var id in selection.Value.GetObjectIds()) {
+     foreach (var id in picked ? selection.Value.GetObjectIds() : new ObjectId[0]) {
       var ent = tr0.GetObject(id, OpenMode.ForRead) as Entity;
       var poly = ent as Polyline;
       if (poly == null) continue;
@@ -102,7 +104,9 @@ namespace Tgirrr.CadLisp {
     if (haveArc) {
      ed.WriteMessage("\nVDNG: Cạnh chuẩn là CUNG bán kính " + seedRadius.ToString("0.###") + " — dây sẽ bám cong song song theo cung với bước = khoảng cách dây.");
     } else if (!haveEdge) {
-     ed.WriteMessage("\nVDNG: Không tìm thấy cạnh thẳng/cung gần điểm pick — dùng hướng tự động theo cạnh dài nhất.");
+     ed.WriteMessage(picked
+      ? "\nVDNG: Không tìm thấy cạnh thẳng/cung gần điểm pick — dùng hướng tự động theo trục dài của Boundary."
+      : "\nVDNG: Đã bỏ qua bước pick cạnh chuẩn — rải dây THẲNG song song TRỤC DÀI của Boundary.");
      rowOrigin = null;
     } else {
      ed.WriteMessage("\nVDNG: Cạnh chuẩn cách điểm pick " + bestDist.ToString("0.###") + " — dây sẽ offset song song từ cạnh này với bước = khoảng cách dây.");
@@ -150,10 +154,13 @@ namespace Tgirrr.CadLisp {
       foreach (Polyline region in regions) {
        double regionLength = 0;
        double bestLen = 0, bestZ = 0, bestMidX = 0, bestMidY = 0;
-       bool curveMode = haveArc || (!haveEdge && DripLayoutService.ShouldCurveFollow(region, window.Spacing));
+       // Bám cong khi người dùng pick cạnh cung, hoặc TỰ ĐỘNG với ô dài hẹp có biên cong:
+       // dây lướt mượt song song biên thay vì hàng thẳng cắt chéo hai đầu ô.
+       Polyline autoSeed = haveArc ? null : DripLayoutService.AutoCurveSeed(region, window.Spacing);
+       bool curveMode = haveArc || autoSeed != null;
        if (curveMode) {
         curvedRegions++;
-        var curved = DripLayoutService.CurvedFollow(haveArc ? seedArc : null, region, window.Spacing);
+        var curved = DripLayoutService.CurvedFollow(haveArc ? seedArc : autoSeed, region, window.Spacing);
         foreach (var c in curved) {
          regionLength += c.Length;
          if (c.Length > bestLen) {
@@ -184,6 +191,7 @@ namespace Tgirrr.CadLisp {
          }
          AppendSegments(tr, space, layerId, fillSegments, ref segments);
         }
+        autoSeed?.Dispose();
        } else {
         var fillSegments = DripLayoutService.Fill(region, window.Spacing, direction, rowOrigin);
         regionLength = fillSegments.Sum(s => s.Length);

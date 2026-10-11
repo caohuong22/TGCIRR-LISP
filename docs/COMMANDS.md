@@ -5,6 +5,7 @@ Dưới đây là toàn bộ lệnh **hiện đang hoạt động** trong tab Ri
 | Nhóm (Panel) | Lệnh | Chức năng | Gõ trực tiếp? |
 |---|---|---|---|
 | GIAO DIỆN | TGIRRPALETTE | Bật/tắt bảng công cụ Palette (ZWCAD & GstarCAD) | Có (`TGIRRPALETTE`) |
+| GIAO DIỆN | TGIRRQUICK | Bật/tắt palette Quick Tools riêng — chứa các nút đã ghim ★ (ZWCAD & GstarCAD) | Có (`TGIRRQUICK`) |
 | CHỌN | SBS | Chọn đối tượng giống mẫu nằm phần lớn trong Polyline kín | Có (`SBS`) |
 | CHỌN | SBSE | Chọn chính xác theo mẫu trong Polyline kín (bắt buộc trùng nội dung chữ TEXT/MTEXT, tên Block) | Có (`SBSE`) |
 | RANH GIỚI | HBD | Vẽ đường bao Polyline (Boundary) quanh Hatch cỏ, tự gán Layer `TG-BOUND` | Có (`HBD`, `BH`, `TGBOUND`) |
@@ -28,15 +29,16 @@ Dưới đây là toàn bộ lệnh **hiện đang hoạt động** trong tab Ri
   - **Khoảng cách giữa dây**: bước rải song song. Mặc định 0.33m.
   - **Đơn vị nhập**: tự động theo `INSUNITS` của bản vẽ hoặc chọn tay mm/cm/m.
 - **Tùy chọn**:
-  - **Chọn hướng dây trên bản vẽ (2 điểm)**: mặc định hướng dây lấy theo cạnh dài nhất của Boundary; nếu tick chọn, sau khi bấm `RẢI DÂY` lệnh quay lại bản vẽ để chỉ 2 điểm xác định hướng rải (góc hiển thị trong hộp thoại khi mở lại). Hướng được **ghi nhớ giữa các lần chạy**; bấm nút **"XÓA HƯỚNG ĐÃ CHỌN"** để xóa hướng cũ khi sang ô/bồn khác có hướng khác (nút chỉ bật khi đang có hướng đã chọn).
+  - **Chọn hướng dây trên bản vẽ (2 điểm)**: mặc định hướng dây lấy theo **trục dài của Boundary** (hàng dây thẳng chạy song song chiều dài ô); nếu tick chọn, sau khi bấm `RẢI DÂY` lệnh quay lại bản vẽ để chỉ 2 điểm xác định hướng rải (góc hiển thị trong hộp thoại khi mở lại). Hướng được **ghi nhớ giữa các lần chạy**; bấm nút **"XÓA HƯỚNG ĐÃ CHỌN"** để xóa hướng cũ khi sang ô/bồn khác có hướng khác (nút chỉ bật khi đang có hướng đã chọn).
   - **Offset từ cạnh chuẩn**: tick chọn rồi bấm `RẢI DÂY`, lệnh yêu cầu **pick 1 điểm trên cạnh của Boundary**:
     - Pick vào **cạnh thẳng** (kể cả cạnh nằm chéo/xiên): hướng dây lấy theo cạnh đó và các hàng dây **offset song song xuất phát từ chính cạnh chuẩn** với bước = khoảng cách dây, cắt gọn trong vùng lùi.
     - Pick vào **cung (cạnh cong)**: dây **bám cong song song theo cung** — mỗi hàng là một cung đồng tâm với cạnh chuẩn, cách nhau đúng khoảng cách dây, hai đầu được kéo dài cắt gọn vào biên vùng. Chế độ này tự tắt zigzag (dây cong vốn đã liên tục).
-    - Nếu điểm pick không gần cạnh thẳng/cung nào, lệnh tự quay về hướng tự động và báo trên command line.
+    - Nếu điểm pick không gần cạnh thẳng/cung nào — hoặc **bấm `Esc`/chuột phải để bỏ qua bước pick** — lệnh tự quay về hướng tự động (trục dài của Boundary) và báo trên command line, **không thoát lệnh**.
   - **Nối dây liên tục kiểu zigzag**: gom toàn bộ các đoạn dây của mỗi Boundary thành **1 Polyline duy nhất** đi kiểu "rắn bò" (hàng chẵn đi xuôi, hàng lẻ đi ngược, cuối hàng này nối thẳng sang đầu hàng kế) — đúng cách thả một cuộn dây thực tế, dễ đo tổng mét dây. Tắt thì mỗi hàng là các đoạn rời.
   - **Ghi chú thông số + tổng chiều dài dây**: mỗi vùng rải có **1 ghi chú TEXT nằm gọn bên trong bound** của vùng đó — canh giữa hàng dây dài nhất, xoay theo hướng dây, chiều cao chữ tự giới hạn theo khoảng cách dây để không tràn ra ngoài; nội dung ghi khoảng cách dây và chiều dài dây của vùng. Đồng thời in **tổng chiều dài toàn bộ** ra command line phục vụ bóc khối lượng.
-- **Tự nhận diện ô cong / ô lượn (mặc định)**: với mỗi vùng rải, lệnh đếm **số lần đảo chiều hướng đi dọc biên** (biên lượn sóng hữu cơ có nhiều lần đảo lõm–lồi liên tiếp; hình chữ nhật/đa giác đều có 0 lần). Nếu ≥ 6 lần đảo (hoặc có chuỗi cung dài) thì vùng được rải theo chế độ **vòng contour song song biên**: offset liên tiếp toàn bộ biên vào trong từng bước = khoảng cách dây, mỗi vòng là một polyline khép kín nằm gọn trong vùng, tự dừng khi vùng còn lại quá nhỏ — nhờ vậy ô dải dài cong, bồn bo tròn hay biên lượn sóng hữu cơ đều được phủ kín và dây luôn chạy song song biên. Ô thẳng/chữ nhật vẫn rải hàng thẳng như thường. Số vùng bám biên được báo ở dòng tổng kết.
-- **Xử lý thông minh**: Boundary hở ≥ 3 đỉnh được **tự đóng kín**; `CIRCLE` được tự quy về Polyline; biên có cung tròn (kể cả biên offset bo góc) được rời rạc hóa rồi rải bằng thuật toán scanline thuần túy (có 18 test hồi quy trong `tests/VDNG.Regression`).
+- **Luôn rải hàng thẳng trong biên (mặc định)**: ô thẳng, ô chéo hay biên lượn sóng bất kỳ đều được rải bằng **các hàng dây THẲNG offset song song** (từ cạnh chuẩn do người dùng pick, hoặc theo hướng tự động = trục dài của Boundary), bước = khoảng cách dây, hai đầu cắt gọn trong vùng lùi. Lệnh **KHÔNG tự offset cả biên vào trong**. Chế độ **bám cong** kích hoạt khi người dùng chủ động **pick vào một cạnh cung** làm cạnh chuẩn, **hoặc TỰ ĐỘNG** với ô dải dài hẹp có biên cong (tỉ lệ dài/rộng ≥ 5): khi đó mỗi hàng là một cung đồng tâm song song cạnh dài nhất của biên, kéo dài cắt gọn vào biên vùng — dây lướt mượt theo độ cong của ô, không còn bị cắt chéo ở hai đầu ô hẹp. Số vùng bám cong được báo ở dòng tổng kết.
+- **Hướng tự động = trục dài của Boundary**: hướng mặc định (không tick chọn hướng) được suy ra bằng **phân tích phương sai các điểm rời rạc hoá toàn biên** nên ô dài hẹp — kể cả khi biên vẽ bằng nhiều cạnh thẳng ngắn hoặc cung (ô cong, dải bám tuyến) — vẫn ra hàng dây thẳng chạy **song song chiều dài ô**, không bị nhặt theo một cạnh ngắn nào. Boundary không có cạnh thẳng (`CIRCLE`, bồn oval/bầu dục vẽ toàn cung hoặc bulge) cũng dùng chung cơ chế này: oval ra dây chạy dọc trục dài; hình tròn/gần tròn thì giữ hướng ngang như trước.
+- **Xử lý thông minh**: Boundary hở ≥ 3 đỉnh được **tự đóng kín**; `CIRCLE` được tự quy về Polyline; biên có cung tròn (kể cả biên offset bo góc) được rời rạc hóa rồi rải bằng thuật toán scanline thuần túy (có 29 test hồi quy trong `tests/VDNG.Regression`).
 - **Chẩn đoán**: nếu không tạo được dây nào, command line in cảnh báo kèm 3 nguyên nhân thường gặp (khoảng cách dây quá lớn so với bound, khoảng lùi quá lớn, sai đơn vị nhập).
 - **Hoàn tác**: toàn bộ đối tượng tạo ra nằm trong 1 transaction → `UNDO` 1 bước.
 
@@ -113,7 +115,7 @@ Dưới đây là toàn bộ lệnh **hiện đang hoạt động** trong tab Ri
 ## Ghi chú về nền tảng
  
 - **AutoCAD:** Toàn bộ công cụ hiển thị trên thanh Ribbon (tab **TGIRR CAD LISP**).
-- **ZWCAD & GstarCAD:** **KHÔNG DÙNG RIBBON** (do không hỗ trợ API Ribbon như AutoCAD). Thay vào đó, toàn bộ công cụ được hiển thị trên bảng công cụ neo **`TGIRRPALETTE`** (dockable WPF Palette) và menu kéo xuống `TGIRR_CAD.mnu`.
+- **ZWCAD & GstarCAD:** **KHÔNG DÙNG RIBBON** (do không hỗ trợ API Ribbon như AutoCAD). Thay vào đó, toàn bộ công cụ được hiển thị trên bảng công cụ neo **`TGIRRPALETTE`** (dockable WPF Palette — tự nhớ vị trí/kích thước/trạng thái neo giữa các phiên CAD, lưu ở `%APPDATA%\TGIRR\palette-state.txt`) và menu kéo xuống `TGIRR_CAD.mnu`. Mỗi nút có sao ☆/★ để **ghim vào palette "TGIRR QUICK TOOLS" RIÊNG** (dockable độc lập, bật/tắt bằng `TGIRRQUICK`; danh sách ghim lưu ở `%APPDATA%\TGIRR\quick-tools.txt`, vị trí/kích thước/dock lưu ở `quick-palette-state.txt`).
 - **SBS, HBD, JH, TL, TGN, TGL, CVPL** được viết bằng AutoLISP; **CPLUS, VDNG, TNET** được viết bằng .NET.
 - Các lệnh Lisp có thể nạp tự động qua loader tương ứng:
   - AutoCAD: `TGIRRLoader.lsp`

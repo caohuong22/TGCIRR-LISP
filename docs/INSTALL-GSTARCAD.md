@@ -18,6 +18,8 @@ Bản port chạy trên **GstarCAD 2027** (API .NET `Gssoft.Gscad.*`, runtime **
 
 1. **Giao diện:** GstarCAD dùng ribbon riêng (file CUIX) chứ không phải `Autodesk.Windows.Ribbon`. Bản port dùng **PaletteSet dockable** (bảng công cụ neo được, API `Gssoft.Gscad.Windows.PaletteSet`) chứa các nút bấm tương tự Ribbon:
    - Gõ `TGIRRPALETTE` để mở/đóng bảng công cụ **TGIRR CAD** (loader `TGIRRLOAD` tự mở sau khi nạp).
+   - Palette **tự nhớ vị trí, kích thước và trạng thái neo (dock)** giữa các lần mở CAD (lưu tại `%APPDATA%\TGIRR\palette-state.txt` — host không tự lưu nên plugin tự ghi khi di chuyển/thay đổi kích thước/ẩn).
+   - **Quick Tools (palette riêng)**: rê chuột vào bất kỳ nút công cụ nào trong palette TGIRR CAD sẽ thấy ☆ ở góc phải — bấm để **ghim nút đó vào palette "TGIRR QUICK TOOLS" riêng biệt** (dockable, dock/kéo thả độc lập với palette chính; bấm ★ để bỏ ghim). Gõ `TGIRRQUICK` để ẩn/hiện palette Quick Tools. Danh sách ghim (`%APPDATA%\TGIRR\quick-tools.txt`) và vị trí/kích thước/dock (`%APPDATA%\TGIRR\quick-palette-state.txt`) đều được nhớ giữa các phiên CAD.
    - Ngoài ra vẫn có menu kéo xuống `TGIRR_CAD.mnu` (dùng `MENULOAD`) và các **lệnh** gõ trực tiếp:
    - `SBS`, `TL`, `TGL`, `TGN` — lệnh AutoLISP
    - `CPLUS`, `VDNG`, `TNET` — lệnh .NET (`[CommandMethod]`)
