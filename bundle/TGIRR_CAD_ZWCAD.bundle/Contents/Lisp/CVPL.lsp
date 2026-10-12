@@ -17,6 +17,12 @@
 (defun CVPL:has (sym)
   (not (vl-catch-all-error-p (vl-catch-all-apply 'symbol-function (list sym)))))
 
+;;; AutoLISP khong co san ham tan() -> dinh nghia bang sin/cos.
+;;; Tra ve nil neu cos ~ 0 (goc ~ pi/2 + k*pi, tuc cung >= 360 do, khong dung cho ARC hop le).
+(defun CVPL:tan (a / c)
+  (setq c (cos a))
+  (if (< (abs c) 1e-12) nil (/ (sin a) c)))
+
 ;;; --------------------------------------------------------------------------
 ;;; Dung LWPOLYLINE tu danh sach dinh ((x y) ...) + danh sach bulge
 ;;; --------------------------------------------------------------------------
@@ -55,7 +61,8 @@
         sa (cdr (assoc 50 ed)) ea (cdr (assoc 51 ed))
         elev (cdr (assoc 38 ed)))
   (if (< ea sa) (setq ea (+ ea (* 2.0 pi))))
-  (setq bulge (tan (/ (- ea sa) 4.0)))
+  (setq bulge (CVPL:tan (/ (- ea sa) 4.0)))
+  (if (null bulge) (setq bulge 0.0))
   (setq p1 (list (+ (car c) (* r (cos sa))) (+ (cadr c) (* r (sin sa))))
         p2 (list (+ (car c) (* r (cos ea))) (+ (cadr c) (* r (sin ea)))))
   (CVPL:make-lwpoly (list p1 p2) (list bulge 0.0) nil ent elev))
@@ -66,7 +73,7 @@
 (defun CVPL:circle-to-lwp (ent / ed c r b p0 p1 p2 p3 elev)
   (setq ed (entget ent))
   (setq c (cdr (assoc 10 ed)) r (cdr (assoc 40 ed)) elev (cdr (assoc 38 ed)))
-  (setq b (tan (/ pi 8.0)))
+  (setq b (CVPL:tan (/ pi 8.0)))
   (setq p0 (list (+ (car c) r) (cadr c))
         p1 (list (car c) (+ (cadr c) r))
         p2 (list (- (car c) r) (cadr c))

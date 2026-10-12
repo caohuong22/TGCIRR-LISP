@@ -636,7 +636,12 @@
                                  (setq eBlg (list 1.0 1.0)))
                                ;; Cung thong thuong -> 1 segment voi bulge = tan(sweep/4)
                                (progn
-                                 (setq blg (tan (/ sw 4.0)))
+                                 ;; AutoLISP khong co ham tan -> dung CVPL:tan neu co, khong thi sin/cos
+                                 (setq blg (if (not (vl-catch-all-error-p
+                                                      (vl-catch-all-apply 'symbol-function (list 'CVPL:tan))))
+                                             (CVPL:tan (/ sw 4.0))
+                                             (/ (sin (/ sw 4.0)) (cos (/ sw 4.0)))))
+                                 (if (null blg) (setq blg 0.0))
                                  (if (= isCcw 0) (setq blg (- blg)))
                                  (setq ePts (list (list (car sPt) (cadr sPt))
                                                   (list (car ePt) (cadr ePt))))
