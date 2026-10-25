@@ -116,6 +116,7 @@
       (TGIRR:ZW-LOAD-FILE "HBD.lsp")
       (TGIRR:ZW-LOAD-FILE "CVPL.lsp")
       (TGIRR:ZW-LOAD-FILE "DOITEXT.lsp")
+      (TGIRR:ZW-LOAD-FILE "TGIRRBAR.lsp")
       ;; Nap plugin .NET (CPLUS, VDNG, TNET, TGIRRPALETTE)
       (TGIRR:ZW-NETLOAD "TGIRR.Zwcad.dll")
       ;; Không tự gọi command TGIRRPALETTE ngay trong lúc NETLOAD.

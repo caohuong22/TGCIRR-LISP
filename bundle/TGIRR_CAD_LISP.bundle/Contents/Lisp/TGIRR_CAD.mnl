@@ -1,0 +1,10 @@
+;;; TGIRR CAD - menu support (nap khi TGIRR_CAD.mnu duoc MENULOAD)
+;;; Auto-load loader LISP thich hop theo nguoi dung (ZWCAD hay GstarCAD).
+(princ "\nTGIRR CAD: menu TGIRR_CAD da nap.")
+(cond
+  ((and (null c:TGIRRLOAD) (findfile "TGIRRLoaderG.lsp"))
+   (load "TGIRRLoaderG.lsp"))
+  ((and (null c:TGIRRLOAD) (findfile "TGIRRLoaderZ.lsp"))
+   (load "TGIRRLoaderZ.lsp")))
+(princ "\nTGIRR CAD: go TGIRRLOAD de nap day du lenh (LISP + .NET).")
+(princ)

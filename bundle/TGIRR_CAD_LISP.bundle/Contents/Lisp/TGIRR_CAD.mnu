@@ -1,0 +1,63 @@
+***MENUGROUP=TGIRR
+
+
+***POP1
+**TGIRR_CAD
+ID_TGIRR_HBD     [Ve duong bao Hatch co (&HBD)]^C^CHBD
+ID_TGIRR_JH      [Gop cac Hatch thanh 1 (&JH)]^C^CJH
+ID_TGIRR_SP2PL   [Chuyen SPLINE/REGION sang Polyline (&SP2PL)]^C^CSP2PL
+ID_TGIRR_CVPL    [Chuyen LINE/ARC/CIRCLE/SPLINE sang Polyline (&CVPL)]^C^CCVPL
+ID_TGIRR_SBS     [Chon doi tuong giong mau (&SBS)]^C^CSBS
+ID_TGIRR_SBSE    [Chon chinh xac theo mau (trung chu) (&SBSE)]^C^CSBSE
+                 [--]
+ID_TGIRR_VDNG    [Rai day nho giot (&VDNG)]^C^CVDNG
+ID_TGIRR_TNET    [Tao net ve co chu (&TNET)]^C^CTNET
+ID_TGIRR_TGL     [Tao bo layer chuan (&TGL)]^C^CTGL
+                 [--]
+ID_TGIRR_TL      [Tong chieu dai (&TL)]^C^CTL
+ID_TGIRR_TGN     [Danh so doi tuong / vung tuoi (&TGN)]^C^CTGN
+ID_TGIRR_CPLUS   [Copy theo quy luat (&CPLUS)]^C^CCPLUS
+ID_TGIRR_DOITEXT [Chuyen MText sang Text / Gom list (&DOITEXT)]^C^CDOITEXT
+ID_TGIRR_DOIMTEXT [Gop nhieu Text thanh 1 MText (&T2M)]^C^CDOIMTEXT
+                 [--]
+ID_TGIRR_PALETTE [Bang cong cu Palette (&PALETTE)]^C^CTGIRRPALETTE
+ID_TGIRR_QUICK   [Palette Quick Tools da ghim (&QUICK)]^C^CTGIRRQUICK
+                 [--]
+ID_TGIRR_BAR     [Bat thanh cong cu icon (&TGIRRBAR)]^C^CTGIRRBAR
+
+***TOOLBARS
+**TB_TGIRR
+ID_TB_TGIRR      [_Toolbar("TGIRR CAD", _Floating, _Show, 200, 200)]
+ID_TGIRR_HBD     [_Button("Ve duong bao Hatch co (&HBD)", "HBD.bmp", "HBD_L.bmp")]^C^CHBD
+ID_TGIRR_JH      [_Button("Gop cac Hatch thanh 1 (&JH)", "JH.bmp", "JH_L.bmp")]^C^CJH
+ID_TGIRR_SP2PL   [_Button("Chuyen SPLINE/REGION sang Polyline (&SP2PL)", "SP2PL.bmp", "SP2PL_L.bmp")]^C^CSP2PL
+ID_TGIRR_CVPL    [_Button("Chuyen LINE/ARC/CIRCLE/SPLINE sang Polyline (&CVPL)", "CVPL.bmp", "CVPL_L.bmp")]^C^CCVPL
+ID_TGIRR_SBS     [_Button("Chon doi tuong giong mau (&SBS)", "SBS.bmp", "SBS_L.bmp")]^C^CSBS
+ID_TGIRR_SBSE    [_Button("Chon chinh xac theo mau (trung chu) (&SBSE)", "SBSE.bmp", "SBSE_L.bmp")]^C^CSBSE
+ID_TGIRR_VDNG    [_Button("Rai day nho giot (&VDNG)", "VDNG.bmp", "VDNG_L.bmp")]^C^CVDNG
+ID_TGIRR_TNET    [_Button("Tao net ve co chu (&TNET)", "TNET.bmp", "TNET_L.bmp")]^C^CTNET
+ID_TGIRR_TGL     [_Button("Tao bo layer chuan (&TGL)", "TGL.bmp", "TGL_L.bmp")]^C^CTGL
+ID_TGIRR_TL      [_Button("Tong chieu dai (&TL)", "TL.bmp", "TL_L.bmp")]^C^CTL
+ID_TGIRR_TGN     [_Button("Danh so doi tuong / vung tuoi (&TGN)", "TGN.bmp", "TGN_L.bmp")]^C^CTGN
+ID_TGIRR_CPLUS   [_Button("Copy theo quy luat (&CPLUS)", "CPLUS.bmp", "CPLUS_L.bmp")]^C^CCPLUS
+ID_TGIRR_DOITEXT [_Button("Chuyen MText sang Text / Gom list (&DOITEXT)", "DOITEXT.bmp", "DOITEXT_L.bmp")]^C^CDOITEXT
+ID_TGIRR_DOIMTEXT [_Button("Gop nhieu Text thanh 1 MText (&T2M)", "DOIMTEXT.bmp", "DOIMTEXT_L.bmp")]^C^CDOIMTEXT
+
+***HELPSTRINGS
+ID_TGIRR_HBD     [Ve duong bao Boundary Polyline xung quanh cac doi tuong Hatch co]
+ID_TGIRR_JH      [Gop cac Hatch phan manh giap nhau thanh 1 va tao duong bao chung]
+ID_TGIRR_SP2PL   [Chuyen nhanh cac doi tuong SPLINE/REGION sang LWPOLYLINE khap kin]
+ID_TGIRR_CVPL    [Chuyen LINE/ARC/CIRCLE/ELLIPSE/SPLINE/POLYLINE/REGION sang LWPOLYLINE (CVPLG giu nguon)]
+ID_TGIRR_SBS     [Chon cac doi tuong giong mau nam phan lon trong Polyline kin]
+ID_TGIRR_SBSE    [Chon chinh xac doi tuong theo mau trong bien kin (trung ca noi dung TEXT/MTEXT)]
+ID_TGIRR_VDNG    [Ve day nho giot ben trong Boundary kin]
+ID_TGIRR_TNET    [Mo hop thoai tao/chinh sua net ve co chu (file LIN)]
+ID_TGIRR_TGL     [Tao bo layer tieu chuan va dat TG-DRIP lam layer hien hanh]
+ID_TGIRR_TL      [Cong tong chieu dai cac duong da chon truoc]
+ID_TGIRR_TGN     [Danh so doi tuong / vung tuoi bang nhan tron/ellipse]
+ID_TGIRR_CPLUS   [Copy TEXT/MTEXT/Multileader/Attribute/Dimension theo quy luat]
+ID_TGIRR_DOITEXT [Chuyen MText sang Text tai cho hoac gom nhieu MText thanh 1 danh sach cot thang hang]
+ID_TGIRR_DOIMTEXT [Gop cac dong TEXT thanh 1 MTEXT nhieu doan (Enter xuong dong trong MTEXT)]
+ID_TGIRR_PALETTE [Bat hoac tat bang cong cu TGIRR CAD Palette]
+ID_TGIRR_QUICK   [Bat hoac tat palette Quick Tools rieng (cac nut da ghim vao Quick Tools)]
+ID_TGIRR_BAR     [Bat thanh cong cu icon native (toolbar TGIRR CAD) tu file TGIRR_CAD.mnu]

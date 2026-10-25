@@ -2,8 +2,8 @@
 
 Toàn bộ lệnh **đang hoạt động** của TGIRR. Mỗi lệnh đều có nút trên cả hai bề mặt giao diện:
 
-- **AutoCAD**: tab Ribbon **TGIRR CAD LISP** (`TGIRRRIBBON` để mở/active tab).
-- **ZWCAD & GstarCAD**: bảng công cụ Palette **TGIRR CAD** (`TGIRRPALETTE`), palette Quick Tools riêng chứa các nút đã ghim ★ (`TGIRRQUICK`), và menu kéo xuống `TGIRR &CAD` (`MENULOAD` file `TGIRR_CAD.mnu`).
+- **AutoCAD**: tab Ribbon **TGIRR CAD LISP** (`TGIRRRIBBON` để mở/active tab) và/hoặc thanh công cụ icon native `TGIRRBAR`.
+- **ZWCAD & GstarCAD**: thanh công cụ icon native **TGIRR CAD** (`TGIRRBAR`) chứa toàn bộ lệnh dưới dạng nút icon, bảng công cụ Palette **TGIRR CAD** (`TGIRRPALETTE`), palette Quick Tools riêng chứa các nút đã ghim ★ (`TGIRRQUICK`), và menu kéo xuống `TGIRR &CAD` (`MENULOAD` file `TGIRR_CAD.mnu`).
 
 Nhập/nhan/tooltip của mọi lệnh khai báo **một lần** trong [`src/catalog/tools.json`](../src/catalog/tools.json); bảng dưới đây, menu và danh muc palette được sinh từ file đó bằng `scripts/gen-catalog.ps1` (chạy `scripts/test-palette.ps1` để bắt lệch).
 
@@ -23,8 +23,10 @@ Nhập/nhan/tooltip của mọi lệnh khai báo **một lần** trong [`src/cat
 | ĐÁNH SỐ | TGN | Đánh số đối tượng / vùng tưới bằng nhãn tròn/ellipse | Có (`TGN`) |
 | VĂN BẢN | CPLUS | Copy TEXT/MTEXT/Multileader/Attribute/Dimension Override theo số, chữ A–Z hoặc danh sách | Có (`CPLUS`) |
 | VĂN BẢN | DOITEXT | Chuyển MText sang Text tại chỗ hoặc gom nhiều MText thành 1 danh sách cột thẳng hàng | Có (`DOITEXT`, `M2T`) |
+| VĂN BẢN | DOIMTEXT | Gộp nhiều TEXT thành 1 MTEXT nhiều đoạn, giữ layer/style/màu/chiều cao/góc xoay/điểm bám dính | Có (`DOIMTEXT`, `T2M`, `TEXT2MTEXT`) |
 | GIAO DIỆN | TGIRRPALETTE | Bật/tắt bảng công cụ Palette (ZWCAD & GstarCAD) | Có (`TGIRRPALETTE`) |
 | GIAO DIỆN | TGIRRQUICK | Bật/tắt palette Quick Tools riêng — chứa các nút đã ghim ★ (ZWCAD & GstarCAD) | Có (`TGIRRQUICK`) |
+| GIAO DIỆN | TGIRRBAR | Bật thanh công cụ icon native (toolbar ***TOOLBARS trong TGIRR_CAD.mnu) | Có (`TGIRRBAR`, `TGIRRTB`) |
 <!-- END GENERATED COMMAND TABLE -->
 
 ## Nguồn giao diện duy nhất (dành cho lập trình viên)
@@ -77,12 +79,27 @@ bản port hoặc menu/tài liệu bị lệch khỏi nguồn.
 
 - **Lệnh gọi**: `DOITEXT`, `M2T` hoặc `MTEXT2TEXT`.
 - **Mục đích**:
-  1. Chuyển đổi các đối tượng `MTEXT` thành `TEXT` thông thường, bóc tách và làm sạch toàn bộ các mã định dạng nội bộ AutoCAD (`\f...;`, `\C...;`, `\H...;`, `\W...;`, ngoặc `{...}`...), bảo toàn ký hiệu Unicode/Symbol (`\U+xxxx`, `%%c`, `%%d`, `%%p`).
+  1. Chuyển đổi các đối tượng `MTEXT` thành `TEXT` thông thường, bóc tách và làm sạch toàn bộ các mã định dạng nội bộ AutoCAD (`\f...;`, `\C...;`, `\H...;`, `\W...;`, `\p...;` paragraph, ngoặc `{...}`...), chuyển phân số/chỉ số `\S1^2;` về dạng `1/2`, bảo toàn ký hiệu Unicode/Symbol (`\U+xxxx`, `%%c`, `%%d`, `%%p`). Chỉ `\P` (chữ P hoa) mới được hiểu là xuống dòng — `\p` (chữ thường) là paragraph properties nên được bỏ, không sinh dòng rác.
   2. Hỗ trợ 2 chế độ linh hoạt:
      - **Gom danh sách (`List`)**: Quét chọn nhiều MText (hoặc cả Text), tự động sắp xếp theo thứ tự tọa độ từ trên xuống dưới (và từ trái sang phải), cho phép pick điểm chèn mới (hoặc bấm Enter để lấy điểm trên cùng làm gốc), nhập khoảng cách dòng (mặc định = 1.5 * chiều cao chữ). Tạo thành 1 cột danh sách các dòng Text thẳng hàng, đều đặn.
-     - **Tại chỗ (`In-place`)**: Tách từng MText thành các dòng TEXT tại đúng vị trí, góc quay, layer, style, màu sắc của MText gốc trên bản vẽ.
+     - **Tại chỗ (`In-place`)**: Tách từng MText thành các dòng TEXT tại đúng vị trí, góc quay, layer, style, màu sắc (kể cả TrueColor), linetype, lineweight của MText gốc trên bản vẽ. Giữ đúng can le theo điểm bám dính của MText (mã 71: Top/Middle/Bottom × Left/Center/Right → TEXT 72/73 + điểm canh 11) nên chữ không bị xô lệch như khi đặt mặc định trái–baseline.
   3. Tùy chọn xóa hoặc giữ đối tượng MText gốc.
   4. Hỗ trợ `UNDO` 1 bước duy nhất.
+  5. Tạo TEXT bằng `entmake` với thứ tự nhóm DXF chuẩn; nếu layer/text style của MText gốc không còn trong bản vẽ thì tự quay về layer hiện hành / text style hiện hành, và có đường dự phòng khi CAD từ chối nhóm can le. Số dòng tạo lỗi (nếu có) được báo ở dòng kết luận để kiểm tra.
+
+## Chi tiết lệnh DOIMTEXT (Gộp nhiều Text thành 1 MText nhiều đoạn)
+
+- **Lệnh gọi**: `DOIMTEXT`, `T2M` hoặc `TEXT2MTEXT`.
+- **Mục đích**: Chiều ngược của `DOITEXT` — gộp các dòng `TEXT` đã chọn thành **một `MTEXT` nhiều đoạn** (mỗi TEXT là 1 đoạn, ngăn cách bằng `\P`) để có thể chèn thêm đoạn và `Enter` xuống dòng ngay trong cùng một đối tượng.
+- **Cách chạy**:
+  1. Chọn trước các `TEXT` cần gộp (hoặc chạy lệnh rồi quét chọn).
+  2. Sắp xếp tự động từ trên xuống dưới, cùng hàng thì trái sang phải.
+  3. Pick điểm chèn MTEXT — mặc định là **góc trên–trái của TEXT đầu tiên** (bấm `Enter` để nhận).
+  4. Chọn xóa hoặc giữ các `TEXT` gốc.
+- **Bảo toàn**: layer, text style, màu (kể cả TrueColor), linetype, lineweight, chiều cao chữ, góc xoay của TEXT đầu tiên; điểm bám dính của MTEXT là Top-Left.
+- **Ký tự đặc biệt**: `\`, `{`, `}` trong nội dung TEXT được escape (`\\`, `\{`, `\}`) để MTEXT hiển thị nguyên văn.
+- **Nội dung dài**: tự chia nội dung thành nhiều nhóm DXF 3 (250 ký tự) + nhóm 1, nên không bị giới hạn 255 ký tự.
+- **Hoàn tác**: 1 bước `UNDO`.
 
 ## Chi tiết lệnh HBD (Vẽ đường bao cho Hatch cỏ)
 
@@ -142,6 +159,19 @@ bản port hoặc menu/tài liệu bị lệch khỏi nguồn.
   - Nếu khoảng sau nhỏ hơn mức cần thiết, dòng gợi ý in **CẢNH BÁO gạch sẽ đè lên chữ**; khi nạp một nét có sẵn bị lệch, hộp thoại tự căn lại khoảng sau.
 - **Xem trước**: 3 chu kỳ nét mô phỏng đúng ngữ nghĩa LIN (chữ không chiếm chỗ chu kỳ) nên nếu thông số sai sẽ thấy ngay hiện tượng gạch đè chữ ngay trong hộp thoại.
 - **Chế độ lưu**: tạo nét mới/phiên bản `_V2` hoặc cập nhật định nghĩa gốc trong file LIN; tùy chọn chuyển đối tượng dùng nét cũ sang nét mới (toàn bản vẽ hoặc chỉ đối tượng đang chọn).
+
+## Chi tiết lệnh TGIRRBAR (Thanh công cụ icon native)
+
+- **Lệnh gọi**: `TGIRRBAR` hoặc `TGIRRTB`.
+- **Mục đích**: bật **thanh công cụ native của CAD** (không phải palette WPF) chứa toàn bộ lệnh dưới dạng nút icon — dock trái/phải/trên được, kéo thả tự do, đổi được icon nhỏ/lớn bằng chuột phải, vị trí được CAD tự nhớ trong workspace.
+- **Cơ chế**: section `***TOOLBARS` trong [src/menu/TGIRR_CAD.mnu](../src/menu/TGIRR_CAD.mnu) — mỗi lệnh là một `_Button("Nhãn", "TAG.bmp", "TAG_L.bmp")`, tooltip lấy từ `***HELPSTRINGS` (dùng chung ID với menu kéo xuống).
+- **Lệnh tự làm 3 việc**:
+  1. Thêm thư mục chứa `.mnu` + icon BMP vào **Support File Search Path** (biến `ACAD`) nếu chưa có — nhờ vậy CAD tìm được ảnh nút.
+  2. `MENULOAD` file `TGIRR_CAD.mnu` nếu menu group `TGIRR` chưa nạp (đã nạp thì bỏ qua, không nạp trùng).
+  3. Bật thanh công cụ `TB_TGIRR` (`-TOOLBAR ... _Show`).
+- **Tìm thư mục**: ưu tiên thư mục đã có trong Support Path; nếu không, dùng thư mục gốc mà loader đã lưu (`TGIRR:LISP-DIR`, `*TGIRR:G-ROOT*`, `*TGIRR:ZW-ROOT*`) và thư mục `\Lisp` của nó.
+- **Icon**: sinh tự động bằng `scripts/gen-icons.ps1` → `src/menu/icons/<TAG>.bmp` (16×16) và `<TAG>_L.bmp` (32×32); nền tối, viền + chữ màu theo nhóm lệnh (Cyan/Green/Amber). Thêm/bớt lệnh chỉ cần sửa `tools.json` rồi chạy `gen-icons.ps1` + `gen-catalog.ps1`.
+- **Nếu CAD không bật được toolbar** (một số bản chặn `-TOOLBAR`): lệnh in hướng dẫn gõ `TOOLBAR`, chọn thanh **TGIRR CAD** rồi bấm *Show*.
 
 ## Ghi chú về nền tảng
  

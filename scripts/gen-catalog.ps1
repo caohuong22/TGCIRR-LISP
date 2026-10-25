@@ -120,6 +120,19 @@ foreach ($t in $tools) {
     $helps.Add(('{0}[{1}]' -f $name, (ConvertTo-AsciiLabel $t.menu.help)))
 }
 $menu.Add('')
+$menu.Add('***TOOLBARS')
+$menu.Add('**TB_TGIRR')
+$tbName = 'ID_TB_TGIRR'.PadRight(16) + ' '
+$menu.Add(('{0}[_Toolbar("TGIRR CAD", _Floating, _Show, 200, 200)]' -f $tbName))
+foreach ($t in $tools) {
+    if ($t.role -ne 'tool') { continue }
+    $btn = ('ID_TGIRR_{0}' -f $t.menu.tag).PadRight(16) + ' '
+    $label = ConvertTo-AsciiLabel $t.menu.label
+    $small = ('"' + $t.menu.tag + '.bmp"')
+    $large = ('"' + $t.menu.tag + '_L.bmp"')
+    $menu.Add(('{0}[_Button("{1}", {2}, {3})]^C^C{4}' -f $btn, $label, $small, $large, $t.cmd))
+}
+$menu.Add('')
 $menu.Add('***HELPSTRINGS')
 foreach ($h in $helps) { $menu.Add($h) }
 $menuText = ($menu -join "`r`n") + "`r`n"
@@ -296,10 +309,15 @@ Write-Host '== Sinh giao dien tu src\catalog\tools.json ==' -ForegroundColor Cya
 
 $menuPath = Join-Path $root 'src\menu\TGIRR_CAD.mnu'
 if (-not (Write-Target $menuPath $menuText)) { $drift += $menuPath }
-foreach ($bundleLisp in @('TGIRR_CAD_ZWCAD', 'TGIRR_CAD_GSTARCAD')) {
+foreach ($bundleLisp in @('TGIRR_CAD_LISP', 'TGIRR_CAD_ZWCAD', 'TGIRR_CAD_GSTARCAD')) {
     $p = Join-Path $root "bundle\$bundleLisp.bundle\Contents\Lisp\TGIRR_CAD.mnu"
     if (Test-Path (Split-Path -Parent $p)) {
         if (-not (Write-Target $p $menuText)) { $drift += $p }
+        # Icon BMP phai nam cung thu muc .mnu de _Button tim thay
+        $iconSrc = Join-Path $root 'src\menu\icons'
+        if (Test-Path $iconSrc) {
+            Copy-Item (Join-Path $iconSrc '*.bmp') (Split-Path -Parent $p) -Force
+        }
     }
 }
 $csPath = Join-Path $root 'src\shared\ToolCatalog.generated.cs'

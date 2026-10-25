@@ -33,7 +33,8 @@
       "items": [
         { "id": "CPLUS", "icon": "copynumber" },
         { "id": "TGN", "icon": "copynumber" },
-        { "id": "DOITEXT", "icon": "dotext" }
+        { "id": "DOITEXT", "icon": "dotext" },
+        { "id": "DOIMTEXT", "icon": "dotext" }
       ]
     },
     {
@@ -325,6 +326,27 @@
       "docs": { "section": "VĂN BẢN", "function": "Chuyển MText sang Text tại chỗ hoặc gom nhiều MText thành 1 danh sách cột thẳng hàng" }
     },
     {
+      "role": "tool",
+      "id": "DOIMTEXT",
+      "cmd": "DOIMTEXT",
+      "label": "Gộp Text thành MText",
+      "aliases": [ "T2M", "TEXT2MTEXT" ],
+      "group": "UTIL",
+      "ribbonPanel": "VĂN BẢN",
+      "hosts": [ "AutoCAD", "ZWCAD", "GstarCAD" ],
+      "keepSelection": false,
+      "requiresSelection": false,
+      "runner": "command",
+      "tip": {
+        "title": "DOIMTEXT — Gộp nhiều Text thành 1 MText nhiều đoạn",
+        "desc": "Gộp các dòng TEXT đã chọn thành một MTEXT nhiều đoạn (mỗi TEXT là 1 đoạn) để chèn/sửa nhiều đoạn và Enter xuống dòng trong cùng một đối tượng.",
+        "usage": "Chọn các TEXT cần gộp, pick điểm chèn MTEXT (Enter để lấy điểm gốc trên cùng), rồi chọn xóa hay giữ TEXT gốc.",
+        "command": "Lệnh: DOIMTEXT (hoặc T2M, TEXT2MTEXT)"
+      },
+      "menu": { "tag": "DOIMTEXT", "label": "Gop nhieu Text thanh 1 MText (&T2M)", "help": "Gop cac dong TEXT thanh 1 MTEXT nhieu doan (Enter xuong dong trong MTEXT)" },
+      "docs": { "section": "VĂN BẢN", "function": "Gộp nhiều TEXT thành 1 MTEXT nhiều đoạn, giữ layer/style/màu/chiều cao/góc xoay/điểm bám dính" }
+    },
+    {
       "role": "ui",
       "id": "TGIRRPALETTE",
       "cmd": "TGIRRPALETTE",
@@ -355,6 +377,22 @@
       },
       "menu": { "tag": "QUICK", "label": "Palette Quick Tools da ghim (&QUICK)", "help": "Bat hoac tat palette Quick Tools rieng (cac nut da ghim vao Quick Tools)" },
       "docs": { "section": "GIAO DIỆN", "function": "Bật/tắt palette Quick Tools riêng — chứa các nút đã ghim ★ (ZWCAD & GstarCAD)" }
+    },
+    {
+      "role": "ui",
+      "id": "TGIRRBAR",
+      "cmd": "TGIRRBAR",
+      "label": "Thanh công cụ icon",
+      "aliases": [ "TGIRRTB" ],
+      "hosts": [ "AutoCAD", "ZWCAD", "GstarCAD" ],
+      "tip": {
+        "title": "TGIRRBAR — Thanh công cụ icon native",
+        "desc": "Bật thanh công cụ icon native (dock/kéo thả như toolbar CAD) chứa toàn bộ lệnh TGIRR, icon 16x16 và 32x32.",
+        "usage": "Gõ TGIRRBAR: lệnh tự thêm thư mục chứa icon vào Support File Search Path, nạp TGIRR_CAD.mnu và bật thanh TGIRR CAD. Bấm chuột phải lên thanh để dock trái/phải/trên hoặc đổi sang icon lớn.",
+        "command": "Lệnh: TGIRRBAR (hoặc TGIRRTB)"
+      },
+      "menu": { "tag": "BAR", "label": "Bat thanh cong cu icon (&TGIRRBAR)", "help": "Bat thanh cong cu icon native (toolbar TGIRR CAD) tu file TGIRR_CAD.mnu", "separatorBefore": true },
+      "docs": { "section": "GIAO DIỆN", "function": "Bật thanh công cụ icon native (toolbar ***TOOLBARS trong TGIRR_CAD.mnu)" }
     }
   ]
 }

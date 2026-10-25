@@ -155,9 +155,18 @@ namespace Tgirrr.CadLisp {
          menuTag: "DOITEXT", menuLabel: "Chuyen MText sang Text / Gom list (&DOITEXT)",
          menuHelp: "Chuyen MText sang Text tai cho hoac gom nhieu MText thanh 1 danh sach cot thang hang"),
        new TgToolInfo(
+         id: "DOIMTEXT", cmd: "DOIMTEXT", label: "G\u1ed9p Text th\u00e0nh MText",
+         aliases: new[] { "T2M", "TEXT2MTEXT" }, groupKey: "UTIL", groupTitle: "GHI CH\u00da & TI\u1ec6N \u00cdCH", accent: TgToolAccent.Amber,
+         ribbonPanel: "V\u0102N B\u1ea2N", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 14, isTool: true,
+         keepSelection: false, requiresSelection: false, runner: "command",
+         tipTitle: "DOIMTEXT \u2014 G\u1ed9p nhi\u1ec1u Text th\u00e0nh 1 MText nhi\u1ec1u \u0111o\u1ea1n", tipDesc: "G\u1ed9p c\u00e1c d\u00f2ng TEXT \u0111\u00e3 ch\u1ecdn th\u00e0nh m\u1ed9t MTEXT nhi\u1ec1u \u0111o\u1ea1n (m\u1ed7i TEXT l\u00e0 1 \u0111o\u1ea1n) \u0111\u1ec3 ch\u00e8n/s\u1eeda nhi\u1ec1u \u0111o\u1ea1n v\u00e0 Enter xu\u1ed1ng d\u00f2ng trong c\u00f9ng m\u1ed9t \u0111\u1ed1i t\u01b0\u1ee3ng.",
+         tipUsage: "Ch\u1ecdn c\u00e1c TEXT c\u1ea7n g\u1ed9p, pick \u0111i\u1ec3m ch\u00e8n MTEXT (Enter \u0111\u1ec3 l\u1ea5y \u0111i\u1ec3m g\u1ed1c tr\u00ean c\u00f9ng), r\u1ed3i ch\u1ecdn x\u00f3a hay gi\u1eef TEXT g\u1ed1c.", tipCommand: "L\u1ec7nh: DOIMTEXT (ho\u1eb7c T2M, TEXT2MTEXT)",
+         menuTag: "DOIMTEXT", menuLabel: "Gop nhieu Text thanh 1 MText (&T2M)",
+         menuHelp: "Gop cac dong TEXT thanh 1 MTEXT nhieu doan (Enter xuong dong trong MTEXT)"),
+       new TgToolInfo(
          id: "TGIRRPALETTE", cmd: "TGIRRPALETTE", label: "B\u1ea3ng c\u00f4ng c\u1ee5 Palette",
          aliases: TgToolCatalog.NoAliases, groupKey: null, groupTitle: null, accent: TgToolAccent.Cyan,
-         ribbonPanel: null, hosts: new[] { "ZWCAD", "GstarCAD" }, order: 14, isTool: false,
+         ribbonPanel: null, hosts: new[] { "ZWCAD", "GstarCAD" }, order: 15, isTool: false,
          keepSelection: false, requiresSelection: false, runner: "",
          tipTitle: "TGIRRPALETTE \u2014 B\u1ea3ng c\u00f4ng c\u1ee5 Palette", tipDesc: "B\u1eadt/t\u1eaft palette c\u00f4ng c\u1ee5 TGIRR CAD ch\u1ee9a to\u00e0n b\u1ed9 l\u1ec7nh theo nh\u00f3m.",
          tipUsage: "Palette t\u1ef1 nh\u1edb v\u1ecb tr\u00ed, k\u00edch th\u01b0\u1edbc v\u00e0 tr\u1ea1ng th\u00e1i neo gi\u1eefa c\u00e1c phi\u00ean CAD.", tipCommand: "L\u1ec7nh: TGIRRPALETTE",
@@ -166,12 +175,21 @@ namespace Tgirrr.CadLisp {
        new TgToolInfo(
          id: "TGIRRQUICK", cmd: "TGIRRQUICK", label: "Palette Quick Tools",
          aliases: TgToolCatalog.NoAliases, groupKey: null, groupTitle: null, accent: TgToolAccent.Cyan,
-         ribbonPanel: null, hosts: new[] { "ZWCAD", "GstarCAD" }, order: 15, isTool: false,
+         ribbonPanel: null, hosts: new[] { "ZWCAD", "GstarCAD" }, order: 16, isTool: false,
          keepSelection: false, requiresSelection: false, runner: "",
          tipTitle: "TGIRRQUICK \u2014 Palette Quick Tools ri\u00eang", tipDesc: "B\u1eadt/t\u1eaft palette Quick Tools dockable ri\u00eang ch\u1ee9a c\u00e1c n\u00fat \u0111\u00e3 ghim \u2605.",
          tipUsage: "B\u1ea5m \u2605 \u1edf m\u1ed9t n\u00fat tr\u00ean palette TGIRR CAD \u0111\u1ec3 ghim v\u00e0o Quick Tools. Quick Tools t\u1ef1 m\u1edf khi c\u00f3 n\u00fat ghim v\u00e0 t\u1ef1 \u1ea9n khi b\u1ecf ghim h\u1ebft.", tipCommand: "L\u1ec7nh: TGIRRQUICK",
          menuTag: "QUICK", menuLabel: "Palette Quick Tools da ghim (&QUICK)",
-         menuHelp: "Bat hoac tat palette Quick Tools rieng (cac nut da ghim vao Quick Tools)")
+         menuHelp: "Bat hoac tat palette Quick Tools rieng (cac nut da ghim vao Quick Tools)"),
+       new TgToolInfo(
+         id: "TGIRRBAR", cmd: "TGIRRBAR", label: "Thanh c\u00f4ng c\u1ee5 icon",
+         aliases: new[] { "TGIRRTB" }, groupKey: null, groupTitle: null, accent: TgToolAccent.Cyan,
+         ribbonPanel: null, hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 17, isTool: false,
+         keepSelection: false, requiresSelection: false, runner: "",
+         tipTitle: "TGIRRBAR \u2014 Thanh c\u00f4ng c\u1ee5 icon native", tipDesc: "B\u1eadt thanh c\u00f4ng c\u1ee5 icon native (dock/k\u00e9o th\u1ea3 nh\u01b0 toolbar CAD) ch\u1ee9a to\u00e0n b\u1ed9 l\u1ec7nh TGIRR, icon 16x16 v\u00e0 32x32.",
+         tipUsage: "G\u00f5 TGIRRBAR: l\u1ec7nh t\u1ef1 th\u00eam th\u01b0 m\u1ee5c ch\u1ee9a icon v\u00e0o Support File Search Path, n\u1ea1p TGIRR_CAD.mnu v\u00e0 b\u1eadt thanh TGIRR CAD. B\u1ea5m chu\u1ed9t ph\u1ea3i l\u00ean thanh \u0111\u1ec3 dock tr\u00e1i/ph\u1ea3i/tr\u00ean ho\u1eb7c \u0111\u1ed5i sang icon l\u1edbn.", tipCommand: "L\u1ec7nh: TGIRRBAR (ho\u1eb7c TGIRRTB)",
+         menuTag: "BAR", menuLabel: "Bat thanh cong cu icon (&TGIRRBAR)",
+         menuHelp: "Bat thanh cong cu icon native (toolbar TGIRR CAD) tu file TGIRR_CAD.mnu")
   };
 
   /// <summary>Danh sach nut hien thi tren palette cua host dang chay.</summary>
@@ -207,7 +225,7 @@ namespace Tgirrr.CadLisp {
     new TgRibbonPanel("CH\u1eccN", new TgToolInfo[] { Find("SBS"), Find("SBSE") }),
     new TgRibbonPanel("RANH GI\u1edaI", new TgToolInfo[] { Find("HBD"), Find("JH"), Find("SP2PL"), Find("CVPL") }),
     new TgRibbonPanel("\u0110O", new TgToolInfo[] { Find("TL") }),
-    new TgRibbonPanel("V\u0102N B\u1ea2N", new TgToolInfo[] { Find("CPLUS"), Find("TGN"), Find("DOITEXT") }),
+    new TgRibbonPanel("V\u0102N B\u1ea2N", new TgToolInfo[] { Find("CPLUS"), Find("TGN"), Find("DOITEXT"), Find("DOIMTEXT") }),
     new TgRibbonPanel("LAYER", new TgToolInfo[] { Find("TGL") }),
     new TgRibbonPanel("N\u00c9T V\u1ebc", new TgToolInfo[] { Find("TNET"), Find("VDNG") })
   };
@@ -224,6 +242,7 @@ namespace Tgirrr.CadLisp {
       if (id == "CPLUS") return "copynumber";
       if (id == "TGN") return "copynumber";
       if (id == "DOITEXT") return "dotext";
+      if (id == "DOIMTEXT") return "dotext";
       if (id == "TGL") return "layers";
       if (id == "TNET") return "linetype";
       if (id == "VDNG") return "copynumber";

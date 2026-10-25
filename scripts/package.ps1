@@ -59,11 +59,15 @@ if ($targetNorm -in 'all', 'autocad') {
     $lispSource = Join-Path $root 'src\lisp'
     $lispTarget = Join-Path $root 'bundle\TGIRR_CAD_LISP.bundle\Contents\Lisp'
     if (-not (Test-Path $lispTarget)) { New-Item -ItemType Directory -Path $lispTarget -Force | Out-Null }
-    $allowed = @('SBS.lsp','TL.lsp','TGL.lsp','TGN.lsp','TGN.dcl','HBD.lsp','CVPL.lsp','DOITEXT.lsp','TGIRRLoader.lsp')
+    $allowed = @('SBS.lsp','TL.lsp','TGL.lsp','TGN.lsp','TGN.dcl','HBD.lsp','CVPL.lsp','DOITEXT.lsp','TGIRRBAR.lsp','TGIRRLoader.lsp')
     Get-ChildItem $lispTarget -File -ErrorAction SilentlyContinue | Where-Object { $_.Extension -in '.lsp','.dcl' } | Remove-Item -Force
     foreach ($file in $allowed) {
         Copy-Item (Join-Path $lispSource $file) $lispTarget -Force
     }
+    # Menu + icon cho thanh cong cu native (lenh TGIRRBAR)
+    Copy-Item (Join-Path $root 'src\menu\TGIRR_CAD.mnu') $lispTarget -Force
+    Copy-Item (Join-Path $root 'src\menu\TGIRR_CAD.mnl') $lispTarget -Force
+    Copy-Item (Join-Path $root 'src\menu\icons\*.bmp') $lispTarget -Force
 
     Write-Host "  -> AutoCAD Bundle san sang: bundle\TGIRR_CAD_LISP.bundle" -ForegroundColor Green
     $successList += 'AutoCAD (Ribbon)'

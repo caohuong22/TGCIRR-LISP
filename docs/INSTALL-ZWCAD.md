@@ -27,6 +27,7 @@ Bản port chạy trên **ZWCAD 2026** (API .NET `ZwSoft.ZwCAD.*`, runtime .NET 
    - Ngoài ra vẫn có menu kéo xuống `TGIRR_CAD.mnu` (dùng `MENULOAD`) và các **lệnh** gõ trực tiếp:
    - `SBS`, `TL`, `TGL`, `TGN` — lệnh AutoLISP
    - `CPLUS`, `VDNG`, `TNET` — lệnh .NET (`[CommandMethod]`)
+- **Thanh công cụ icon native**: gõ `TGIRRBAR` để bật thanh **TGIRR CAD** (mỗi lệnh là 1 nút icon 16×16/32×32, dock trái/phải/trên, kéo thả tự do, tooltip tiếng Việt). Lệnh tự thêm thư mục chứa icon vào Support File Search Path, tự `MENULOAD` nếu chưa nạp rồi bật thanh. Đây là thanh native của CAD nên nhẹ và gọn hơn palette.
 2. **Nạp plugin:** không có cơ chế `.bundle` + `PackageContents.xml` như AutoCAD. ZWCAD nạp DLL bằng lệnh `NETLOAD`.
 
 ## Cài đặt
@@ -43,6 +44,7 @@ Bản port chạy trên **ZWCAD 2026** (API .NET `ZwSoft.ZwCAD.*`, runtime .NET 
 4. **Xác định thư mục (1 lần):** gõ `TGIRRSETDIR`, chọn file `TGIRR.Zwcad.dll` nơi bạn vừa copy. Lệnh sẽ ghi nhớ đường dẫn này.
 5. Gõ `TGIRRLOAD` để nạp đầy đủ (cả Lisp lẫn `NETLOAD` DLL) — bảng công cụ **TGIRR CAD** sẽ tự mở. Nếu muốn mở/đóng lại, gõ `TGIRRPALETTE`.
 6. Thêm menu: gõ `MENULOAD`, duyệt chọn `TGIRR_CAD.mnu`, chọn **TGIRR CAD** rồi bấm *Load*. Menu kéo xuống **TGIRR CAD** sẽ xuất hiện trên thanh menu.
+7. **Thanh công cụ icon**: gõ `TGIRRBAR` — lệnh tự thêm thư mục chứa icon vào Support File Search Path, nạp menu (nếu chưa) và bật thanh **TGIRR CAD**. Chuột phải lên thanh để dock hoặc đổi icon nhỏ/lớn; vị trí được CAD nhớ trong workspace.
 
 > Mẹo: nếu `TGIRRLOAD` báo không tìm thấy `.lsp`/`.dll`, có nghĩa loader đang trỏ sai thư mục (do findfile dò theo search path). Chạy lại `TGIRRSETDIR` để trỏ cứng vào đúng chỗ.
 

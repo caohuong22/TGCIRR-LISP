@@ -23,7 +23,7 @@ $winDir   = Join-Path $bundle 'Contents\Windows'
 New-Item -ItemType Directory -Force -Path $lispDir, $winDir | Out-Null
 
 # LISP files (same as AutoCAD version, plus the ZWCAD loader)
-$allowedLisp = @('SBS.lsp','TL.lsp','TGL.lsp','TGN.lsp','TGN.dcl','HBD.lsp','CVPL.lsp','DOITEXT.lsp','TGIRRLoaderZ.lsp')
+$allowedLisp = @('SBS.lsp','TL.lsp','TGL.lsp','TGN.lsp','TGN.dcl','HBD.lsp','CVPL.lsp','DOITEXT.lsp','TGIRRBAR.lsp','TGIRRLoaderZ.lsp')
 Get-ChildItem $lispDir -File -ErrorAction SilentlyContinue | Where-Object { $_.Extension -in '.lsp','.dcl' } | Remove-Item -Force
 foreach ($f in $allowedLisp) {
   Copy-Item (Join-Path $root "src\lisp\$f") $lispDir -Force
@@ -32,6 +32,8 @@ foreach ($f in $allowedLisp) {
 # Menu support (TGIRR_CAD.mnu/.mnl): MENULOAD in ZWCAD to add the pull-down menu.
 Copy-Item (Join-Path $root 'src\menu\TGIRR_CAD.mnu') $lispDir -Force
 Copy-Item (Join-Path $root 'src\menu\TGIRR_CAD.mnl') $lispDir -Force
+# Icon BMP cho toolbar native (***TOOLBARS) - phai nam cung thu muc .mnu
+Copy-Item (Join-Path $root 'src\menu\icons\*.bmp') $lispDir -Force
 
 # Dictionary copy conveniences:
 # A ZWCAD bundle has no PackageContents equivalent for C#; the loader (TGIRRLoaderZ.lsp)
