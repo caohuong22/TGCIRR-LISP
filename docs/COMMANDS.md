@@ -177,7 +177,7 @@ bản port hoặc menu/tài liệu bị lệch khỏi nguồn.
  
 - **AutoCAD:** Toàn bộ công cụ hiển thị trên thanh Ribbon (tab **TGIRR CAD LISP**).
 - **ZWCAD & GstarCAD:** **KHÔNG DÙNG RIBBON** (do không hỗ trợ API Ribbon như AutoCAD). Thay vào đó, toàn bộ công cụ được hiển thị trên bảng công cụ neo **`TGIRRPALETTE`** (dockable WPF Palette — tự nhớ vị trí/kích thước/trạng thái neo giữa các phiên CAD, lưu ở `%APPDATA%\TGIRR\palette-state.txt`) và menu kéo xuống `TGIRR_CAD.mnu`. Mỗi nút có sao ☆/★ để **ghim vào palette "TGIRR QUICK TOOLS" RIÊNG** (dockable độc lập, bật/tắt bằng `TGIRRQUICK`; danh sách ghim lưu ở `%APPDATA%\TGIRR\quick-tools.txt`, vị trí/kích thước/dock lưu ở `quick-palette-state.txt`).
-- **SBS, HBD, JH, TL, TGN, TGL, CVPL** được viết bằng AutoLISP; **CPLUS, VDNG, TNET** được viết bằng .NET.
+- **SBS, HBD, JH, TGN, CVPL, DOITEXT, DOIMTEXT, TGIRRBAR** được viết bằng AutoLISP; **CPLUS, VDNG, TNET, TL, TGL** được viết bằng .NET.
 - Các lệnh Lisp có thể nạp tự động qua loader tương ứng:
   - AutoCAD: `TGIRRLoader.lsp`
   - ZWCAD: `TGIRRLoaderZ.lsp` (gõ `TGIRRLOAD`)

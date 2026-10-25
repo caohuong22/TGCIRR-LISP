@@ -234,7 +234,7 @@
       "runner": "command",
       "tip": {
         "title": "TGL — Tạo bộ Layer tiêu chuẩn / thêm Layer vào kho",
-        "desc": "Khởi tạo nhanh bộ 23 layer chuẩn TGIRR (tên, màu, nét) và đặt TG-DRIP làm layer hiện hành.",
+        "desc": "Khởi tạo nhanh bộ 24 layer chuẩn TGIRR (tên, màu, nét) và đặt TG-DRIP làm layer hiện hành.",
         "usage": "Bấm nút: lệnh tự tạo các layer còn thiếu và giữ nguyên layer đã có.",
         "command": "Lệnh: TGL"
       },

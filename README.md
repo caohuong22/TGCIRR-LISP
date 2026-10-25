@@ -43,6 +43,7 @@ Thư viện AutoLISP + .NET tiếng Việt gồm công cụ bố trí tưới, �
   powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-palette.ps1  # catalog + port + state stores
   powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-vdng.ps1     # build, package, soi hash DLL, VDNG
   powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-cplus.ps1    # CPLUS
+  powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-native.ps1   # TGL/TGLADD + TL + TNET (doc/ghi LIN)
   ```
 - **Đồng bộ bản đã cài vào AutoCAD** (không build lại): `scripts/sync-bundle.ps1`.
 

@@ -7,8 +7,8 @@ Bản port chạy trên **GstarCAD 2027** (API .NET `Gssoft.Gscad.*`, runtime **
 | Nhóm | Lệnh | Chức năng | Viết bằng |
 |---|---|---|---|
 | CHỌN | SBS | Chọn đối tượng giống mẫu nằm phần lớn trong Polyline kín | AutoLISP |
-| ĐO | TL | Cộng tổng chiều dài các đường đã chọn trước | AutoLISP |
-| LAYER | TGL | Tạo bộ Layer tiêu chuẩn, đặt `TG-DRIP` làm layer hiện hành | AutoLISP |
+| ĐO | TL | Cộng tổng chiều dài các đường đã chọn trước | .NET |
+| LAYER | TGL | Tạo bộ Layer tiêu chuẩn, đặt `TG-DRIP` làm layer hiện hành | .NET |
 | ĐÁNH SỐ | TGN | Đánh số đối tượng / vùng tưới bằng nhãn tròn/ellipse | AutoLISP + DCL |
 | VĂN BẢN | CPLUS | Copy TEXT/MTEXT/Multileader/Attribute/Dimension Override theo quy luật | .NET |
 | TƯỚI | VDNG | Vẽ dây nhỏ giọt bên trong Boundary kín | .NET |
@@ -25,7 +25,7 @@ Bản port chạy trên **GstarCAD 2027** (API .NET `Gssoft.Gscad.*`, runtime **
    - Danh sách ghim (`%APPDATA%\TGIRR\quick-tools.txt`), vị trí/kích thước/dock từng palette (`palette-state.txt`, `quick-palette-state.txt`) đều được nhớ giữa các phiên CAD; ghi file theo kiểu atomic nên không hỏng dữ liệu khi CAD bị crash. Lệnh bị xoá/đổi tên sẽ tự được gỡ khỏi danh sách ghim.
    - Đầu palette có hai nút: **⚡ Quick** (ẩn/hiện Quick Tools) và **⟳ Nạp lại** (chạy `TGIRRLOAD`).
    - Ngoài ra vẫn có menu kéo xuống `TGIRR_CAD.mnu` (dùng `MENULOAD`) và các **lệnh** gõ trực tiếp:
-   - `SBS`, `TL`, `TGL`, `TGN` — lệnh AutoLISP
+   - `SBS`, `TGN` — lệnh AutoLISP; `TL`, `TGL` — lệnh .NET (native)
    - `CPLUS`, `VDNG`, `TNET` — lệnh .NET (`[CommandMethod]`)
    - **Thanh công cụ icon native**: gõ `TGIRRBAR` để bật thanh **TGIRR CAD** (mỗi lệnh là 1 nút icon 16×16/32×32, dock trái/phải/trên, kéo thả tự do, tooltip tiếng Việt). Lệnh tự thêm thư mục chứa icon vào Support File Search Path, tự `MENULOAD` nếu chưa nạp rồi bật thanh. Đây là thanh native của CAD nên nhẹ và gọn hơn palette.
 2. **Nạp plugin:** GstarCAD nạp DLL bằng lệnh `NETLOAD` (loader Lisp tự gọi `NETLOAD`).

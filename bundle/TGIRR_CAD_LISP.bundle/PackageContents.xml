@@ -6,8 +6,6 @@
   <Components Description="TGIRR AutoLISP">
     <RuntimeRequirements OS="Win64" Platform="AutoCAD" SeriesMin="R24.0" SeriesMax="R26.2" />
     <ComponentEntry AppName="TGIRR SBS" ModuleName="./Contents/Lisp/SBS.lsp" LoadOnAutoCADStartup="True" />
-    <ComponentEntry AppName="TGIRR TL" ModuleName="./Contents/Lisp/TL.lsp" LoadOnAutoCADStartup="True" />
-    <ComponentEntry AppName="TGIRR TGL" ModuleName="./Contents/Lisp/TGL.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR TGN" ModuleName="./Contents/Lisp/TGN.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR HBD" ModuleName="./Contents/Lisp/HBD.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR CVPL" ModuleName="./Contents/Lisp/CVPL.lsp" LoadOnAutoCADStartup="True" />
@@ -27,6 +25,9 @@
         <Command Local="CPLUS" Global="CPLUS" />
         <Command Local="TNET" Global="TNET" />
         <Command Local="VDNG" Global="VDNG" />
+        <Command Local="TL" Global="TL" />
+        <Command Local="TGL" Global="TGL" />
+        <Command Local="TGLADD" Global="TGLADD" />
       </Commands>
     </ComponentEntry>
   </Components>
@@ -44,6 +45,9 @@
         <Command Local="CPLUS" Global="CPLUS" />
         <Command Local="TNET" Global="TNET" />
         <Command Local="VDNG" Global="VDNG" />
+        <Command Local="TL" Global="TL" />
+        <Command Local="TGL" Global="TGL" />
+        <Command Local="TGLADD" Global="TGLADD" />
       </Commands>
     </ComponentEntry>
   </Components>
@@ -61,6 +65,9 @@
         <Command Local="CPLUS" Global="CPLUS" />
         <Command Local="TNET" Global="TNET" />
         <Command Local="VDNG" Global="VDNG" />
+        <Command Local="TL" Global="TL" />
+        <Command Local="TGL" Global="TGL" />
+        <Command Local="TGLADD" Global="TGLADD" />
       </Commands>
     </ComponentEntry>
   </Components>

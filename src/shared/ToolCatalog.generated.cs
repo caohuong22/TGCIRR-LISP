@@ -114,7 +114,7 @@ namespace Tgirrr.CadLisp {
          aliases: TgToolCatalog.NoAliases, groupKey: "DESIGN", groupTitle: "THI\u1ebeT K\u1ebe & H\u1ec6 TH\u1ed0NG", accent: TgToolAccent.Green,
          ribbonPanel: "LAYER", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 9, isTool: true,
          keepSelection: false, requiresSelection: false, runner: "command",
-         tipTitle: "TGL \u2014 T\u1ea1o b\u1ed9 Layer ti\u00eau chu\u1ea9n / th\u00eam Layer v\u00e0o kho", tipDesc: "Kh\u1edfi t\u1ea1o nhanh b\u1ed9 23 layer chu\u1ea9n TGIRR (t\u00ean, m\u00e0u, n\u00e9t) v\u00e0 \u0111\u1eb7t TG-DRIP l\u00e0m layer hi\u1ec7n h\u00e0nh.",
+         tipTitle: "TGL \u2014 T\u1ea1o b\u1ed9 Layer ti\u00eau chu\u1ea9n / th\u00eam Layer v\u00e0o kho", tipDesc: "Kh\u1edfi t\u1ea1o nhanh b\u1ed9 24 layer chu\u1ea9n TGIRR (t\u00ean, m\u00e0u, n\u00e9t) v\u00e0 \u0111\u1eb7t TG-DRIP l\u00e0m layer hi\u1ec7n h\u00e0nh.",
          tipUsage: "B\u1ea5m n\u00fat: l\u1ec7nh t\u1ef1 t\u1ea1o c\u00e1c layer c\u00f2n thi\u1ebfu v\u00e0 gi\u1eef nguy\u00ean layer \u0111\u00e3 c\u00f3.", tipCommand: "L\u1ec7nh: TGL",
          menuTag: "TGL", menuLabel: "Tao bo layer chuan (&TGL)",
          menuHelp: "Tao bo layer tieu chuan va dat TG-DRIP lam layer hien hanh"),

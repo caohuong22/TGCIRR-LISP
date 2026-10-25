@@ -21,7 +21,11 @@ $TgirrrMenuFile = 'TGIRR_CAD.mnu'
 $TgirrrRawFromRibbon = @(
     'CopySequenceService.cs',
     'DripFillGeometry.cs',
-    'CopySequenceWindow.cs'
+    'CopySequenceWindow.cs',
+    'LinetypeFile.cs',
+    'LayerSetService.cs',
+    'LayerLibraryStore.cs',
+    'TotalLengthService.cs'
 )
 
 $TgirrrMappedFromRibbon = @(
@@ -32,7 +36,9 @@ $TgirrrMappedFromRibbon = @(
     'DripLayoutWindow.cs',
     'LinetypeService.cs',
     'LinetypeWindow.cs',
-    'LinetypeCommands.cs'
+    'LinetypeCommands.cs',
+    'LayerSetCommands.cs',
+    'TotalLengthCommands.cs'
 )
 
 # ToolCatalog.generated.cs duoc sinh tu src\catalog\tools.json (gen-catalog.ps1)
