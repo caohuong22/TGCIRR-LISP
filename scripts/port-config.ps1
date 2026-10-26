@@ -25,7 +25,10 @@ $TgirrrRawFromRibbon = @(
     'LinetypeFile.cs',
     'LayerSetService.cs',
     'LayerLibraryStore.cs',
-    'TotalLengthService.cs'
+    'TotalLengthService.cs',
+    'PolylineGeometry.cs',
+    'NumberingService.cs',
+    'NumberingWindow.cs'
 )
 
 $TgirrrMappedFromRibbon = @(
@@ -38,7 +41,9 @@ $TgirrrMappedFromRibbon = @(
     'LinetypeWindow.cs',
     'LinetypeCommands.cs',
     'LayerSetCommands.cs',
-    'TotalLengthCommands.cs'
+    'TotalLengthCommands.cs',
+    'ConvertToPolylineCommands.cs',
+    'NumberingCommands.cs'
 )
 
 # ToolCatalog.generated.cs duoc sinh tu src\catalog\tools.json (gen-catalog.ps1)

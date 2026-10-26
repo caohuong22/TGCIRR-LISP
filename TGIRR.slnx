@@ -14,5 +14,7 @@
     <Project Path="tests/VDNG.Regression/VDNG.Regression.csproj" />
     <Project Path="tests/LayerSet.Regression/LayerSet.Regression.csproj" />
     <Project Path="tests/TNET.Regression/TNET.Regression.csproj" />
+    <Project Path="tests/CVPL.Regression/CVPL.Regression.csproj" />
+    <Project Path="tests/TGN.Regression/TGN.Regression.csproj" />
   </Folder>
 </Solution>

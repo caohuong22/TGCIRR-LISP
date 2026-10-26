@@ -112,12 +112,10 @@
       (setenv "TGIRR_CAD_DIR_G" root)
       ;; Nap cac lenh AutoLISP
       (TGIRR:G-LOAD-FILE "SBS.lsp")
-      (TGIRR:G-LOAD-FILE "TGN.lsp")
       (TGIRR:G-LOAD-FILE "HBD.lsp")
-      (TGIRR:G-LOAD-FILE "CVPL.lsp")
       (TGIRR:G-LOAD-FILE "DOITEXT.lsp")
       (TGIRR:G-LOAD-FILE "TGIRRBAR.lsp")
-      ;; Nap plugin .NET (CPLUS, VDNG, TNET, TL, TGL, TGIRRPALETTE)
+      ;; Nap plugin .NET (CPLUS, VDNG, TNET, TL, TGL, CVPL, TGN, TGIRRPALETTE)
       (TGIRR:G-NETLOAD "TGIRR.Gscad.dll")
       ;; Mo palette cong cu (neu lenh da duoc nap tu DLL)
       (if (vl-catch-all-error-p (vl-catch-all-apply '(lambda () (command "TGIRRPALETTE"))))

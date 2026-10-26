@@ -69,7 +69,7 @@ namespace Tgirrr.CadLisp {
          aliases: new[] { "CVP", "CVPLG", "CV2PL" }, groupKey: "BOUNDARY", groupTitle: "RANH GI\u1edaI & BI\u00caN D\u1ea0NG", accent: TgToolAccent.Cyan,
          ribbonPanel: "RANH GI\u1edaI", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 4, isTool: true,
          keepSelection: true, requiresSelection: false, runner: "command",
-         tipTitle: "CVPL \u2014 Convert LINE/ARC/CIRCLE/SPLINE sang Polyline", tipDesc: "Chuy\u1ec3n LINE, ARC, CIRCLE, ELLIPSE, SPLINE, POLYLINE ki\u1ec3u c\u0169 v\u00e0 REGION th\u00e0nh LWPOLYLINE; gi\u1eef layer/m\u00e0u/n\u00e9t; UNDO 1 b\u01b0\u1edbc. G\u00f5 CVPLG \u0111\u1ec3 gi\u1eef \u0111\u1ed1i t\u01b0\u1ee3ng ngu\u1ed3n.",
+         tipTitle: "CVPL \u2014 Convert LINE/ARC/CIRCLE/SPLINE sang Polyline", tipDesc: "Chuy\u1ec3n LINE, ARC, CIRCLE, ELLIPSE, SPLINE, POLYLINE ki\u1ec3u c\u0169 v\u00e0 REGION th\u00e0nh LWPOLYLINE; gi\u1eef layer/m\u00e0u/n\u00e9t. G\u00f5 CVPLG \u0111\u1ec3 gi\u1eef \u0111\u1ed1i t\u01b0\u1ee3ng ngu\u1ed3n.",
          tipUsage: "B\u1ea5m n\u00fat r\u1ed3i qu\u00e9t ch\u1ecdn \u0111\u1ed1i t\u01b0\u1ee3ng c\u1ea7n chuy\u1ec3n. ARC/CIRCLE chuy\u1ec3n ch\u00ednh x\u00e1c b\u1eb1ng bulge; SPLINE/ELLIPSE r\u1eddi r\u1ea1c 128 \u0111i\u1ec3m m\u1eabu.", tipCommand: "L\u1ec7nh: CVPL (ho\u1eb7c CVP, CVPLG)",
          menuTag: "CVPL", menuLabel: "Chuyen LINE/ARC/CIRCLE/SPLINE sang Polyline (&CVPL)",
          menuHelp: "Chuyen LINE/ARC/CIRCLE/ELLIPSE/SPLINE/POLYLINE/REGION sang LWPOLYLINE (CVPLG giu nguon)"),

@@ -110,12 +110,10 @@
     (progn
       ;; Nap cac lenh AutoLISP
       (TGIRR:ZW-LOAD-FILE "SBS.lsp")
-      (TGIRR:ZW-LOAD-FILE "TGN.lsp")
       (TGIRR:ZW-LOAD-FILE "HBD.lsp")
-      (TGIRR:ZW-LOAD-FILE "CVPL.lsp")
       (TGIRR:ZW-LOAD-FILE "DOITEXT.lsp")
       (TGIRR:ZW-LOAD-FILE "TGIRRBAR.lsp")
-      ;; Nap plugin .NET (CPLUS, VDNG, TNET, TL, TGL, TGIRRPALETTE)
+      ;; Nap plugin .NET (CPLUS, VDNG, TNET, TL, TGL, CVPL, TGN, TGIRRPALETTE)
       (TGIRR:ZW-NETLOAD "TGIRR.Zwcad.dll")
       ;; Không tự gọi command TGIRRPALETTE ngay trong lúc NETLOAD.
       ;; Một số bản ZWCAD còn giữ command stack của NETLOAD; gọi command lồng

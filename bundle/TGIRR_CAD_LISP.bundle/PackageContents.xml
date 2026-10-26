@@ -6,9 +6,7 @@
   <Components Description="TGIRR AutoLISP">
     <RuntimeRequirements OS="Win64" Platform="AutoCAD" SeriesMin="R24.0" SeriesMax="R26.2" />
     <ComponentEntry AppName="TGIRR SBS" ModuleName="./Contents/Lisp/SBS.lsp" LoadOnAutoCADStartup="True" />
-    <ComponentEntry AppName="TGIRR TGN" ModuleName="./Contents/Lisp/TGN.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR HBD" ModuleName="./Contents/Lisp/HBD.lsp" LoadOnAutoCADStartup="True" />
-    <ComponentEntry AppName="TGIRR CVPL" ModuleName="./Contents/Lisp/CVPL.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR DOITEXT" ModuleName="./Contents/Lisp/DOITEXT.lsp" LoadOnAutoCADStartup="True" />
   </Components>
 
@@ -28,6 +26,11 @@
         <Command Local="TL" Global="TL" />
         <Command Local="TGL" Global="TGL" />
         <Command Local="TGLADD" Global="TGLADD" />
+        <Command Local="CVPL" Global="CVPL" />
+        <Command Local="CVP" Global="CVP" />
+        <Command Local="CVPLG" Global="CVPLG" />
+        <Command Local="CV2PL" Global="CV2PL" />
+        <Command Local="TGN" Global="TGN" />
       </Commands>
     </ComponentEntry>
   </Components>
@@ -48,6 +51,11 @@
         <Command Local="TL" Global="TL" />
         <Command Local="TGL" Global="TGL" />
         <Command Local="TGLADD" Global="TGLADD" />
+        <Command Local="CVPL" Global="CVPL" />
+        <Command Local="CVP" Global="CVP" />
+        <Command Local="CVPLG" Global="CVPLG" />
+        <Command Local="CV2PL" Global="CV2PL" />
+        <Command Local="TGN" Global="TGN" />
       </Commands>
     </ComponentEntry>
   </Components>
@@ -68,6 +76,11 @@
         <Command Local="TL" Global="TL" />
         <Command Local="TGL" Global="TGL" />
         <Command Local="TGLADD" Global="TGLADD" />
+        <Command Local="CVPL" Global="CVPL" />
+        <Command Local="CVP" Global="CVP" />
+        <Command Local="CVPLG" Global="CVPLG" />
+        <Command Local="CV2PL" Global="CV2PL" />
+        <Command Local="TGN" Global="TGN" />
       </Commands>
     </ComponentEntry>
   </Components>

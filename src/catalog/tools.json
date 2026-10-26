@@ -129,7 +129,7 @@
       "runner": "command",
       "tip": {
         "title": "CVPL — Convert LINE/ARC/CIRCLE/SPLINE sang Polyline",
-        "desc": "Chuyển LINE, ARC, CIRCLE, ELLIPSE, SPLINE, POLYLINE kiểu cũ và REGION thành LWPOLYLINE; giữ layer/màu/nét; UNDO 1 bước. Gõ CVPLG để giữ đối tượng nguồn.",
+        "desc": "Chuyển LINE, ARC, CIRCLE, ELLIPSE, SPLINE, POLYLINE kiểu cũ và REGION thành LWPOLYLINE; giữ layer/màu/nét. Gõ CVPLG để giữ đối tượng nguồn.",
         "usage": "Bấm nút rồi quét chọn đối tượng cần chuyển. ARC/CIRCLE chuyển chính xác bằng bulge; SPLINE/ELLIPSE rời rạc 128 điểm mẫu.",
         "command": "Lệnh: CVPL (hoặc CVP, CVPLG)"
       },

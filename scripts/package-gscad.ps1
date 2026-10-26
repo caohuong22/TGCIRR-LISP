@@ -23,7 +23,7 @@ $winDir   = Join-Path $bundle 'Contents\Windows'
 New-Item -ItemType Directory -Force -Path $lispDir, $winDir | Out-Null
 
 # LISP files (same as AutoCAD version, plus the GstarCAD loader)
-$allowedLisp = @('SBS.lsp','TGN.lsp','TGN.dcl','HBD.lsp','CVPL.lsp','DOITEXT.lsp','TGIRRBAR.lsp','TGIRRLoaderG.lsp')
+$allowedLisp = @('SBS.lsp','HBD.lsp','DOITEXT.lsp','TGIRRBAR.lsp','TGIRRLoaderG.lsp')
 Get-ChildItem $lispDir -File -ErrorAction SilentlyContinue | Where-Object { $_.Extension -in '.lsp','.dcl' } | Remove-Item -Force
 foreach ($f in $allowedLisp) {
   Copy-Item (Join-Path $root "src\lisp\$f") $lispDir -Force
@@ -48,7 +48,7 @@ $readme = @'
 1. Build: chay scripts/package-gscad.ps1
 2. Copy thu muc Contents vao thu muc luu lisp (vi du C:\Users\<user>\AppData\Roaming\Gstarsoft\GstarCAD\<version>\en-US\Support hoac mot thu muc tim duoc trong Support File Search Path).
 3. Mo GstarCAD, go APPLOAD va chon TGIRRLoaderG.lsp, hoac go (load "TGIRRLoaderG.lsp").
-4. Go TGIRRLOAD de nap day du (SBS, TGN + CPLUS, VDNG, TNET, TL, TGL) - bang cong cu TGIRR CAD tu mo.
+4. Go TGIRRLOAD de nap day du (SBS, HBD, DOITEXT + CPLUS, VDNG, TNET, TL, TGL, CVPL, TGN) - bang cong cu TGIRR CAD tu mo.
 5. (Tuy chon) go MENULOAD va chon TGIRR_CAD.mnu de them menu keo xuong TGIRR CAD.
 
 ## Lenh
@@ -57,7 +57,8 @@ $readme = @'
 - HBD  : ve duong bao boundary cho hatch co (LISP, lenh tat BH/TGBOUND)
 - TL   : tong chieu dai (.NET)
 - TGL  : tao bo layer chuan (.NET)
-- TGN  : danh so doi tuong/vung tuoi (LISP + DCL)
+- TGN  : danh so doi tuong/vung tuoi (.NET)
+- CVPL : convert LINE/ARC/CIRCLE/ELLIPSE/SPLINE/POLYLINE/REGION sang Polyline (.NET)
 - CPLUS: copy theo quy luat (.NET)
 - VDNG : rai day nho giot (.NET)
 - TNET : tao net ve co chu (.NET)
