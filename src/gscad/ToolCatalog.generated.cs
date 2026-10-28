@@ -27,10 +27,6 @@ namespace Tgirrr.CadLisp {
       foreach (var h in Hosts) if (h == host) return true;
       return false;
     }
-    /// <summary>Chu hien thi tren badge cua nut (chinh la ten lenh).</summary>
-    internal string Badge { get { return Id; } }
-    /// <summary>Nhan tren dong menu: "TITLE - Mo ngan".</summary>
-    internal string TipHeadline { get { return TipTitle; } }
   }
 
  /// <summary>Nguon duy nhat ve danh muc cong cu TGIRR.</summary>

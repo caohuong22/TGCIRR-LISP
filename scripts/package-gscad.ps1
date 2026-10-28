@@ -26,8 +26,9 @@ $lispDir  = Join-Path $bundle 'Contents\Lisp'
 $winDir   = Join-Path $bundle 'Contents\Windows'
 New-Item -ItemType Directory -Force -Path $lispDir, $winDir | Out-Null
 
-# LISP files (same as AutoCAD version, plus the GstarCAD loader)
-$allowedLisp = @('SBS.lsp','HBD.lsp','DOITEXT.lsp','TGIRRBAR.lsp','TGIRRCOMMANDS.lsp','TGIRRLoaderG.lsp')
+# Danh sach file LISP suy ra tu src/catalog/tools.json (scripts/package-config.ps1)
+. (Join-Path $PSScriptRoot 'package-config.ps1')
+$allowedLisp = Get-TgirrrLispFiles 'TGIRRLoaderG.lsp'
 Get-ChildItem $lispDir -File -ErrorAction SilentlyContinue | Where-Object { $_.Extension -in '.lsp','.dcl' } | Remove-Item -Force
 Get-ChildItem $lispDir -File -Filter '*.bmp' -ErrorAction SilentlyContinue | Remove-Item -Force
 foreach ($f in $allowedLisp) {

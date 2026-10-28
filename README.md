@@ -4,9 +4,29 @@ Thư viện AutoLISP + .NET tiếng Việt gồm công cụ bố trí tưới, �
 
 | Nền tảng | Giao diện | Thư mục nguồn | Đóng gói | Tài liệu |
 |---|---|---|---|---|
-| AutoCAD 2021–2025+ (64-bit) | Ribbon tự động | `src/ribbon/` | `package.ps1 -Target AutoCAD` | [INSTALL.md](docs/INSTALL.md) |
+| AutoCAD 2021–2027+ (64-bit) | Ribbon tự động (net48 / net8.0 / net10.0) | `src/ribbon/` | `package.ps1 -Target AutoCAD` | [INSTALL.md](docs/INSTALL.md) |
 | ZWCAD 2026 | **Không dùng Ribbon** (PaletteSet `TGIRRPALETTE` + Menu) | `src/zwcad/` | `package.ps1 -Target ZWCAD` | [INSTALL-ZWCAD.md](docs/INSTALL-ZWCAD.md) |
 | GstarCAD 2027 | **Không dùng Ribbon** (PaletteSet `TGIRRPALETTE` + Menu) | `src/gscad/` | `package.ps1 -Target GstarCAD` | [INSTALL-GSTARCAD.md](docs/INSTALL-GSTARCAD.md) |
+
+## Giao diện
+
+- Mọi nút trên **Ribbon, palette `TGIRRPALETTE`, Quick Tools và thanh công cụ native `TGIRRBAR`**
+  chỉ hiện **icon** (không có chữ). Hover vào nút để xem **tên lệnh** + **cách dùng ngắn**.
+- Icon vẽ từ một nguồn duy nhất [`src/shared/ToolIcons.cs`](src/shared/ToolIcons.cs);
+  `scripts/gen-icons.ps1` rasterize chính bộ này ra BMP 16/32 cho toolbar native.
+- Palette có ô tìm lệnh (Ctrl+F), ★ để ghim vào **Quick Tools** (`TGIRRQUICK`).
+
+## Bật/tắt nạp từng lệnh (tránh xung đột LISP khác)
+
+- Gõ **`TGIRRSETTINGS`** (hoặc nút ⚙ trên palette): bỏ dấu lệnh không muốn nạp —
+  **lưu ngay mỗi lần tick**, đóng bằng X/Esc cũng không mất.
+- Danh sách gồm 9 lệnh AutoLISP (SBS/SBSE/SCH, HBD/JH/SP2PL, DOITEXT/DOIMTEXT, TGIRRBAR)
+  và 8 lệnh .NET (CVPL, VDNG, TNET, TGL, TGLADD, TL, TGN, CPLUS).
+- Lệnh .NET đăng ký **tên nội bộ `TGIRR<CMD>`**; `TGIRRCOMMANDS.lsp` (sinh tự động) tạo lại tên
+  quen thuộc `TL`, `TGL`… nên tắt `TL` là LISP `TL` của anh chạy được.
+- Không cần khởi động lại CAD: **`TGIRRLOAD`/`TGIRRRELOAD`** (nạp lại theo cài đặt),
+  **`TGIRRDROP`** (gỡ lệnh vừa tắt khỏi phiên hiện tại), **`TGIRRSTATUS`** (chẩn đoán).
+- Cấu hình lưu ở `%APPDATA%\TGIRR\load-settings.txt` (`v1 disabled=ID,ID`).
 
 ## Đóng gói (Build & Package)
 
@@ -38,12 +58,16 @@ Thư viện AutoLISP + .NET tiếng Việt gồm công cụ bố trí tưới, �
   (kiểm tra lệch: thêm `-Check`).
 - **Bản port ZWCAD/GstarCAD tự sinh** từ `src/ribbon` + `src/shared`: `scripts/port-zwcad.ps1`,
   `scripts/port-gscad.ps1`; kiểm tra không lệch nguồn: `scripts/port-verify.ps1`.
-- **Test hồi quy**:
+- **Danh sách file LISP đóng gói** suy ra từ `tools.json` (`loadUnits`) qua
+  `scripts/package-config.ps1` — không khai báo lại trong script package.
+- **Test hồi quy** (chạy **mọi** project trong `tests/`, tự động liệt kê):
   ```powershell
-  powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-palette.ps1  # catalog + port + state stores
-  powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-vdng.ps1     # build, package, soi hash DLL, VDNG
-  powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-cplus.ps1    # CPLUS
-  powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-native.ps1   # TGL/TGLADD, TL, CVPL, TGN, TNET
+  powershell -NoProfile -ExecutionPolicy Bypass -File scripts/test-palette.ps1
   ```
+  Script kiểm tra: catalog drift, port drift, build solution (nếu có `Reference/`), rồi chạy
+  7 project regression. Các script chuyên biệt vẫn dùng được: `test-vdng.ps1`, `test-cplus.ps1`,
+  `test-native.ps1` (kèm build + so hash DLL trong bundle).
+- **CI** ([.github/workflows/ci.yml](.github/workflows/ci.yml)) chạy trên Windows:
+  `gen-catalog -Check` + `port-verify` + toàn bộ regression test.
 - **Đồng bộ bản đã cài vào AutoCAD** (không build lại): `scripts/sync-bundle.ps1`.
 

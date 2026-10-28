@@ -1,0 +1,12 @@
+# TGIRR - quy tac line-ending.
+#
+# Cac script sinh file (gen-catalog.ps1, port-*.ps1) va port-verify.ps1 so sanh
+# NOI DUNG TUNG BYTE giua nguon va ban port. Neu git tu doi LF <-> CRLF thi
+# port-verify bao "drift" gia va moi commit lai keu warning. Vi vay tat tu dong
+# chuyen doi cho toan bo repo: file duoc giu nguyen nhu khi commit.
+* -text
+
+# File nhi phan: khong diff, khong merge theo dong.
+*.bmp binary
+*.dll binary
+*.png binary

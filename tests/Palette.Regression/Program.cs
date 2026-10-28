@@ -41,7 +41,6 @@ internal static class Program {
   Check("id khong trung", all.Select(t => t.Id).Distinct().Count() == all.Count);
   Check("menu.tag khong trung", all.Select(t => t.MenuTag).Distinct().Count() == all.Count);
   Check("order khong trung", all.Select(t => t.Order).Distinct().Count() == all.Count);
-  Check("badge = id voi moi nut", tools.TrueForAll(t => t.Badge == t.Id));
   Check("moi lenh co it nhat 1 host", all.TrueForAll(t => t.Hosts.Length > 0));
   string[] validHosts = { "AutoCAD", "ZWCAD", "GstarCAD" };
   Check("chi dung ten host hop le", all.TrueForAll(t => t.Hosts.All(h => validHosts.Contains(h))));

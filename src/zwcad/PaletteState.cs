@@ -142,15 +142,6 @@ namespace Tgirrr.CadLisp {
 
   static HashSet<string> disabled;
 
-  internal static HashSet<string> Disabled {
-   get {
-    lock (typeof(LoadSettingsStore)) {
-     if (disabled == null) disabled = Load();
-     return new HashSet<string>(disabled, StringComparer.OrdinalIgnoreCase);
-    }
-   }
-  }
-
   internal static bool IsEnabled(string id) {
    lock (typeof(LoadSettingsStore)) {
     if (disabled == null) disabled = Load();
