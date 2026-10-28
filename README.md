@@ -43,7 +43,17 @@ Thư viện AutoLISP + .NET tiếng Việt gồm công cụ bố trí tưới, �
 
 ## Cài đặt nhanh
 
-- Double-click file `scripts/CAI_DAT_TGIRR.bat` để mở menu cài đặt tự động cho AutoCAD, ZWCAD hoặc GstarCAD.
+- Double-click `scripts\CAI_DAT_TGIRR.bat` (cài đặt / gỡ cài đặt), hoặc `build.bat` ở thư mục gốc
+  (menu: kiểm tra môi trường, build + đóng gói, build + cài từng CAD).
+- Kiểm tra trước khi build: `powershell -File scripts\doctor.ps1` — báo .NET SDK, DLL tham chiếu
+  `Reference\`, bundle đã đóng gói, bản đã cài, `load-settings.txt` và CAD đang chạy.
+- Cài bằng dòng lệnh:
+  ```powershell
+  powershell -File scripts\install-bundle.ps1 -Platform AutoCAD        # -Scope User (mặc định) hoặc Machine
+  powershell -File scripts\install-bundle.ps1 -Platform ZWCAD -SkipBuild
+  powershell -File scripts\install-bundle.ps1 -Uninstall                # gỡ cài đặt
+  ```
+  Chỉ cài ở **một** nơi: bundle trùng ở cả `%APPDATA%` và `%ProgramData%` có thể bị AutoCAD nạp 2 lần.
 - Hoặc xem chi tiết từng nền tảng:
   - [Hướng dẫn cài đặt AutoCAD (Ribbon)](docs/INSTALL.md)
   - [Hướng dẫn cài đặt ZWCAD (Palette + Menu)](docs/INSTALL-ZWCAD.md)

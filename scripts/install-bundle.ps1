@@ -1,11 +1,18 @@
 param(
     [ValidateSet('AutoCAD', 'ZWCAD', 'GstarCAD', 'All', '')]
     [string]$Platform = '',
-    [switch]$SkipBuild
+    [switch]$SkipBuild,
+    # AutoCAD: cai cho rieng nguoi dung (khong can quyen admin) hay cho moi nguoi.
+    # Chi nen chon MOT noi: cung mot bundle o 2 noi co the bi CAD nap 2 lan.
+    [ValidateSet('User', 'Machine')]
+    [string]$Scope = 'User',
+    # Go cai dat (chi xoa ban da cai, khong dung toi bundle trong repo).
+    [switch]$Uninstall,
+    # Thu muc Support tu chon cho ZWCAD/GstarCAD (bo trong = tu tim).
+    [string]$SupportDir = ''
 )
 $ErrorActionPreference = 'Stop'
-$projectRoot = Split-Path -Parent $PSScriptRoot
-$packageScript = Join-Path $PSScriptRoot 'package.ps1'
+$root = Split-Path -Parent $PSScriptRoot
 
 function Show-Header {
     Write-Host ''
@@ -15,184 +22,207 @@ function Show-Header {
     Write-Host ''
 }
 
+function Stop-IfRunning([string[]]$names, [string]$label) {
+    $found = @()
+    foreach ($n in $names) { if (Get-Process -Name $n -ErrorAction SilentlyContinue) { $found += $n } }
+    if ($found.Count -gt 0) {
+        Write-Host ("{0} dang mo. Hay dong {0} roi chay lai (DLL dang bi khoa)." -f $label) -ForegroundColor Yellow
+        exit 2
+    }
+}
+
+# Tim thu muc Support cua CAD theo ten hang (quyét moi phien ban, khong hard-code nam).
+function Find-SupportDirs([string]$vendorFolder, [string]$probeFile) {
+    $base = Join-Path $env:APPDATA $vendorFolder
+    if (-not (Test-Path $base)) { return @() }
+    $all = Get-ChildItem $base -Recurse -Directory -Filter 'Support' -ErrorAction SilentlyContinue
+    $withProbe = @($all | Where-Object { Test-Path (Join-Path $_.FullName $probeFile) } | Select-Object -ExpandProperty FullName)
+    if ($withProbe.Count -gt 0) { return $withProbe }
+    # Chua cai lan nao: chon thu muc Support co nhieu file nhat (ban CAD moi nhat thuong dung).
+    return @($all | Sort-Object { (Get-ChildItem $_.FullName -File -ErrorAction SilentlyContinue).Count } -Descending |
+        Select-Object -First 1 -ExpandProperty FullName)
+}
+
 if (-not $Platform) {
     Show-Header
-    Write-Host 'Chon nen tang CAD can cai dat:' -ForegroundColor White
-    Write-Host '  [1] AutoCAD   - Dung Ribbon (Tu dong nap qua ApplicationPlugins)' -ForegroundColor Yellow
-    Write-Host '  [2] ZWCAD     - KHONG dung Ribbon (Dung Palette TGIRRPALETTE + Menu)' -ForegroundColor Green
-    Write-Host '  [3] GstarCAD  - KHONG dung Ribbon (Dung Palette TGIRRPALETTE + Menu)' -ForegroundColor Cyan
-    Write-Host '  [4] Dong goi tat ca (Build ca 3 CAD vao thu muc bundle\)' -ForegroundColor Magenta
+    Write-Host 'Chon nen tang CAD:' -ForegroundColor White
+    Write-Host '  [1] AutoCAD   - Ribbon, tu nap qua ApplicationPlugins' -ForegroundColor Yellow
+    Write-Host '  [2] ZWCAD     - Palette TGIRRPALETTE + Menu (khong Ribbon)' -ForegroundColor Green
+    Write-Host '  [3] GstarCAD  - Palette TGIRRPALETTE + Menu (khong Ribbon)' -ForegroundColor Cyan
+    Write-Host '  [4] Dong goi ca 3 CAD vao thu muc bundle\' -ForegroundColor Magenta
     Write-Host '  [Q] Thoat' -ForegroundColor DarkGray
     Write-Host ''
-    $choice = Read-Host 'Nhap lua chon cua ban (1-4 hoac Q)'
+    $choice = Read-Host 'Nhap lua chon (1-4 hoac Q)'
     switch ($choice.Trim()) {
         '1' { $Platform = 'AutoCAD' }
         '2' { $Platform = 'ZWCAD' }
         '3' { $Platform = 'GstarCAD' }
         '4' { $Platform = 'All' }
-        default {
-            Write-Host 'Da huy thao tac.' -ForegroundColor DarkGray
-            exit 0
-        }
+        default { Write-Host 'Da huy.' -ForegroundColor DarkGray; exit 0 }
     }
 }
 
 Show-Header
 
 # -------------------------------------------------------------
-# 1) Cai dat cho AutoCAD (Co su dung Ribbon)
+# GO CAI DAT
 # -------------------------------------------------------------
-if ($Platform -eq 'AutoCAD') {
-    Write-Host '>>> CAI DAT CHO AUTOCAD (Ribbon + Lisp Bundle)' -ForegroundColor Cyan
-    if (Get-Process -Name 'acad' -ErrorAction SilentlyContinue) {
-        Write-Host 'AutoCAD dang mo. Vui long dong AutoCAD truoc khi tiep tuc de cap nhat DLL an toan.' -ForegroundColor Yellow
-        exit 2
+if ($Uninstall) {
+    $removed = @()
+    foreach ($p in @(
+        (Join-Path $env:APPDATA 'Autodesk\ApplicationPlugins\TGIRR_CAD_LISP.bundle'),
+        (Join-Path $env:ProgramData 'Autodesk\ApplicationPlugins\TGIRR_CAD_LISP.bundle'))) {
+        if (Test-Path $p) { Remove-Item $p -Recurse -Force; $removed += $p }
     }
+    Write-Host 'Da go bundle AutoCAD:' -ForegroundColor Green
+    if ($removed.Count -eq 0) { Write-Host '  (khong co ban nao)' -ForegroundColor DarkGray }
+    foreach ($r in $removed) { Write-Host "  - $r" -ForegroundColor White }
 
-    if (-not $SkipBuild) {
-        Write-Host '[1/4] Build & dong goi bundle AutoCAD...' -ForegroundColor DarkCyan
-        & $packageScript -Target AutoCAD
+    foreach ($spec in @(@{ Vendor = 'ZWSOFT'; Probe = 'TGIRRLoaderZ.lsp'; Label = 'ZWCAD' },
+                        @{ Vendor = 'Gstarsoft'; Probe = 'TGIRRLoaderG.lsp'; Label = 'GstarCAD' })) {
+        foreach ($dir in (Find-SupportDirs $spec.Vendor $spec.Probe)) {
+            $files = Get-ChildItem $dir -File | Where-Object {
+                $_.Name -like 'TGIRR*' -or $_.Name -like 'SBS.*' -or $_.Name -like 'HBD.*' -or
+                $_.Name -like 'DOITEXT.*' -or $_.Name -eq 'TGIRR_CAD.mnu' -or $_.Name -eq 'TGIRR_CAD.mnl' -or
+                $_.Extension -eq '.bmp'
+            }
+            if ($files.Count -eq 0) { continue }
+            Write-Host ("Xoa file TGIRR trong {0}: {1}" -f $spec.Label, $dir) -ForegroundColor Yellow
+            $files | Remove-Item -Force -ErrorAction SilentlyContinue
+        }
     }
+    Write-Host ''
+    Write-Host 'Da go cai dat. Mo CAD de xac nhan (khong con tab/menu TGIRR).' -ForegroundColor Green
+    exit 0
+}
 
-    $sourceBundle = Join-Path $projectRoot 'bundle\TGIRR_CAD_LISP.bundle'
-    if (-not (Test-Path (Join-Path $sourceBundle 'PackageContents.xml'))) {
-        throw "Khong tim thay bundle nguon hop le: $sourceBundle"
-    }
+# -------------------------------------------------------------
+# 1) AUTOCAD - Ribbon, tu nap qua ApplicationPlugins
+# -------------------------------------------------------------
+if ($Platform -eq 'AutoCAD' -or $Platform -eq 'All') {
+    if ($Platform -eq 'AutoCAD') {
+        Write-Host '>>> AUTOCAD (Ribbon tu nap)' -ForegroundColor Cyan
+        Stop-IfRunning @('acad') 'AutoCAD'
+        if (-not $SkipBuild) {
+            Write-Host '[1/3] Build & dong goi...' -ForegroundColor DarkCyan
+            & (Join-Path $PSScriptRoot 'package.ps1') -Target AutoCAD
+            if ($LASTEXITCODE -ne 0) { throw 'Dong goi AutoCAD that bai' }
+        }
 
-    $targets = @(
-        (Join-Path $env:APPDATA 'Autodesk\ApplicationPlugins'),
-        (Join-Path $env:ProgramData 'Autodesk\ApplicationPlugins')
-    )
+        $sourceBundle = Join-Path $root 'bundle\TGIRR_CAD_LISP.bundle'
+        if (-not (Test-Path (Join-Path $sourceBundle 'PackageContents.xml'))) {
+            throw "Khong tim thay bundle: $sourceBundle (chay scripts\package.ps1 -Target AutoCAD)"
+        }
 
-    Write-Host '[2/4] Chuan bi thu muc Autodesk ApplicationPlugins...' -ForegroundColor DarkCyan
-    foreach ($targetRoot in $targets) {
-        if (-not (Test-Path $targetRoot)) { New-Item -ItemType Directory -Path $targetRoot -Force | Out-Null }
+        $targetRoot = if ($Scope -eq 'Machine') { Join-Path $env:ProgramData 'Autodesk\ApplicationPlugins' }
+                      else { Join-Path $env:APPDATA 'Autodesk\ApplicationPlugins' }
         $dest = Join-Path $targetRoot 'TGIRR_CAD_LISP.bundle'
-        if (Test-Path $dest) { Remove-Item -Path $dest -Recurse -Force }
-        Copy-Item -Path $sourceBundle -Destination $dest -Recurse -Force
-        Write-Host "  -> Da sao chep bundle vao: $dest" -ForegroundColor White
-    }
+        $other = if ($Scope -eq 'Machine') { Join-Path $env:APPDATA 'Autodesk\ApplicationPlugins\TGIRR_CAD_LISP.bundle' }
+                 else { Join-Path $env:ProgramData 'Autodesk\ApplicationPlugins\TGIRR_CAD_LISP.bundle' }
 
-    Write-Host ''
-    Write-Host 'CAI DAT AUTOCAD THANH CONG!' -ForegroundColor Green
-    Write-Host 'Mo AutoCAD se thay tab TGIRR CAD LISP tren thanh Ribbon.' -ForegroundColor White
-    Write-Host ''
+        Write-Host '[2/3] Sao chep bundle...' -ForegroundColor DarkCyan
+        New-Item -ItemType Directory -Force -Path $targetRoot | Out-Null
+        if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
+        Copy-Item $sourceBundle $dest -Recurse -Force
+        Write-Host "  -> $dest" -ForegroundColor White
+
+        # Mot bundle o 2 noi co the bi AutoCAD nap 2 lan (trung lenh, 2 tab Ribbon).
+        if (Test-Path $other) {
+            Remove-Item $other -Recurse -Force
+            Write-Host "  -> Da xoa ban trung o: $other" -ForegroundColor Yellow
+        }
+
+        Write-Host '[3/3] Kiem tra manifest...' -ForegroundColor DarkCyan
+        try {
+            $null = [xml](Get-Content (Join-Path $dest 'PackageContents.xml') -Raw)
+            Write-Host '  -> PackageContents.xml hop le' -ForegroundColor Green
+        } catch {
+            throw "PackageContents.xml khong hop le: $($_.Exception.Message)"
+        }
+
+        Write-Host ''
+        Write-Host 'CAI DAT AUTOCAD THANH CONG' -ForegroundColor Green
+        Write-Host ("  Pham vi: {0} ({1})" -f $Scope, $(if ($Scope -eq 'Machine') { 'moi nguoi dung' } else { 'rieng ban' })) -ForegroundColor White
+        Write-Host '  Mo AutoCAD: tab "TGIRR CAD LISP" se tu hien.' -ForegroundColor White
+        Write-Host '  Go TGIRRSETTINGS de bat/tat tung lenh, TGIRRSTATUS de kiem tra.' -ForegroundColor White
+        Write-Host ''
+    }
 }
 
 # -------------------------------------------------------------
-# 2) Cai dat cho ZWCAD (KHONG DUNG RIBBON - Dung Palette + Menu)
+# 2) ZWCAD / GstarCAD - copy vao thu muc Support
 # -------------------------------------------------------------
-elseif ($Platform -eq 'ZWCAD') {
-    Write-Host '>>> CAI DAT CHO ZWCAD (KHONG DUNG RIBBON - Palette + Menu)' -ForegroundColor Green
-    if (Get-Process -Name 'ZWCAD' -ErrorAction SilentlyContinue) {
-        Write-Host 'ZWCAD dang mo. Vui long dong ZWCAD truoc khi tiep tuc de cap nhat DLL an toan.' -ForegroundColor Yellow
-        exit 2
-    }
+foreach ($spec in @(
+    @{ Key = 'ZWCAD'; Vendor = 'ZWSOFT'; Probe = 'TGIRRLoaderZ.lsp'; Loader = 'TGIRRLoaderZ.lsp';
+       Proc = 'ZWCAD'; Bundle = 'TGIRR_CAD_ZWCAD'; Dll = 'TGIRR.Zwcad.dll'; Label = 'ZWCAD' },
+    @{ Key = 'GstarCAD'; Vendor = 'Gstarsoft'; Probe = 'TGIRRLoaderG.lsp'; Loader = 'TGIRRLoaderG.lsp';
+       Proc = 'gcad'; Bundle = 'TGIRR_CAD_GSTARCAD'; Dll = 'TGIRR.Gscad.dll'; Label = 'GstarCAD' })) {
+
+    if ($Platform -ne $spec.Key) { continue }
+
+    Write-Host ("<<< {0} (Palette + Menu, khong Ribbon)" -f $spec.Label) -ForegroundColor Cyan
+    Stop-IfRunning @($spec.Proc) $spec.Label
 
     if (-not $SkipBuild) {
-        Write-Host '[1/3] Build & dong goi bundle ZWCAD (.NET net48, khong Ribbon)...' -ForegroundColor DarkGreen
-        & $packageScript -Target ZWCAD
+        Write-Host '[1/3] Build & dong goi...' -ForegroundColor DarkCyan
+        & (Join-Path $PSScriptRoot 'package.ps1') -Target $spec.Key
+        if ($LASTEXITCODE -ne 0) { throw ("Dong goi {0} that bai" -f $spec.Label) }
     }
 
-    $sourceBundle = Join-Path $projectRoot 'bundle\TGIRR_CAD_ZWCAD.bundle'
-    if (-not (Test-Path (Join-Path $sourceBundle 'Contents\Windows\TGIRR.Zwcad.dll'))) {
-        throw "Khong tim thay bundle ZWCAD: $sourceBundle"
+    $sourceBundle = Join-Path $root ("bundle\{0}.bundle" -f $spec.Bundle)
+    if (-not (Test-Path (Join-Path $sourceBundle ('Contents\Windows\' + $spec.Dll)))) {
+        throw "Khong tim thay bundle $($spec.Label): $sourceBundle"
     }
 
-    # Tim thu muc Support cua ZWCAD (vi du ZWCAD 2026)
-    $zwSupportCandidates = @(
-        "$env:APPDATA\ZWSOFT\ZWCAD\2026\en-US\Support",
-        "$env:APPDATA\ZWSOFT\ZWCAD\2025\en-US\Support",
-        "$env:APPDATA\ZWSOFT\ZWCAD\2024\en-US\Support"
-    )
-    $destSupport = $zwSupportCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-
-    if ($destSupport) {
-        Write-Host "[2/3] Da tim thay thu muc Support ZWCAD: $destSupport" -ForegroundColor DarkGreen
-        Write-Host '[3/3] Sao chep file LISP, Menu va DLL vao thu muc Support...' -ForegroundColor DarkGreen
-        Get-ChildItem (Join-Path $sourceBundle 'Contents\Lisp') | Copy-Item -Destination $destSupport -Force
-        Get-ChildItem (Join-Path $sourceBundle 'Contents\Windows') | Copy-Item -Destination $destSupport -Force
-        Write-Host ''
-        Write-Host 'CAI DAT ZWCAD THANH CONG!' -ForegroundColor Green
-        Write-Host "Da sao chep file vao: $destSupport" -ForegroundColor White
-    } else {
-        Write-Host "[2/3] Bundle ZWCAD da dong goi tai: $sourceBundle" -ForegroundColor DarkGreen
-        Write-Host 'Khong tu dong tim thay thu muc Support. Anh hay copy thu muc Contents vao thu muc Support cua ZWCAD.' -ForegroundColor Yellow
+    $target = $SupportDir
+    if (-not $target) {
+        $found = @(Find-SupportDirs $spec.Vendor $spec.Probe)
+        if ($found.Count -gt 0) { $target = $found[0] }
     }
+
+    if (-not $target) {
+        Write-Host ("[2/3] Khong tim thay thu muc Support cua {0}." -f $spec.Label) -ForegroundColor Yellow
+        Write-Host '      Chay lai voi -SupportDir "duong dan thu muc Support", vi du:' -ForegroundColor White
+        Write-Host ('        scripts\install-bundle.ps1 -Platform {0} -SkipBuild -SupportDir "C:\...\Support"' -f $spec.Key) -ForegroundColor DarkGray
+        Write-Host ("      (Bundle da san sang tai {0})" -f $sourceBundle) -ForegroundColor White
+        exit 3
+    }
+
+    Write-Host ("[2/3] Thu muc Support: {0}" -f $target) -ForegroundColor DarkCyan
+    New-Item -ItemType Directory -Force -Path $target | Out-Null
+    Get-ChildItem (Join-Path $sourceBundle 'Contents\Lisp') -File |
+        Where-Object { $_.Extension -in '.lsp', '.mnu', '.mnl', '.bmp' } |
+        Copy-Item -Destination $target -Force
+    Copy-Item (Join-Path $sourceBundle ('Contents\Windows\' + $spec.Dll)) $target -Force
+
+    # Ghi nho duong dan de loader tim thay DLL/LISP khi Support khong co trong search path.
+    $envName = if ($spec.Key -eq 'ZWCAD') { 'TGIRR_CAD_DIR_Z' } else { 'TGIRR_CAD_DIR_G' }
+    [Environment]::SetEnvironmentVariable($envName, $target, 'User')
+
+    Write-Host '[3/3] Kiem tra...' -ForegroundColor DarkCyan
+    $copied = @(Get-ChildItem $target -File | Where-Object { $_.Name -eq $spec.Loader -or $_.Name -eq $spec.Dll })
+    if ($copied.Count -lt 2) { throw ("Thieu file sau khi copy vao {0}" -f $target) }
+    Write-Host ("  -> {0} file da san sang" -f $copied.Count) -ForegroundColor Green
 
     Write-Host ''
-    Write-Host 'CHU Y QUAN TRONG (ZWCAD KHONG DUNG RIBBON):' -ForegroundColor Yellow
-    Write-Host '  1. Mo ZWCAD, go APPLOAD va them TGIRRLoaderZ.lsp vao Startup Suite.' -ForegroundColor White
-    Write-Host '  2. Go TGIRRLOAD de nap toan bo cong cu: bang Palette TGIRRPALETTE se tu dong mo!' -ForegroundColor White
-    Write-Host '  3. (Tuy chon) Go MENULOAD, nap file TGIRR_CAD.mnu de co menu keo xuong.' -ForegroundColor White
-    Write-Host ''
-}
-
-# -------------------------------------------------------------
-# 3) Cai dat cho GstarCAD (KHONG DUNG RIBBON - Dung Palette + Menu)
-# -------------------------------------------------------------
-elseif ($Platform -eq 'GstarCAD') {
-    Write-Host '>>> CAI DAT CHO GSTARCAD (KHONG DUNG RIBBON - Palette + Menu)' -ForegroundColor Cyan
-    if (Get-Process -Name 'gcad' -ErrorAction SilentlyContinue) {
-        Write-Host 'GstarCAD dang mo. Vui long dong GstarCAD truoc khi tiep tuc.' -ForegroundColor Yellow
-        exit 2
-    }
-
-    if (-not $SkipBuild) {
-        Write-Host '[1/3] Build & dong goi bundle GstarCAD (.NET net8.0, khong Ribbon)...' -ForegroundColor DarkCyan
-        & $packageScript -Target GstarCAD
-    }
-
-    $sourceBundle = Join-Path $projectRoot 'bundle\TGIRR_CAD_GSTARCAD.bundle'
-    if (-not (Test-Path (Join-Path $sourceBundle 'Contents\Windows\TGIRR.Gscad.dll'))) {
-        throw "Khong tim thay bundle GstarCAD: $sourceBundle"
-    }
-
-    # Tim thu muc Support cua GstarCAD (ho tro ca en-WW, en-US tren moi phien ban R27, R26...)
-    $gscadSupportCandidates = Get-ChildItem "$env:APPDATA\Gstarsoft\GstarCAD" -Recurse -Directory -ErrorAction SilentlyContinue |
-        Where-Object { $_.Name -eq 'Support' } |
-        Select-Object -ExpandProperty FullName
-
-    $gscadSupport = $gscadSupportCandidates | Select-Object -First 1
-
-    # Dinh vi thu muc D:\LispCAD\TGIRR_CAD_GSTARCAD.bundle neu nguoi dung da cau hinh
-    $userBundle = 'D:\LispCAD\TGIRR_CAD_GSTARCAD.bundle'
-    if (Test-Path $userBundle) {
-        Write-Host "  -> Tim thay thu muc bundle nguoi dung: $userBundle" -ForegroundColor DarkCyan
-        Copy-Item -Path (Join-Path $sourceBundle 'Contents') -Destination $userBundle -Recurse -Force
-        [Environment]::SetEnvironmentVariable('TGIRR_CAD_DIR_G', (Join-Path $userBundle 'Contents'), 'User')
-        if (-not (Test-Path "HKCU:\Software\TGIRR")) { New-Item -Path "HKCU:\Software\TGIRR" -Force | Out-Null }
-        Set-ItemProperty -Path "HKCU:\Software\TGIRR" -Name "GscadDir" -Value (Join-Path $userBundle 'Contents')
-    }
-
-    if ($gscadSupport) {
-        Write-Host "[2/3] Da tim thay thu muc Support GstarCAD: $gscadSupport" -ForegroundColor DarkCyan
-        Write-Host '[3/3] Sao chep file LISP, Menu va DLL vao thu muc Support...' -ForegroundColor DarkCyan
-        Get-ChildItem (Join-Path $sourceBundle 'Contents\Lisp') | Copy-Item -Destination $gscadSupport -Force
-        Get-ChildItem (Join-Path $sourceBundle 'Contents\Windows') | Copy-Item -Destination $gscadSupport -Force
-        if (-not (Test-Path "HKCU:\Software\TGIRR")) { New-Item -Path "HKCU:\Software\TGIRR" -Force | Out-Null }
-        Set-ItemProperty -Path "HKCU:\Software\TGIRR" -Name "GscadDir" -Value $gscadSupport
-        Write-Host ''
-        Write-Host 'CAI DAT GSTARCAD THANH CONG!' -ForegroundColor Green
-        Write-Host "Da sao chep file vao: $gscadSupport" -ForegroundColor White
-    } else {
-        Write-Host "[2/3] Bundle GstarCAD da dong goi tai: $sourceBundle" -ForegroundColor DarkCyan
-        Write-Host 'Da cap nhat vao thu muc bundle D:\LispCAD\TGIRR_CAD_GSTARCAD.bundle.' -ForegroundColor Green
-    }
-
-    Write-Host ''
-    Write-Host 'CHU Y QUAN TRONG (GSTARCAD KHONG DUNG RIBBON):' -ForegroundColor Yellow
-    Write-Host '  1. Mo GstarCAD, go APPLOAD va them TGIRRLoaderG.lsp vao Startup Suite.' -ForegroundColor White
-    Write-Host '  2. Go TGIRRLOAD de nap toan bo cong cu: bang Palette TGIRRPALETTE se tu dong mo!' -ForegroundColor White
-    Write-Host '  3. (Tuy chon) Go MENULOAD, nap file TGIRR_CAD.mnu de co menu keo xuong.' -ForegroundColor White
+    Write-Host ("CAI DAT {0} THANH CONG" -f $spec.Label) -ForegroundColor Green
+    Write-Host ("  Thu muc: {0}" -f $target) -ForegroundColor White
+    Write-Host ("  1. Mo {0}, go APPLOAD va them {1} vao Startup Suite (1 lan)." -f $spec.Label, $spec.Loader) -ForegroundColor White
+    Write-Host '  2. Go TGIRRLOAD de nap day du - bang Palette TGIRRPALETTE tu mo.' -ForegroundColor White
+    Write-Host '  3. Tuy chon: MENULOAD file TGIRR_CAD.mnu de co menu keo xuong.' -ForegroundColor White
     Write-Host ''
 }
 
 # -------------------------------------------------------------
-# 4) Dong goi tat ca
+# 3) Dong goi tat ca
 # -------------------------------------------------------------
-elseif ($Platform -eq 'All') {
-    Write-Host '>>> DONG GOI TOAN BO CHO 3 NEN TANG CAD...' -ForegroundColor Magenta
-    & $packageScript -Target All
-    Write-Host 'Toan bo bundle da san sang tai thu muc bundle\.' -ForegroundColor Green
+if ($Platform -eq 'All') {
+    Write-Host '>>> DONG GOI CA 3 NEN TANG' -ForegroundColor Magenta
+    & (Join-Path $PSScriptRoot 'package.ps1') -Target All
+    if ($LASTEXITCODE -ne 0) { throw 'Dong goi that bai' }
+    Write-Host 'Bundle san sang trong thu muc bundle\.' -ForegroundColor Green
+    Write-Host 'Cai dat: scripts\install-bundle.ps1 -Platform AutoCAD (hoac ZWCAD / GstarCAD)' -ForegroundColor White
 }
+
+Write-Host ''
+Write-Host 'Kiem tra trang thai: powershell -File scripts\doctor.ps1' -ForegroundColor DarkGray

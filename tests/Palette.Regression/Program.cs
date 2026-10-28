@@ -216,6 +216,19 @@ internal static class Program {
    && packageContents.Contains("ModuleName=\"./Contents/Lisp/TGIRRBAR.lsp\" LoadOnAutoCADStartup"));
   Check("AutoCAD nap file shim lenh .NET khi khoi dong",
    packageContents.Contains("ModuleName=\"./Contents/Lisp/TGIRRCOMMANDS.lsp\" LoadOnAutoCADStartup"));
+  // Manifest cu khai bao ca lenh AutoLISP (SBSE, DOITEXT, M2T) trong ComponentEntry
+  // .NET va thieu TGIRRTL sau khi doi ten - gio phai khop dung DLL.
+  var declared = Regex.Matches(packageContents, "<Command Local=\"([A-Za-z0-9_]+)\"")
+   .Cast<Match>().Select(m => m.Groups[1].Value).Distinct().ToList();
+  var inDll = Regex.Matches(ReadDir("src/ribbon", "*.cs") + ReadDir("src/shared", "*.cs"),
+   "CommandMethod\\(\"([A-Za-z0-9_]+)\"\\)")
+   .Cast<Match>().Select(m => m.Groups[1].Value).Distinct().ToList();
+  Check("manifest chi khai bao lenh .NET co trong DLL",
+   declared.All(c => inDll.Contains(c)) && inDll.All(c => declared.Contains(c)));
+  Check("manifest khong khai bao lenh AutoLISP la lenh .NET",
+   !declared.Contains("SBSE") && !declared.Contains("DOITEXT") && !declared.Contains("M2T"));
+  Check("manifest co lenh TGIRRTL/TGIRRSETTINGS",
+   declared.Contains("TGIRRTL") && declared.Contains("TGIRRSETTINGS"));
   Check("shim lenh .NET tu doc cai dat (khong phu thuoc loader)",
    Read("src/lisp/TGIRRCOMMANDS.lsp").Contains("TGIRR:CMDSET-DISABLED"));
   string shimText = Read("src/lisp/TGIRRCOMMANDS.lsp");

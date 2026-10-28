@@ -1,10 +1,75 @@
 param(
     [ValidateSet('All', 'AutoCAD', 'ZWCAD', 'GstarCAD', 'all', 'autocad', 'zwcad', 'gstarcad')]
     [string]$Target = 'All',
-    [string]$AutoCADDir = ''
+    [string]$AutoCADDir = '',
+    # Bo qua kiem tra CAD dang chay (dung cho CI hoac khi chi build bundle).
+    [switch]$AllowRunningCad
 )
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
+
+# --- Kiem tra truoc khi build (bao loi ro rang thay vi MSBuild treo) ---------
+function Test-Prerequisite {
+    if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
+        throw 'Khong tim thay .NET SDK (dotnet). Cai .NET SDK 8.0 tro len: https://dot.net/download'
+    }
+    $sdk = (& dotnet --version) 2>$null
+    Write-Host ("  dotnet SDK {0}" -f $sdk) -ForegroundColor DarkGray
+
+    $targets = @()
+    if ($Target -in 'All', 'all', 'AutoCAD', 'autocad') { $targets += 'autocad' }
+    if ($Target -in 'All', 'all', 'ZWCAD', 'zwcad') { $targets += 'zwcad' }
+    if ($Target -in 'All', 'all', 'GstarCAD', 'gstarcad') { $targets += 'gscad' }
+
+    if ($targets -contains 'autocad') {
+        # 3 TFM can 3 bo DLL CAD khac nhau trong Reference\ (bi gitignore ~155MB).
+        $needed = @()
+        if (-not $AutoCADDir) {
+            $needed += @{ Tfm = 'net48'; Dir = 'Reference\Cad2023\net48'; File = 'acmgd.dll' }
+            $needed += @{ Tfm = 'net8.0'; Dir = 'Reference\Cad2026\net8.0'; File = 'acmgd.dll' }
+            $needed += @{ Tfm = 'net10.0'; Dir = 'Reference\Cad2027'; File = 'acmgd.dll' }
+        }
+        $missing = @()
+        foreach ($n in $needed) {
+            if (-not (Test-Path (Join-Path $root (Join-Path $n.Dir $n.File)))) { $missing += ("{0} ({1})" -f $n.Tfm, $n.Dir) }
+        }
+        if ($missing.Count -gt 0) {
+            throw @"
+Thieu DLL tham chieu cua AutoCAD (thu muc Reference\ bi gitignore, ~155MB):
+  $($missing -join "`r`n  ")
+
+Cach xu ly:
+  1. Copy thu muc DLL AutoCAD vao Reference\ (Cad2023\net48, Cad2026\net8.0, Cad2027),
+     hoac
+  2. Tro thang toi ban CAD da cai tren may:
+       scripts\package.ps1 -Target AutoCAD -AutoCADDir 'C:\Program Files\Autodesk\AutoCAD 2025\'
+     (chi dung duoc 1 TFM; build ca 3 TFM can du 3 bo DLL)
+"@
+        }
+    }
+
+    foreach ($p in @(@{t='zwcad'; proc='ZWCAD'; dir='Reference\Zwcad\net47'; file='ZwManaged.dll'}, @{t='gscad'; proc='gcad'; dir='Reference\gstarCad'; file='GcMgd.dll'})) {
+        if ($targets -contains $p.t) {
+            if (-not (Test-Path (Join-Path $root (Join-Path $p.dir $p.file)))) {
+                Write-Host ("  (!) Thieu {0}\{1} - se dung DLL cai san cua CAD neu tim thay" -f $p.dir, $p.file) -ForegroundColor Yellow
+            }
+        }
+    }
+
+    if (-not $AllowRunningCad) {
+        $running = @()
+        foreach ($p in @('acad', 'ZWCAD', 'gcad')) {
+            if (Get-Process -Name $p -ErrorAction SilentlyContinue) { $running += $p }
+        }
+        if ($running.Count -gt 0) {
+            Write-Host ("  (!) {0} dang chay: DLL trong ApplicationPlugins co the khong copy duoc." -f ($running -join ', ')) -ForegroundColor Yellow
+            Write-Host '      Dong CAD truoc khi dong goi, hoac them -AllowRunningCad de bo qua canh bao nay.' -ForegroundColor Yellow
+        }
+    }
+}
+
+Write-Host '--- Kiem tra moi truong build ---' -ForegroundColor DarkGray
+Test-Prerequisite
 
 # Tao lai menu, icon native va catalog tu tools.json truoc khi dong goi.
 # Nho vay bundle luon nhan cac nut moi cua Quick Tools va TGIRRBAR.

@@ -477,6 +477,29 @@ if (-not (Write-Target $csPath $csText)) { $drift += $csPath }
 $shimPath = Join-Path $root 'src\lisp\TGIRRCOMMANDS.lsp'
 if (-not (Write-Target $shimPath $shimText)) { $drift += $shimPath }
 
+# --- Bundle AutoCAD: khoi <Commands> trong PackageContents.xml --------------
+# Chi liet ke lenh .NET that su co trong DLL (ten noi bo TGIRR<CMD>). Danh sach
+# viet tay truoc day lech: khai bao ca lenh AutoLISP (SBSE, DOITEXT, M2T) vao
+# ComponentEntry .NET, va thieu TGIRRTL sau khi doi ten.
+$manifestPath = Join-Path $root 'bundle\TGIRR_CAD_LISP.bundle\PackageContents.xml'
+if ((Test-Path $manifestPath) -and ((Read-Utf8 $manifestPath) -notmatch '<Commands GroupName="TGIRR">')) {
+    # Lay dung ten lenh .NET tu ma nguon (khong tu catalog) de manifest khong
+    # bao gio lech voi DLL: moi [CommandMethod("X")] trong src\ribbon + src\shared.
+    $managedCmds = @('TGIRR_RIBBON', 'TGIRRRIBBON')
+    $sources = @(Get-ChildItem (Join-Path $root 'src\ribbon') -Filter *.cs) + @(Get-ChildItem (Join-Path $root 'src\shared') -Filter *.cs)
+    foreach ($src in $sources) {
+        foreach ($m in [regex]::Matches((Read-Utf8 $src.FullName), 'CommandMethod\("([A-Za-z0-9_]+)"\)')) {
+            $name = $m.Groups[1].Value
+            if ($managedCmds -notcontains $name) { $managedCmds += $name }
+        }
+    }
+    $cmdLines = ($managedCmds | ForEach-Object { '        <Command Local="{0}" Global="{0}" />' -f $_ }) -join "`r`n"
+    $commandBlock = '      <Commands GroupName="TGIRR">' + "`r`n" + $cmdLines + "`r`n" + '      </Commands>'
+    $manifest = [regex]::Replace((Read-Utf8 $manifestPath), '(<ComponentEntry [^>]*AppType="\.NET"[^>]*>)',
+        ('$1' + "`r`n" + $commandBlock.Replace('$', '$$')))
+    if (-not (Write-Target $manifestPath $manifest)) { $drift += $manifestPath }
+}
+
 if (Test-Path $docsPath) {
     $docsRaw = Read-Utf8 $docsPath
     $bi = $docsRaw.IndexOf($beginMark)

@@ -22,23 +22,20 @@
       <Commands GroupName="TGIRR">
         <Command Local="TGIRR_RIBBON" Global="TGIRR_RIBBON" />
         <Command Local="TGIRRRIBBON" Global="TGIRRRIBBON" />
-        <Command Local="TGIRRPALETTE" Global="TGIRRPALETTE" />
-        <Command Local="TGIRRQUICK" Global="TGIRRQUICK" />
-        <Command Local="TGIRRSETTINGS" Global="TGIRRSETTINGS" />
-        <Command Local="SBSE" Global="SBSE" />
-        <Command Local="DOITEXT" Global="DOITEXT" />
-        <Command Local="M2T" Global="M2T" />
-        <Command Local="TGIRRCPLUS" Global="TGIRRCPLUS" />
-        <Command Local="TGIRRTNET" Global="TGIRRTNET" />
-        <Command Local="TGIRRVDNG" Global="TGIRRVDNG" />
-        <Command Local="TGIRRTL" Global="TGIRRTL" />
-        <Command Local="TGIRRTGL" Global="TGIRRTGL" />
-        <Command Local="TGIRRTGLADD" Global="TGIRRTGLADD" />
         <Command Local="TGIRRCVPL" Global="TGIRRCVPL" />
         <Command Local="TGIRRCVP" Global="TGIRRCVP" />
         <Command Local="TGIRRCVPLG" Global="TGIRRCVPLG" />
         <Command Local="TGIRRCV2PL" Global="TGIRRCV2PL" />
+        <Command Local="TGIRRCPLUS" Global="TGIRRCPLUS" />
+        <Command Local="TGIRRVDNG" Global="TGIRRVDNG" />
+        <Command Local="TGIRRTGL" Global="TGIRRTGL" />
+        <Command Local="TGIRRTGLADD" Global="TGIRRTGLADD" />
+        <Command Local="TGIRRTNET" Global="TGIRRTNET" />
         <Command Local="TGIRRTGN" Global="TGIRRTGN" />
+        <Command Local="TGIRRTL" Global="TGIRRTL" />
+        <Command Local="TGIRRQUICK" Global="TGIRRQUICK" />
+        <Command Local="TGIRRPALETTE" Global="TGIRRPALETTE" />
+        <Command Local="TGIRRSETTINGS" Global="TGIRRSETTINGS" />
       </Commands>
     </ComponentEntry>
   </Components>
@@ -50,23 +47,20 @@
       <Commands GroupName="TGIRR">
         <Command Local="TGIRR_RIBBON" Global="TGIRR_RIBBON" />
         <Command Local="TGIRRRIBBON" Global="TGIRRRIBBON" />
-        <Command Local="TGIRRPALETTE" Global="TGIRRPALETTE" />
-        <Command Local="TGIRRQUICK" Global="TGIRRQUICK" />
-        <Command Local="TGIRRSETTINGS" Global="TGIRRSETTINGS" />
-        <Command Local="SBSE" Global="SBSE" />
-        <Command Local="DOITEXT" Global="DOITEXT" />
-        <Command Local="M2T" Global="M2T" />
-        <Command Local="TGIRRCPLUS" Global="TGIRRCPLUS" />
-        <Command Local="TGIRRTNET" Global="TGIRRTNET" />
-        <Command Local="TGIRRVDNG" Global="TGIRRVDNG" />
-        <Command Local="TGIRRTL" Global="TGIRRTL" />
-        <Command Local="TGIRRTGL" Global="TGIRRTGL" />
-        <Command Local="TGIRRTGLADD" Global="TGIRRTGLADD" />
         <Command Local="TGIRRCVPL" Global="TGIRRCVPL" />
         <Command Local="TGIRRCVP" Global="TGIRRCVP" />
         <Command Local="TGIRRCVPLG" Global="TGIRRCVPLG" />
         <Command Local="TGIRRCV2PL" Global="TGIRRCV2PL" />
+        <Command Local="TGIRRCPLUS" Global="TGIRRCPLUS" />
+        <Command Local="TGIRRVDNG" Global="TGIRRVDNG" />
+        <Command Local="TGIRRTGL" Global="TGIRRTGL" />
+        <Command Local="TGIRRTGLADD" Global="TGIRRTGLADD" />
+        <Command Local="TGIRRTNET" Global="TGIRRTNET" />
         <Command Local="TGIRRTGN" Global="TGIRRTGN" />
+        <Command Local="TGIRRTL" Global="TGIRRTL" />
+        <Command Local="TGIRRQUICK" Global="TGIRRQUICK" />
+        <Command Local="TGIRRPALETTE" Global="TGIRRPALETTE" />
+        <Command Local="TGIRRSETTINGS" Global="TGIRRSETTINGS" />
       </Commands>
     </ComponentEntry>
   </Components>
@@ -78,23 +72,20 @@
       <Commands GroupName="TGIRR">
         <Command Local="TGIRR_RIBBON" Global="TGIRR_RIBBON" />
         <Command Local="TGIRRRIBBON" Global="TGIRRRIBBON" />
-        <Command Local="TGIRRPALETTE" Global="TGIRRPALETTE" />
-        <Command Local="TGIRRQUICK" Global="TGIRRQUICK" />
-        <Command Local="TGIRRSETTINGS" Global="TGIRRSETTINGS" />
-        <Command Local="SBSE" Global="SBSE" />
-        <Command Local="DOITEXT" Global="DOITEXT" />
-        <Command Local="M2T" Global="M2T" />
-        <Command Local="TGIRRCPLUS" Global="TGIRRCPLUS" />
-        <Command Local="TGIRRTNET" Global="TGIRRTNET" />
-        <Command Local="TGIRRVDNG" Global="TGIRRVDNG" />
-        <Command Local="TGIRRTL" Global="TGIRRTL" />
-        <Command Local="TGIRRTGL" Global="TGIRRTGL" />
-        <Command Local="TGIRRTGLADD" Global="TGIRRTGLADD" />
         <Command Local="TGIRRCVPL" Global="TGIRRCVPL" />
         <Command Local="TGIRRCVP" Global="TGIRRCVP" />
         <Command Local="TGIRRCVPLG" Global="TGIRRCVPLG" />
         <Command Local="TGIRRCV2PL" Global="TGIRRCV2PL" />
+        <Command Local="TGIRRCPLUS" Global="TGIRRCPLUS" />
+        <Command Local="TGIRRVDNG" Global="TGIRRVDNG" />
+        <Command Local="TGIRRTGL" Global="TGIRRTGL" />
+        <Command Local="TGIRRTGLADD" Global="TGIRRTGLADD" />
+        <Command Local="TGIRRTNET" Global="TGIRRTNET" />
         <Command Local="TGIRRTGN" Global="TGIRRTGN" />
+        <Command Local="TGIRRTL" Global="TGIRRTL" />
+        <Command Local="TGIRRQUICK" Global="TGIRRQUICK" />
+        <Command Local="TGIRRPALETTE" Global="TGIRRPALETTE" />
+        <Command Local="TGIRRSETTINGS" Global="TGIRRSETTINGS" />
       </Commands>
     </ComponentEntry>
   </Components>
