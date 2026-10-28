@@ -275,6 +275,9 @@ internal static class Program {
    Check(Path.GetFileName(f) + " nap file shim lenh .NET", Read(f).Contains("TGIRRCOMMANDS.lsp"));
   }
   Check("hop thoai cai dat co ca lenh .NET", Read("src/shared/LoadSettingsWindow.cs").Contains("ManagedTools"));
+  Check("hop thoai cai dat khong an theo theme native (tu ve checkbox + nen)",
+   Read("src/shared/LoadSettingsWindow.cs").Contains("BuildCheckBoxStyle")
+   && Read("src/shared/LoadSettingsWindow.cs").Contains("BuildButtonTemplate"));
   Check("hop thoai cai dat luu ngay khi tick (khong can nut Luu)",
    Read("src/shared/LoadSettingsWindow.cs").Contains("OnToggled") && Read("src/shared/LoadSettingsWindow.cs").Contains("LoadSettingsStore.Save"));
   Check("loader khong dung read+setq dong (nguon gay dung nap)",
