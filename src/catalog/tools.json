@@ -3,7 +3,8 @@
   "groups": [
     { "key": "BOUNDARY", "title": "RANH GIỚI & BIÊN DẠNG", "accent": "Cyan" },
     { "key": "DESIGN", "title": "THIẾT KẾ & HỆ THỐNG", "accent": "Green" },
-    { "key": "UTIL", "title": "GHI CHÚ & TIỆN ÍCH", "accent": "Amber" }
+    { "key": "UTIL", "title": "GHI CHÚ & TIỆN ÍCH", "accent": "Amber" },
+    { "key": "PRINT", "title": "IN ẤN & KHUNG TÊN", "accent": "Green" }
   ],
   "ribbonPanels": [
     {
@@ -53,6 +54,13 @@
       ]
     },
     {
+      "title": "KHUNG TÊN",
+      "items": [
+        { "id": "KHO" },
+        { "id": "TENBV" }
+      ]
+    },
+    {
       "title": "GIAO DIỆN",
       "items": [
         { "id": "TGIRRPALETTE" },
@@ -65,6 +73,7 @@
     { "file": "SBS.lsp", "commands": [ "SBS", "SBSE", "SCH" ], "note": "Nhom chon doi tuong theo mau." },
     { "file": "HBD.lsp", "commands": [ "HBD", "JH", "SP2PL" ], "note": "Nhom duong bao / gop hatch / spline sang polyline." },
     { "file": "DOITEXT.lsp", "commands": [ "DOITEXT", "DOIMTEXT" ], "note": "Nhom chuyen doi Text <-> MText." },
+    { "file": "KHO.lsp", "commands": [ "KHO", "TENBV" ], "note": "Nhom khung ten ban ve (chen khung, dien thong tin)." },
     { "file": "TGIRRBAR.lsp", "commands": [ "TGIRRBAR" ], "note": "Thanh cong cu icon native TGIRR CAD." }
   ],
   "tools": [
@@ -427,6 +436,50 @@
       },
       "menu": { "tag": "DOIMTEXT", "label": "Gop nhieu Text thanh 1 MText (&T2M)", "help": "Gop cac dong TEXT thanh 1 MTEXT nhieu doan (Enter xuong dong trong MTEXT)" },
       "docs": { "section": "VĂN BẢN", "function": "Gộp nhiều TEXT thành 1 MTEXT nhiều đoạn, giữ layer/style/màu/chiều cao/góc xoay/điểm bám dính" }
+    },
+    {
+      "role": "tool",
+      "id": "KHO",
+      "cmd": "KHO",
+      "icon": "title-block",
+      "label": "Khung tên",
+      "aliases": [],
+      "group": "PRINT",
+      "ribbonPanel": "KHUNG TÊN",
+      "hosts": [ "AutoCAD", "ZWCAD", "GstarCAD" ],
+      "keepSelection": false,
+      "requiresSelection": false,
+      "runner": "command",
+      "tip": {
+        "title": "KHO — Chèn khung bản vẽ trống",
+        "desc": "Chèn khung bản vẽ trống TGIRR_TB_A2 (chỉ nét khung + các ô, không logo/chữ) vào Layout, tự scale theo khổ A1/A2/A3/A4. Thiếu file mẫu sẽ dùng khung đơn giản 180x70 mm.",
+        "usage": "Chạy trong Layout, chọn khổ giấy (mặc định A3). KHO chèn khung trống và tự đặt Page Setup: đúng khổ giấy, vùng in = Layout, tỷ lệ 1:1. Tự thêm TEXT/MTEXT vào các ô.",
+        "command": "Lệnh: KHO"
+      },
+      "menu": { "tag": "KHO", "label": "Chen khung ban ve trong (&KHO)", "help": "Chen khung ban ve trong TGIRR_TB_A2 (A1/A2/A3/A4), chi co net khung va cac o" },
+      "docs": { "section": "IN ẤN", "function": "Chèn khung bản vẽ trống `TGIRR_TB_A2.dwg` (chỉ nét khung + ô) vào Layout theo khổ A1/A2/A3/A4; thiếu file mẫu thì dùng khung đơn giản `TGIRR_TB_<khổ>`" }
+    },
+    {
+      "role": "tool",
+      "id": "TENBV",
+      "cmd": "TENBV",
+      "icon": "title-sync",
+      "label": "Điền khung tên",
+      "aliases": [],
+      "group": "PRINT",
+      "ribbonPanel": "KHUNG TÊN",
+      "hosts": [ "AutoCAD", "ZWCAD", "GstarCAD" ],
+      "keepSelection": false,
+      "requiresSelection": false,
+      "runner": "command",
+      "tip": {
+        "title": "TENBV — Điền thông tin khung tên (khung đơn giản)",
+        "desc": "Điền/đồng bộ 12 trường của khung đơn giản dự phòng (khi thiếu TGIRR_TB_A2.dwg). Khung mẫu công ty không có attribute nên sửa trực tiếp trên bản vẽ.",
+        "usage": "Chọn T để áp dụng mọi layout hoặc L cho layout hiện tại, rồi nhập từng trường (Enter giữ giá trị cũ). Thông tin lưu trong bản vẽ nên mở lại vẫn còn.",
+        "command": "Lệnh: TENBV"
+      },
+      "menu": { "tag": "TENBV", "label": "Dien thong tin khung ten (&TENBV)", "help": "Dien/dong bo thong tin khung ten cho layout hien tai hoac tat ca layout" },
+      "docs": { "section": "IN ẤN", "function": "Điền/đồng bộ attribute của khung đơn giản dự phòng (dictionary `TGIRR_PROJECT`); khung mẫu công ty sửa trực tiếp" }
     },
     {
       "role": "ui",

@@ -178,9 +178,27 @@ namespace Tgirrr.CadLisp {
          menuTag: "DOIMTEXT", menuLabel: "Gop nhieu Text thanh 1 MText (&T2M)",
          menuHelp: "Gop cac dong TEXT thanh 1 MTEXT nhieu doan (Enter xuong dong trong MTEXT)"),
        new TgToolInfo(
+         id: "KHO", cmd: "KHO", label: "Khung t\u00ean", icon: "title-block",
+         aliases: TgToolCatalog.NoAliases, groupKey: "PRINT", groupTitle: "IN \u1ea4N & KHUNG T\u00caN", accent: TgToolAccent.Green,
+         ribbonPanel: "KHUNG T\u00caN", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 17, isTool: true,
+         keepSelection: false, requiresSelection: false, runner: "command", managed: false,
+         tipTitle: "KHO \u2014 Ch\u00e8n khung b\u1ea3n v\u1ebd tr\u1ed1ng", tipDesc: "Ch\u00e8n khung b\u1ea3n v\u1ebd tr\u1ed1ng TGIRR_TB_A2 (ch\u1ec9 n\u00e9t khung + c\u00e1c \u00f4, kh\u00f4ng logo/ch\u1eef) v\u00e0o Layout, t\u1ef1 scale theo kh\u1ed5 A1/A2/A3/A4. Thi\u1ebfu file m\u1eabu s\u1ebd d\u00f9ng khung \u0111\u01a1n gi\u1ea3n 180x70 mm.",
+         tipUsage: "Ch\u1ea1y trong Layout, ch\u1ecdn kh\u1ed5 gi\u1ea5y (m\u1eb7c \u0111\u1ecbnh A3). KHO ch\u00e8n khung tr\u1ed1ng v\u00e0 t\u1ef1 \u0111\u1eb7t Page Setup: \u0111\u00fang kh\u1ed5 gi\u1ea5y, v\u00f9ng in = Layout, t\u1ef7 l\u1ec7 1:1. T\u1ef1 th\u00eam TEXT/MTEXT v\u00e0o c\u00e1c \u00f4.", tipCommand: "L\u1ec7nh: KHO",
+         menuTag: "KHO", menuLabel: "Chen khung ban ve trong (&KHO)",
+         menuHelp: "Chen khung ban ve trong TGIRR_TB_A2 (A1/A2/A3/A4), chi co net khung va cac o"),
+       new TgToolInfo(
+         id: "TENBV", cmd: "TENBV", label: "\u0110i\u1ec1n khung t\u00ean", icon: "title-sync",
+         aliases: TgToolCatalog.NoAliases, groupKey: "PRINT", groupTitle: "IN \u1ea4N & KHUNG T\u00caN", accent: TgToolAccent.Green,
+         ribbonPanel: "KHUNG T\u00caN", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 18, isTool: true,
+         keepSelection: false, requiresSelection: false, runner: "command", managed: false,
+         tipTitle: "TENBV \u2014 \u0110i\u1ec1n th\u00f4ng tin khung t\u00ean (khung \u0111\u01a1n gi\u1ea3n)", tipDesc: "\u0110i\u1ec1n/\u0111\u1ed3ng b\u1ed9 12 tr\u01b0\u1eddng c\u1ee7a khung \u0111\u01a1n gi\u1ea3n d\u1ef1 ph\u00f2ng (khi thi\u1ebfu TGIRR_TB_A2.dwg). Khung m\u1eabu c\u00f4ng ty kh\u00f4ng c\u00f3 attribute n\u00ean s\u1eeda tr\u1ef1c ti\u1ebfp tr\u00ean b\u1ea3n v\u1ebd.",
+         tipUsage: "Ch\u1ecdn T \u0111\u1ec3 \u00e1p d\u1ee5ng m\u1ecdi layout ho\u1eb7c L cho layout hi\u1ec7n t\u1ea1i, r\u1ed3i nh\u1eadp t\u1eebng tr\u01b0\u1eddng (Enter gi\u1eef gi\u00e1 tr\u1ecb c\u0169). Th\u00f4ng tin l\u01b0u trong b\u1ea3n v\u1ebd n\u00ean m\u1edf l\u1ea1i v\u1eabn c\u00f2n.", tipCommand: "L\u1ec7nh: TENBV",
+         menuTag: "TENBV", menuLabel: "Dien thong tin khung ten (&TENBV)",
+         menuHelp: "Dien/dong bo thong tin khung ten cho layout hien tai hoac tat ca layout"),
+       new TgToolInfo(
          id: "TGIRRPALETTE", cmd: "TGIRRPALETTE", label: "B\u1ea3ng c\u00f4ng c\u1ee5 Palette", icon: "palette",
          aliases: TgToolCatalog.NoAliases, groupKey: null, groupTitle: null, accent: TgToolAccent.Cyan,
-         ribbonPanel: null, hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 17, isTool: false,
+         ribbonPanel: null, hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 19, isTool: false,
          keepSelection: false, requiresSelection: false, runner: "", managed: false,
          tipTitle: "TGIRRPALETTE \u2014 B\u1ea3ng c\u00f4ng c\u1ee5 Palette", tipDesc: "B\u1eadt/t\u1eaft palette c\u00f4ng c\u1ee5 TGIRR CAD ch\u1ee9a to\u00e0n b\u1ed9 l\u1ec7nh theo nh\u00f3m.",
          tipUsage: "Palette t\u1ef1 nh\u1edb v\u1ecb tr\u00ed, k\u00edch th\u01b0\u1edbc v\u00e0 tr\u1ea1ng th\u00e1i neo gi\u1eefa c\u00e1c phi\u00ean CAD.", tipCommand: "L\u1ec7nh: TGIRRPALETTE",
@@ -189,7 +207,7 @@ namespace Tgirrr.CadLisp {
        new TgToolInfo(
          id: "TGIRRQUICK", cmd: "TGIRRQUICK", label: "Palette Quick Tools", icon: "quick",
          aliases: TgToolCatalog.NoAliases, groupKey: null, groupTitle: null, accent: TgToolAccent.Cyan,
-         ribbonPanel: null, hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 18, isTool: false,
+         ribbonPanel: null, hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 20, isTool: false,
          keepSelection: false, requiresSelection: false, runner: "", managed: false,
          tipTitle: "TGIRRQUICK \u2014 Palette Quick Tools ri\u00eang", tipDesc: "B\u1eadt/t\u1eaft palette Quick Tools dockable ri\u00eang ch\u1ee9a c\u00e1c n\u00fat \u0111\u00e3 ghim \u2605.",
          tipUsage: "B\u1ea5m \u2605 \u1edf m\u1ed9t n\u00fat tr\u00ean palette TGIRR CAD \u0111\u1ec3 ghim v\u00e0o Quick Tools. Quick Tools t\u1ef1 m\u1edf khi c\u00f3 n\u00fat ghim v\u00e0 t\u1ef1 \u1ea9n khi b\u1ecf ghim h\u1ebft.", tipCommand: "L\u1ec7nh: TGIRRQUICK",
@@ -198,7 +216,7 @@ namespace Tgirrr.CadLisp {
        new TgToolInfo(
          id: "TGIRRSETTINGS", cmd: "TGIRRSETTINGS", label: "C\u00e0i \u0111\u1eb7t n\u1ea1p LISP", icon: "settings",
          aliases: TgToolCatalog.NoAliases, groupKey: null, groupTitle: null, accent: TgToolAccent.Cyan,
-         ribbonPanel: null, hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 19, isTool: false,
+         ribbonPanel: null, hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 21, isTool: false,
          keepSelection: false, requiresSelection: false, runner: "", managed: false,
          tipTitle: "TGIRRSETTINGS \u2014 C\u00e0i \u0111\u1eb7t n\u1ea1p LISP", tipDesc: "B\u1eadt/t\u1eaft n\u1ea1p t\u1eebng file AutoLISP c\u1ee7a TGIRR \u0111\u1ec3 tr\u00e1nh xung \u0111\u1ed9t v\u1edbi LISP kh\u00e1c.",
          tipUsage: "M\u1edf h\u1ed9p tho\u1ea1i, b\u1ecf d\u1ea5u c\u00e1c LISP kh\u00f4ng mu\u1ed1n n\u1ea1p r\u1ed3i b\u1ea5m L\u01b0u. LISP \u0111\u00e3 n\u1ea1p trong phi\u00ean hi\u1ec7n t\u1ea1i kh\u00f4ng g\u1ee1 \u0111\u01b0\u1ee3c, n\u00ean thay \u0111\u1ed5i \u00e1p d\u1ee5ng t\u1eeb l\u1ea7n kh\u1edfi \u0111\u1ed9ng CAD sau.", tipCommand: "L\u1ec7nh: TGIRRSETTINGS",
@@ -207,7 +225,7 @@ namespace Tgirrr.CadLisp {
        new TgToolInfo(
          id: "TGIRRBAR", cmd: "TGIRRBAR", label: "Thanh c\u00f4ng c\u1ee5 icon", icon: "toolbar",
          aliases: new[] { "TGIRRTB" }, groupKey: null, groupTitle: null, accent: TgToolAccent.Cyan,
-         ribbonPanel: null, hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 20, isTool: false,
+         ribbonPanel: null, hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 22, isTool: false,
          keepSelection: false, requiresSelection: false, runner: "", managed: false,
          tipTitle: "TGIRRBAR \u2014 Thanh c\u00f4ng c\u1ee5 icon native", tipDesc: "B\u1eadt thanh c\u00f4ng c\u1ee5 icon native (dock/k\u00e9o th\u1ea3 nh\u01b0 toolbar CAD) ch\u1ee9a to\u00e0n b\u1ed9 l\u1ec7nh TGIRR, icon 16x16 v\u00e0 32x32.",
          tipUsage: "G\u00f5 TGIRRBAR: l\u1ec7nh t\u1ef1 th\u00eam th\u01b0 m\u1ee5c ch\u1ee9a icon v\u00e0o Support File Search Path, n\u1ea1p TGIRR_CAD.mnu v\u00e0 b\u1eadt thanh TGIRR CAD. B\u1ea5m chu\u1ed9t ph\u1ea3i l\u00ean thanh \u0111\u1ec3 dock tr\u00e1i/ph\u1ea3i/tr\u00ean ho\u1eb7c \u0111\u1ed5i sang icon l\u1edbn.", tipCommand: "L\u1ec7nh: TGIRRBAR (ho\u1eb7c TGIRRTB)",
@@ -251,6 +269,7 @@ namespace Tgirrr.CadLisp {
     new TgRibbonPanel("V\u0102N B\u1ea2N", new TgToolInfo[] { Find("CPLUS"), Find("TGN"), Find("DOITEXT"), Find("DOIMTEXT") }),
     new TgRibbonPanel("LAYER", new TgToolInfo[] { Find("TGL"), Find("TGLADD") }),
     new TgRibbonPanel("N\u00c9T V\u1ebc", new TgToolInfo[] { Find("TNET"), Find("VDNG") }),
+    new TgRibbonPanel("KHUNG T\u00caN", new TgToolInfo[] { Find("KHO"), Find("TENBV") }),
     new TgRibbonPanel("GIAO DI\u1ec6N", new TgToolInfo[] { Find("TGIRRPALETTE"), Find("TGIRRQUICK"), Find("TGIRRSETTINGS") })
   };
 
@@ -272,6 +291,7 @@ namespace Tgirrr.CadLisp {
     new TgLoadUnit("SBS.lsp", new[] { "SBS", "SBSE", "SCH" }, "Nhom chon doi tuong theo mau."),
     new TgLoadUnit("HBD.lsp", new[] { "HBD", "JH", "SP2PL" }, "Nhom duong bao / gop hatch / spline sang polyline."),
     new TgLoadUnit("DOITEXT.lsp", new[] { "DOITEXT", "DOIMTEXT" }, "Nhom chuyen doi Text <-> MText."),
+    new TgLoadUnit("KHO.lsp", new[] { "KHO", "TENBV" }, "Nhom khung ten ban ve (chen khung, dien thong tin)."),
     new TgLoadUnit("TGIRRBAR.lsp", new[] { "TGIRRBAR" }, "Thanh cong cu icon native TGIRR CAD.")
   };
 
@@ -316,6 +336,8 @@ namespace Tgirrr.CadLisp {
       if (id == "CPLUS") return "copy";
       if (id == "DOITEXT") return "mtext-text";
       if (id == "DOIMTEXT") return "text-mtext";
+      if (id == "KHO") return "title-block";
+      if (id == "TENBV") return "title-sync";
       if (id == "TGIRRPALETTE") return "palette";
       if (id == "TGIRRQUICK") return "quick";
       if (id == "TGIRRSETTINGS") return "settings";

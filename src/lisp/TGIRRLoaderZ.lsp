@@ -176,6 +176,8 @@
         '(("HBD" (setq C:HBD nil)) ("JH" (setq C:JH nil)) ("SP2PL" (setq C:SP2PL nil)))))
       (TGIRR:SAFE '(TGIRR:ZW-LOAD-GROUP "DOITEXT.lsp" '("DOITEXT" "DOIMTEXT")
         '(("DOITEXT" (setq C:DOITEXT nil)) ("DOIMTEXT" (setq C:DOIMTEXT nil)))))
+      (TGIRR:SAFE '(TGIRR:ZW-LOAD-GROUP "KHO.lsp" '("KHO" "TENBV")
+        '(("KHO" (setq C:KHO nil)) ("TENBV" (setq C:TENBV nil)))))
       (TGIRR:SAFE '(TGIRR:ZW-LOAD-GROUP "TGIRRBAR.lsp" '("TGIRRBAR")
         '(("TGIRRBAR" (setq C:TGIRRBAR nil)))))
       ;; Ten quen thuoc cua cac lenh .NET (TL, TGN, ...) - chi tao khi lenh con bat.

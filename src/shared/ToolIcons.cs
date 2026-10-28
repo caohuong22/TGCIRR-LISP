@@ -56,6 +56,8 @@ namespace Tgirrr.CadLisp {
     case "text-mtext": TextToMText(g, accent); break;
     case "palette": Palette(g, accent); break;
     case "quick": Quick(g, accent); break;
+    case "title-block": TitleBlock(g, accent); break;
+    case "title-sync": TitleSync(g, accent); break;
     case "toolbar": Toolbar(g, accent); break;
     case "settings": Settings(g, accent); break;
     default: Fallback(g, accent); break;
@@ -377,6 +379,28 @@ namespace Tgirrr.CadLisp {
    Add(g, Fill(Tile), null, new EllipseGeometry(new Point(16, 16), 4.6, 4.6));
    Add(g, null, Stroke(Ink, 1.1), new EllipseGeometry(new Point(16, 16), 4.6, 4.6));
    Dot(g, Fill(Yellow), 26.5, 6.5, 2.4);
+  }
+
+  static void TitleBlock(DrawingGroup g, Color accent) {
+   // To giay + khung bao trong + khung ten goc phai duoi.
+   Box(g, null, Stroke(Ink, 1.2), 4, 4.5, 24, 23);
+   Add(g, null, Stroke(accent, 1.0), new RectangleGeometry(new Rect(6.5, 7, 19, 18)));
+   Box(g, Fill(accent), null, 15.5, 7, 10, 5.5);
+   Add(g, null, Stroke(Tile, 0.9), Poly(false, 15.5, 8.8, 25.5, 8.8));
+   Add(g, null, Stroke(Tile, 0.9), Poly(false, 15.5, 10.6, 25.5, 10.6));
+   Add(g, null, Stroke(Ink, 1.0), Poly(false, 9, 14.5, 23, 14.5));
+   Add(g, null, Stroke(Ink, 1.0), Poly(false, 9, 18, 23, 18));
+   Add(g, null, Stroke(Ink, 1.0), Poly(false, 9, 21.5, 23, 21.5));
+  }
+
+  static void TitleSync(DrawingGroup g, Color accent) {
+   // To giay ben trai, mui ten dong bo sang phai = dien thong tin hang loat.
+   Box(g, null, Stroke(Ink, 1.2), 3, 5, 16, 22);
+   Box(g, Fill(accent), null, 5, 6.5, 12, 5);
+   Add(g, null, Stroke(Ink, 1.1), Poly(false, 5, 14.5, 17, 14.5));
+   Add(g, null, Stroke(Ink, 1.1), Poly(false, 5, 18, 17, 18));
+   Add(g, null, Stroke(Ink, 1.1), Poly(false, 5, 21.5, 17, 21.5));
+   Arrow(g, 20, 16, 28.5, 16);
   }
 
   static void Fallback(DrawingGroup g, Color accent) {

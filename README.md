@@ -2,7 +2,7 @@
 
 Thư viện AutoLISP + .NET tiếng Việt gồm công cụ bố trí tưới, đánh số đối tượng/vùng tưới và hỗ trợ bản vẽ, hỗ trợ **3 nền tảng CAD**:
 
-> Bản hiện tại: **1.5.0** — xem [CHANGELOG.md](CHANGELOG.md) để biết thay đổi và cách nâng cấp.
+> Bản hiện tại: **1.6.0** — xem [CHANGELOG.md](CHANGELOG.md) để biết thay đổi và cách nâng cấp.
 
 | Nền tảng | Giao diện | Thư mục nguồn | Đóng gói | Tài liệu |
 |---|---|---|---|---|
@@ -22,13 +22,26 @@ Thư viện AutoLISP + .NET tiếng Việt gồm công cụ bố trí tưới, �
 
 - Gõ **`TGIRRSETTINGS`** (hoặc nút ⚙ trên palette): bỏ dấu lệnh không muốn nạp —
   **lưu ngay mỗi lần tick**, đóng bằng X/Esc cũng không mất.
-- Danh sách gồm 9 lệnh AutoLISP (SBS/SBSE/SCH, HBD/JH/SP2PL, DOITEXT/DOIMTEXT, TGIRRBAR)
+- Danh sách gồm 11 lệnh AutoLISP (SBS/SBSE/SCH, HBD/JH/SP2PL, DOITEXT/DOIMTEXT, KHO/TENBV, TGIRRBAR)
   và 8 lệnh .NET (CVPL, VDNG, TNET, TGL, TGLADD, TL, TGN, CPLUS).
 - Lệnh .NET đăng ký **tên nội bộ `TGIRR<CMD>`**; `TGIRRCOMMANDS.lsp` (sinh tự động) tạo lại tên
   quen thuộc `TL`, `TGL`… nên tắt `TL` là LISP `TL` của anh chạy được.
 - Không cần khởi động lại CAD: **`TGIRRLOAD`/`TGIRRRELOAD`** (nạp lại theo cài đặt),
   **`TGIRRDROP`** (gỡ lệnh vừa tắt khỏi phiên hiện tại), **`TGIRRSTATUS`** (chẩn đoán).
 - Cấu hình lưu ở `%APPDATA%\TGIRR\load-settings.txt` (`v1 disabled=ID,ID`).
+
+## Khung tên & in ấn
+
+- **`KHO`**: chèn khung bản vẽ **trống `TGIRR_TB_A2.dwg`** (đóng gói kèm bộ LISP) vào Layout,
+  đồng thời **tự đặt Page Setup**: đúng khổ giấy A1/A2/A3/A4, vùng in = **Layout**, tỷ lệ **1:1**
+  (nên Ctrl+P là ra đúng tờ giấy có khung, không phải chỉnh tay).
+  Khung chỉ gồm nét khung + hệ ô, **không logo, không chữ, không attribute** —
+  tự thêm TEXT/MTEXT vào các ô. Khung scale theo bề rộng giấy (`(paperW-20)/463.162`),
+  lề ngang 10 mm, canh giữa theo chiều dọc.
+- **`TENBV`** chỉ dùng cho khung đơn giản dự phòng (khi thiếu file mẫu).
+- Nếu thiếu `TGIRR_TB_A2.dwg`, `KHO` tự quay về khung 180×70 mm vẽ bằng entmake
+  (block `TGIRR_TB_<khổ>`, 12 attribute) và `TENBV` điền được như trước.
+- Đặt Page Setup của Layout đúng khổ giấy (1:1, đơn vị mm) trước khi in.
 
 ## Đóng gói (Build & Package)
 

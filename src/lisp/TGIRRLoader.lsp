@@ -142,6 +142,8 @@
   (if (member "SP2PL" disabled) (setq C:SP2PL nil))
   (if (member "DOITEXT" disabled) (setq C:DOITEXT nil))
   (if (member "DOIMTEXT" disabled) (setq C:DOIMTEXT nil))
+  (if (member "KHO" disabled) (setq C:KHO nil))
+  (if (member "TENBV" disabled) (setq C:TENBV nil))
   (if (member "TGIRRBAR" disabled) (setq C:TGIRRBAR nil))
   (if (> (length disabled) 0)
     (prompt (strcat "\nTGIRR: Dang tat theo TGIRRSETTINGS: " (TGIRR:JOIN disabled ", "))))
@@ -156,6 +158,7 @@
       (TGIRR:SAFE '(TGIRR:LOAD-FILE TGIRR:LISP-DIR "SBS.lsp"))
       (TGIRR:SAFE '(TGIRR:LOAD-FILE TGIRR:LISP-DIR "HBD.lsp"))
       (TGIRR:SAFE '(TGIRR:LOAD-FILE TGIRR:LISP-DIR "DOITEXT.lsp"))
+      (TGIRR:SAFE '(TGIRR:LOAD-FILE TGIRR:LISP-DIR "KHO.lsp"))
       (TGIRR:SAFE '(TGIRR:LOAD-FILE TGIRR:LISP-DIR "TGIRRBAR.lsp"))
       (TGIRR:APPLY-SETTINGS)
       ;; Ten quen thuoc cua cac lenh .NET (TL, TGN, ...) - chi tao khi lenh con bat.

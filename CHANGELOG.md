@@ -3,6 +3,40 @@
 Phiên bản bundle AutoCAD đọc ở `bundle/TGIRR_CAD_LISP.bundle/PackageContents.xml`
 (`AppVersion`). Mỗi mục dưới đây là một commit trên `main`.
 
+## 1.6.0 — 28/10/2026
+
+### Thêm mới
+
+- **`KHO`** (nhóm IN ẤN & KHUNG TÊN): chèn khung bản vẽ **trống** `TGIRR_TB_A2.dwg`
+  (chỉ nét khung + hệ ô, không logo/chữ/attribute); **tự đặt Page Setup** đúng khổ giấy,
+  vùng in = Layout, tỷ lệ 1:1. Chọn khổ A1/A2/A3/A4; scale theo bề rộng giấy
+  (`(paperW-20)/463.162`). Thiếu file mẫu thì tự quay về khung 180×70 mm.
+- **`TENBV`**: điền/đồng bộ 12 trường cho khung đơn giản dự phòng (khung trống không có
+  attribute — tự thêm text). Dữ liệu lưu trong dictionary `TGIRR_PROJECT`.
+- Nhóm giao diện **IN ẤN & KHUNG TÊN** trên Ribbon (panel `KHUNG TÊN`), palette, menu
+  và thanh công cụ native; icon mới `title-block`, `title-sync`.
+
+### Sửa lỗi
+
+- **`entmake` BLOCK/LWPOLYLINE thiếu marker lớp con** (`AcDbEntity`, `AcDbBlockBegin`,
+  `AcDbPolyline`) làm AutoCAD 2025 bỏ qua block: khung không hiện hoặc các nét rơi ra
+  paper space. Đã thêm đủ marker, kiểm tra block tồn tại sau khi tạo và xác minh INSERT.
+- **`vl-catch-all-apply 'command`** gây lỗi `bad order function: COMMAND` khi tạo layer;
+  đã thay bằng `entmod` cho layer và gọi `command` trực tiếp.
+- **Khung dẫn xuất từ file mẫu còn nét logo** (logo vẽ bằng LINE/LWPOLYLINE, không phải
+  OLE/hatch). Đã lọc bỏ toàn bộ logo/chữ/hatch/OLE, chỉ giữ nét khung + hệ ô (24 entity),
+  không còn thông tin công trình/công ty trong asset.
+- **Page Setup chọn nhầm khổ portrait** (A3 297×420 thay vì 420×297) nên Print/Preview
+  không ra chỗ khung. Đã khớp media theo đúng kích thước ngang × dọc, đặt vùng in = Layout,
+  tỷ lệ 1:1.
+- **Đóng gói thiếu asset `.dwg`**: `package-config.ps1` và `install-bundle.ps1` đã copy
+  thêm `*.dwg` để khung đi kèm cả 3 bundle.
+
+### Ghi chú
+
+- Block dùng layer `TG-KHUNG` và text style `TG-TITLE` (font `arial.ttf`).
+- Chưa có bảng danh mục bản vẽ từ layout và in hàng loạt — dự kiến `MBAN`, `INLO`.
+
 ## 1.5.0 — 28/10/2026
 
 Bản này gom 5 commit: giao diện icon, bật/tắt nạp lệnh, tách file giao diện,

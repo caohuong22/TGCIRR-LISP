@@ -191,7 +191,7 @@ foreach ($spec in @(
     Write-Host ("[2/3] Thu muc Support: {0}" -f $target) -ForegroundColor DarkCyan
     New-Item -ItemType Directory -Force -Path $target | Out-Null
     Get-ChildItem (Join-Path $sourceBundle 'Contents\Lisp') -File |
-        Where-Object { $_.Extension -in '.lsp', '.mnu', '.mnl', '.bmp' } |
+        Where-Object { $_.Extension -in '.lsp', '.mnu', '.mnl', '.bmp', '.dwg' } |
         Copy-Item -Destination $target -Force
     Copy-Item (Join-Path $sourceBundle ('Contents\Windows\' + $spec.Dll)) $target -Force
 

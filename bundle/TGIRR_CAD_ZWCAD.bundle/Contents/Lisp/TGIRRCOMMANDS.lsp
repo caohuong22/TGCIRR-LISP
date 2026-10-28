@@ -38,7 +38,7 @@
   (not (member id (TGIRR:CMDSET-DISABLED))))
 
 ;; Toan bo lenh TGIRR quan ly duoc (de canh bao khi tat sach).
-(setq *TGIRR:ALL-COMMANDS* (list "HBD" "JH" "SP2PL" "CVPL" "SBS" "SBSE" "SCH" "VDNG" "TNET" "TGL" "TGLADD" "TL" "TGN" "CPLUS" "DOITEXT" "DOIMTEXT"))
+(setq *TGIRR:ALL-COMMANDS* (list "HBD" "JH" "SP2PL" "CVPL" "SBS" "SBSE" "SCH" "VDNG" "TNET" "TGL" "TGLADD" "TL" "TGN" "CPLUS" "DOITEXT" "DOIMTEXT" "KHO" "TENBV"))
 
 (defun TGIRR:RUN (command / doc)
   (setq doc (vla-get-ActiveDocument (vlax-get-acad-object)))
@@ -74,6 +74,8 @@
 (if (not (TGIRR:LOAD-ENABLED-P "SP2PL")) (setq C:SP2PL nil))
 (if (not (TGIRR:LOAD-ENABLED-P "DOITEXT")) (setq C:DOITEXT nil))
 (if (not (TGIRR:LOAD-ENABLED-P "DOIMTEXT")) (setq C:DOIMTEXT nil))
+(if (not (TGIRR:LOAD-ENABLED-P "KHO")) (setq C:KHO nil))
+(if (not (TGIRR:LOAD-ENABLED-P "TENBV")) (setq C:TENBV nil))
 (if (not (TGIRR:LOAD-ENABLED-P "TGIRRBAR")) (setq C:TGIRRBAR nil))
 
 (princ)

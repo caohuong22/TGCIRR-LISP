@@ -21,6 +21,8 @@ ID_TGIRR_TGN     [Danh so doi tuong / vung tuoi (&TGN)]^C^CTGN
 ID_TGIRR_CPLUS   [Copy theo quy luat (&CPLUS)]^C^CCPLUS
 ID_TGIRR_DOITEXT [Chuyen MText sang Text / Gom list (&DOITEXT)]^C^CDOITEXT
 ID_TGIRR_DOIMTEXT [Gop nhieu Text thanh 1 MText (&T2M)]^C^CDOIMTEXT
+ID_TGIRR_KHO     [Chen khung ban ve trong (&KHO)]^C^CKHO
+ID_TGIRR_TENBV   [Dien thong tin khung ten (&TENBV)]^C^CTENBV
                  [--]
 ID_TGIRR_PALETTE [Bang cong cu Palette (&PALETTE)]^C^CTGIRRPALETTE
 ID_TGIRR_QUICK   [Palette Quick Tools da ghim (&QUICK)]^C^CTGIRRQUICK
@@ -48,6 +50,8 @@ ID_TGIRR_TGN     [_Button("TGN - Chon pham vi, so bat dau, buoc nhay, kich thuoc
 ID_TGIRR_CPLUS   [_Button("CPLUS - Chon noi dung can tang trong UI roi bam lien tiep cac diem dat", "CPLUS.bmp", "CPLUS_L.bmp")]^C^CCPLUS
 ID_TGIRR_DOITEXT [_Button("DOITEXT - Chon cac MText can chuyen, chon che do List (gom danh sach)...", "DOITEXT.bmp", "DOITEXT_L.bmp")]^C^CDOITEXT
 ID_TGIRR_DOIMTEXT [_Button("DOIMTEXT - Chon cac TEXT can gop, pick diem chen MTEXT (Enter de lay...", "DOIMTEXT.bmp", "DOIMTEXT_L.bmp")]^C^CDOIMTEXT
+ID_TGIRR_KHO     [_Button("KHO - Chay trong Layout, chon kho giay (mac dinh A3)", "KHO.bmp", "KHO_L.bmp")]^C^CKHO
+ID_TGIRR_TENBV   [_Button("TENBV - Chon T de ap dung moi layout hoac L cho layout hien tai, roi...", "TENBV.bmp", "TENBV_L.bmp")]^C^CTENBV
 
 ***HELPSTRINGS
 ID_TGIRR_HBD     [HBD - Chon truoc cac Hatch roi bam nut, hoac bam nut roi quet chon]
@@ -66,6 +70,8 @@ ID_TGIRR_TGN     [TGN - Chon pham vi, so bat dau, buoc nhay, kich thuoc khung va
 ID_TGIRR_CPLUS   [CPLUS - Chon noi dung can tang trong UI roi bam lien tiep cac diem dat]
 ID_TGIRR_DOITEXT [DOITEXT - Chon cac MText can chuyen, chon che do List (gom danh sach)...]
 ID_TGIRR_DOIMTEXT [DOIMTEXT - Chon cac TEXT can gop, pick diem chen MTEXT (Enter de lay...]
+ID_TGIRR_KHO     [KHO - Chay trong Layout, chon kho giay (mac dinh A3)]
+ID_TGIRR_TENBV   [TENBV - Chon T de ap dung moi layout hoac L cho layout hien tai, roi...]
 ID_TGIRR_PALETTE [TGIRRPALETTE - Palette tu nho vi tri, kich thuoc va trang thai neo giua cac...]
 ID_TGIRR_QUICK   [TGIRRQUICK - Bam * o mot nut tren palette TGIRR CAD de ghim vao Quick Tools]
 ID_TGIRR_SETTINGS [TGIRRSETTINGS - Mo hop thoai, bo dau cac LISP khong muon nap roi bam Luu]

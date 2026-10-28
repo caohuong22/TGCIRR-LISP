@@ -26,6 +26,8 @@ Nhập/nhan/tooltip của mọi lệnh khai báo **một lần** trong [`src/cat
 | VĂN BẢN | CPLUS | Copy TEXT/MTEXT/Multileader/Attribute/Dimension Override theo số, chữ A–Z hoặc danh sách | Có (`CPLUS`) |
 | VĂN BẢN | DOITEXT | Chuyển MText sang Text tại chỗ hoặc gom nhiều MText thành 1 danh sách cột thẳng hàng | Có (`DOITEXT`, `M2T`, `MTEXT2TEXT`) |
 | VĂN BẢN | DOIMTEXT | Gộp nhiều TEXT thành 1 MTEXT nhiều đoạn, giữ layer/style/màu/chiều cao/góc xoay/điểm bám dính | Có (`DOIMTEXT`, `T2M`, `TEXT2MTEXT`) |
+| IN ẤN | KHO | Chèn khung bản vẽ trống `TGIRR_TB_A2.dwg` (chỉ nét khung + ô) vào Layout theo khổ A1/A2/A3/A4; thiếu file mẫu thì dùng khung đơn giản `TGIRR_TB_<khổ>` | Có (`KHO`) |
+| IN ẤN | TENBV | Điền/đồng bộ attribute của khung đơn giản dự phòng (dictionary `TGIRR_PROJECT`); khung mẫu công ty sửa trực tiếp | Có (`TENBV`) |
 | GIAO DIỆN | TGIRRPALETTE | Bật/tắt bảng công cụ Palette (AutoCAD, ZWCAD & GstarCAD) | Có (`TGIRRPALETTE`) |
 | GIAO DIỆN | TGIRRQUICK | Bật/tắt palette Quick Tools riêng — chứa các nút đã ghim ★ (AutoCAD, ZWCAD & GstarCAD) | Có (`TGIRRQUICK`) |
 | GIAO DIỆN | TGIRRSETTINGS | Bật/tắt nạp từng file AutoLISP (SBS, HBD, DOITEXT, TGIRRBAR) để tránh xung đột | Có (`TGIRRSETTINGS`) |
@@ -188,6 +190,17 @@ bản port hoặc menu/tài liệu bị lệch khỏi nguồn.
 
 Mỗi nút trên Ribbon / Palette đều có tooltip tiếng Việt chi tiết hướng dẫn cách sử dụng và cú pháp lệnh.
 
+### Khung tên & in ấn (`KHO`, `TENBV`)
+
+- **`KHO`** chèn khung bản vẽ **trống** `TGIRR_TB_A2.dwg` vào Layout hiện hành:
+  chỉ gồm nét khung + hệ ô, không logo/chữ/attribute;
+  đồng thời tự đặt **Page Setup**: đúng khổ giấy (A1/A2/A3/A4), vùng in = Layout, tỷ lệ 1:1 —
+  Ctrl+P là ra đúng tờ giấy có khung.
+- Khung trống không có attribute: tự thêm TEXT/MTEXT vào các ô sau khi chèn.
+  `TENBV` chỉ áp dụng cho khung đơn giản dự phòng (12 trường, lưu trong dictionary
+  `TGIRR_PROJECT`) khi thiếu file `TGIRR_TB_A2.dwg`.
+- Đặt Page Setup của Layout đúng khổ giấy (1:1, đơn vị mm) trước khi in.
+
 ### Giao diện chỉ có icon
 
 Mọi nút trên Ribbon, palette `TGIRRPALETTE`, Quick Tools và thanh công cụ native `TGIRRBAR`
@@ -201,7 +214,7 @@ Khi bộ LISP khác trùng tên lệnh, dùng **`TGIRRSETTINGS`** (hoặc nút �
 **từng lệnh** AutoLISP của TGIRR:
 
 - Nhóm theo file: `SBS.lsp` (SBS, SBSE, SCH), `HBD.lsp` (HBD, JH, SP2PL),
-  `DOITEXT.lsp` (DOITEXT, DOIMTEXT), `TGIRRBAR.lsp` (TGIRRBAR) — tổng 9 lệnh.
+  `DOITEXT.lsp` (DOITEXT, DOIMTEXT), `KHO.lsp` (KHO, TENBV), `TGIRRBAR.lsp` (TGIRRBAR) — tổng 11 lệnh.
 - Nhóm lệnh .NET: `TL`, `TGN`, `TNET`, `TGL`, `TGLADD`, `CPLUS`, `VDNG`, `CVPL`
   (kèm biệt danh `CVP`, `CVPLG`, `CV2PL`). Các lệnh này được đăng ký dưới **tên nội bộ**
   `TGIRR<CMD>` (ví dụ `TGIRRTL`), còn tên quen thuộc `TL` do shim LISP

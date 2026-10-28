@@ -57,7 +57,7 @@ khi khoi dong (`TGIRRLoader.lsp` chay sau de ap dung cai dat). Loader doc
 `%APPDATA%\TGIRR\load-settings.txt` (`v1 disabled=ID,ID`) va bo qua cac lenh da tat.
 
 Bat/tat bang lenh `TGIRRSETTINGS` (hoac nut banh rang tren palette) - hop thoai liet ke **tung lenh**
-theo file (SBS/SBSE/SCH, HBD/JH/SP2PL, DOITEXT/DOIMTEXT, TGIRRBAR) va ca cac lenh .NET
+theo file (SBS/SBSE/SCH, HBD/JH/SP2PL, DOITEXT/DOIMTEXT, KHO/TENBV, TGIRRBAR) va ca cac lenh .NET
 (TL, TGN, TNET, TGL, TGLADD, CPLUS, VDNG, CVPL). Moi lan tick la luu ngay.
 Tat mot lenh: file van nap nhung lenh do bi vo hieu hoa; tat het lenh cua mot file thi file
 khong duoc nap. Lenh .NET duoc dang ky duoi ten noi bo `TGIRR<CMD>`; ten quen thuoc (`TL`, ...)

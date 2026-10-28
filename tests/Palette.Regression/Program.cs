@@ -263,8 +263,8 @@ internal static class Program {
   Check("catalog co lenh TGIRRSETTINGS", all.Any(t => t.Id == "TGIRRSETTINGS"));
   Check("catalog khai bao du file LISP co the tat", TgToolCatalog.LoadUnits.Length >= 4);
   string[] lispCommands = TgToolCatalog.LoadUnitCommands();
-  Check("hop thoai liet ke du 9 lenh LISP", lispCommands.Length == 9);
-  foreach (string cmd in new[] { "SBS", "SBSE", "SCH", "HBD", "JH", "SP2PL", "DOITEXT", "DOIMTEXT", "TGIRRBAR" }) {
+  Check("hop thoai liet ke du 11 lenh LISP", lispCommands.Length == 11);
+  foreach (string cmd in new[] { "SBS", "SBSE", "SCH", "HBD", "JH", "SP2PL", "DOITEXT", "DOIMTEXT", "KHO", "TENBV", "TGIRRBAR" }) {
    Check("hop thoai cai dat co lenh " + cmd, Array.IndexOf(lispCommands, cmd) >= 0);
    Check("lenh " + cmd + " thuoc mot file LISP", TgToolCatalog.LoadUnitFor(cmd) != null);
   }
@@ -346,7 +346,7 @@ internal static class Program {
   }
 
   string lisp = Read("src/lisp/SBS.lsp") + Read("src/lisp/HBD.lsp")
-   + Read("src/lisp/DOITEXT.lsp") + Read("src/lisp/TGIRRBAR.lsp");
+   + Read("src/lisp/DOITEXT.lsp") + Read("src/lisp/KHO.lsp") + Read("src/lisp/TGIRRBAR.lsp");
   var commands = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
   foreach (Match m in Regex.Matches(lisp, @"(?i)\(defun\s+c:([A-Za-z0-9_]+)")) commands.Add(m.Groups[1].Value);
 

@@ -22,6 +22,11 @@ function Get-TgirrrLispFiles([string]$LoaderName) {
     foreach ($unit in @($catalog.loadUnits)) {
         if ($unit.file -and -not $files.Contains($unit.file)) { $files.Add($unit.file) }
     }
+    # Asset DWG (khung ten mau...) nam cung thu muc src\lisp, copy theo danh sach nay.
+    $lispDir = Join-Path $TgirrrRoot 'src\lisp'
+    Get-ChildItem $lispDir -Filter '*.dwg' -File -ErrorAction SilentlyContinue | ForEach-Object {
+        if (-not $files.Contains($_.Name)) { $files.Add($_.Name) }
+    }
     if (-not $files.Contains('TGIRRCOMMANDS.lsp')) { $files.Add('TGIRRCOMMANDS.lsp') }
     if ($LoaderName -and -not $files.Contains($LoaderName)) { $files.Add($LoaderName) }
     return $files.ToArray()
