@@ -2,6 +2,8 @@
 
 Thư viện AutoLISP + .NET tiếng Việt gồm công cụ bố trí tưới, đánh số đối tượng/vùng tưới và hỗ trợ bản vẽ, hỗ trợ **3 nền tảng CAD**:
 
+> Bản hiện tại: **1.5.0** — xem [CHANGELOG.md](CHANGELOG.md) để biết thay đổi và cách nâng cấp.
+
 | Nền tảng | Giao diện | Thư mục nguồn | Đóng gói | Tài liệu |
 |---|---|---|---|---|
 | AutoCAD 2021–2027+ (64-bit) | Ribbon tự động (net48 / net8.0 / net10.0) | `src/ribbon/` | `package.ps1 -Target AutoCAD` | [INSTALL.md](docs/INSTALL.md) |

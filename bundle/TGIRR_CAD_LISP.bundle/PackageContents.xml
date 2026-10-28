@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ApplicationPackage SchemaVersion="1.0" AutodeskProduct="AutoCAD" Name="TGIRR CAD LISP" AppVersion="1.4.0" ProductCode="{65F66A23-9110-4C2A-BCC4-66A304D52C75}">
+<ApplicationPackage SchemaVersion="1.0" AutodeskProduct="AutoCAD" Name="TGIRR CAD LISP" AppVersion="1.5.0" ProductCode="{65F66A23-9110-4C2A-BCC4-66A304D52C75}">
   <CompanyDetails Name="TGIRR" />
 
   <!-- Nap truc tiep tung file LISP (giong ban da chay duoc) de khong phu thuoc
