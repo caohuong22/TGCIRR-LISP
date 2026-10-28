@@ -38,7 +38,10 @@
     <Compile Include="..\shared\LoadSettingsWindow.cs" Link="LoadSettingsWindow.cs" />
     <!-- AutoCAD cung dung Palette chinh + Quick Tools tu bo ma nguon chung. -->
     <Compile Include="..\shared\PaletteCommands.cs" Link="PaletteCommands.cs" />
+    <Compile Include="..\shared\PaletteTheme.cs" Link="PaletteTheme.cs" />
+    <Compile Include="..\shared\ToolChip.cs" Link="ToolChip.cs" />
     <Compile Include="..\shared\PaletteContent.cs" Link="PaletteContent.cs" />
+    <Compile Include="..\shared\QuickToolsContent.cs" Link="QuickToolsContent.cs" />
     <Compile Include="..\shared\PaletteState.cs" Link="PaletteState.cs" />
   </ItemGroup>
 

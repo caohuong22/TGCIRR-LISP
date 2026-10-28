@@ -52,7 +52,10 @@ $TgirrrRawFromShared = @(
     'ToolIcons.cs',
     'LoadSettingsWindow.cs',
     'PaletteState.cs',
-    'PaletteContent.cs'
+    'PaletteTheme.cs',
+    'ToolChip.cs',
+    'PaletteContent.cs',
+    'QuickToolsContent.cs'
 )
 
 $TgirrrMappedFromShared = @(

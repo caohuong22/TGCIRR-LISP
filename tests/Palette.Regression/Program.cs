@@ -119,8 +119,11 @@ internal static class Program {
    plugin.Contains("TgToolCatalog.RibbonPanels") && plugin.Contains("TgToolCatalog.RibbonIconByKey"));
   Check("Ribbon dung bo icon vector dung chung",
    plugin.Contains("ToolIcons.For") && plugin.Contains("PaletteTheme.Accent(tool.Accent)"));
-  Check("Palette dung bo icon vector dung chung", Read("src/shared/PaletteContent.cs").Contains("ToolIcons.For(tool.Icon"));
-  Check("Palette khong con hien nhan chu tren nut", !Read("src/shared/PaletteContent.cs").Contains("Text = tool.Badge"));
+  Check("Palette dung bo icon vector dung chung", Read("src/shared/ToolChip.cs").Contains("ToolIcons.For(tool.Icon"));
+  Check("Palette khong con hien nhan chu tren nut",
+   !Read("src/shared/PaletteContent.cs").Contains("Text = tool.Badge")
+   && !Read("src/shared/ToolChip.cs").Contains("Text = tool.Badge")
+   && !Read("src/shared/ToolChip.cs").Contains("tool.Badge"));
   Check("Ribbon khong con hard-code chuoi tooltip", !plugin.Contains("new RibbonToolTip{Title=\""));
   foreach (TgToolInfo t in tools.Where(x => x.Supports("AutoCAD"))) {
    Check("Ribbon sinh nut cho " + t.Id, RibbonHas(t.Id));
@@ -231,8 +234,16 @@ internal static class Program {
    && !toolbarLisp.Contains("\"TB_TGIRR\" \"_Show\""));
   Check("TGIRRBAR khong bao thanh cong khi -TOOLBAR con dang mo",
    toolbarLisp.Contains("(logand 1 (getvar \"CMDACTIVE\"))"));
-  foreach (string f in new[] { "PaletteCommands.cs", "PaletteContent.cs", "PaletteState.cs", "ToolCatalog.generated.cs", "ToolIcons.cs", "LoadSettingsWindow.cs" }) {
+  foreach (string f in new[] { "PaletteCommands.cs", "PaletteTheme.cs", "ToolChip.cs", "PaletteContent.cs",
+                                "QuickToolsContent.cs", "PaletteState.cs", "ToolCatalog.generated.cs",
+                                "ToolIcons.cs", "LoadSettingsWindow.cs" }) {
    Check("src/shared/" + f + " ton tai", File.Exists(Path.Combine(Root, "src", "shared", f)));
+  }
+  // Moi file giao dien chi chua dung mot lop TOP-LEVEL (lop long nhu ToolChip.Star
+  // van duoc phep): de sua palette khong phai cuon qua theme/chip/quick tools.
+  foreach (string f in new[] { "PaletteTheme.cs", "ToolChip.cs", "PaletteContent.cs", "QuickToolsContent.cs" }) {
+   string src = Read("src/shared/" + f);
+   Check(f + " chi khai bao 1 lop", Regex.Matches(src, @"(?m)^ (?:internal|public)\s").Count == 1);
   }
 
   Console.WriteLine("== 9. Cai dat bat/tat nap LISP (TGIRRSETTINGS) ==");
