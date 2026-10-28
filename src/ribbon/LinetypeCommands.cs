@@ -7,7 +7,7 @@ namespace Tgirrr.CadLisp {
  /// Cho phép gõ TNET trực tiếp tại dòng lệnh AutoCAD, ngoài nút Ribbon.
  /// </summary>
  public sealed class LinetypeCommands {
-  [CommandMethod("TNET")]
+  [CommandMethod("TGIRRTNET")]
   public void Run() {
    Application.ShowModalWindow(new LinetypeWindow());
   }

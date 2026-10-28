@@ -2,7 +2,7 @@
 
 Toàn bộ lệnh **đang hoạt động** của TGIRR. Mỗi lệnh đều có nút trên cả hai bề mặt giao diện:
 
-- **AutoCAD**: tab Ribbon **TGIRR CAD LISP** (`TGIRRRIBBON` để mở/active tab) và/hoặc thanh công cụ icon native `TGIRRBAR`.
+- **AutoCAD**: tab Ribbon **TGIRR CAD LISP** (`TGIRRRIBBON` để mở/active tab) chứa toàn bộ công cụ + panel **GIAO DIỆN** (`TGIRRPALETTE`, `TGIRRQUICK`), và/hoặc thanh công cụ icon native `TGIRRBAR`.
 - **ZWCAD & GstarCAD**: thanh công cụ icon native **TGIRR CAD** (`TGIRRBAR`) chứa toàn bộ lệnh dưới dạng nút icon, bảng công cụ Palette **TGIRR CAD** (`TGIRRPALETTE`), palette Quick Tools riêng chứa các nút đã ghim ★ (`TGIRRQUICK`), và menu kéo xuống `TGIRR &CAD` (`MENULOAD` file `TGIRR_CAD.mnu`).
 
 Nhập/nhan/tooltip của mọi lệnh khai báo **một lần** trong [`src/catalog/tools.json`](../src/catalog/tools.json); bảng dưới đây, menu và danh muc palette được sinh từ file đó bằng `scripts/gen-catalog.ps1` (chạy `scripts/test-palette.ps1` để bắt lệch).
@@ -15,17 +15,20 @@ Nhập/nhan/tooltip của mọi lệnh khai báo **một lần** trong [`src/cat
 | RANH GIỚI | SP2PL | Chuyển đổi nhanh các đối tượng Spline và Region thành Polyline khép kín | Có (`SP2PL`, `REG2PL`, `C2PL`) |
 | RANH GIỚI | CVPL | Convert LINE, ARC, CIRCLE, ELLIPSE, SPLINE, POLYLINE kiểu cũ, REGION sang LWPOLYLINE (xóa nguồn); `CVPLG` giữ nguồn | Có (`CVPL`, `CVP`, `CVPLG`, `CV2PL`) |
 | CHỌN | SBS | Chọn đối tượng giống mẫu nằm phần lớn trong Polyline kín | Có (`SBS`) |
-| CHỌN | SBSE | Chọn chính xác theo mẫu trong Polyline kín (bắt buộc trùng nội dung chữ TEXT/MTEXT, tên Block) | Có (`SBSE`) |
+| CHỌN | SBSE | Chọn chính xác theo mẫu trong Polyline kín (bắt buộc trùng nội dung chữ TEXT/MTEXT, tên Block) | Có (`SBSE`, `SBE`, `SE`) |
+| CHỌN | SCH | Chọn nhanh Hatch cùng layer, màu và pattern theo Hatch mẫu | Có (`SCH`, `SH`) |
 | TƯỚI | VDNG | Vẽ dây nhỏ giọt bên trong Boundary kín (tự tạo layer `TG-DRIP`) — chọn hướng dây thủ công, nối zigzag liên tục, ghi chú + thống kê chiều dài | Có (`VDNG`) |
 | NÉT VẼ | TNET | Mở hộp thoại tạo/chỉnh sửa nét vẽ có chữ (file LIN); tự đo chiều dài vùng chữ trong CAD để căn chữ cân giữa hai đoạn gạch | Có (`TNET`) |
 | LAYER | TGL | Tạo bộ Layer tiêu chuẩn và đặt `TG-DRIP` làm layer hiện hành | Có (`TGL`) |
-| ĐO | TL | Cộng tổng chiều dài các đường đã chọn trước | Có (`TL`) |
+| LAYER | TGLADD | Thêm hoặc cập nhật Layer tùy chỉnh trong kho Layer TGIRR | Có (`TGLADD`) |
+| ĐO | TL | Cộng tổng chiều dài các đường đã chọn trước (hoặc chọn khi được hỏi) | Có (`TL`) |
 | ĐÁNH SỐ | TGN | Đánh số đối tượng / vùng tưới bằng nhãn tròn/ellipse | Có (`TGN`) |
 | VĂN BẢN | CPLUS | Copy TEXT/MTEXT/Multileader/Attribute/Dimension Override theo số, chữ A–Z hoặc danh sách | Có (`CPLUS`) |
-| VĂN BẢN | DOITEXT | Chuyển MText sang Text tại chỗ hoặc gom nhiều MText thành 1 danh sách cột thẳng hàng | Có (`DOITEXT`, `M2T`) |
+| VĂN BẢN | DOITEXT | Chuyển MText sang Text tại chỗ hoặc gom nhiều MText thành 1 danh sách cột thẳng hàng | Có (`DOITEXT`, `M2T`, `MTEXT2TEXT`) |
 | VĂN BẢN | DOIMTEXT | Gộp nhiều TEXT thành 1 MTEXT nhiều đoạn, giữ layer/style/màu/chiều cao/góc xoay/điểm bám dính | Có (`DOIMTEXT`, `T2M`, `TEXT2MTEXT`) |
-| GIAO DIỆN | TGIRRPALETTE | Bật/tắt bảng công cụ Palette (ZWCAD & GstarCAD) | Có (`TGIRRPALETTE`) |
-| GIAO DIỆN | TGIRRQUICK | Bật/tắt palette Quick Tools riêng — chứa các nút đã ghim ★ (ZWCAD & GstarCAD) | Có (`TGIRRQUICK`) |
+| GIAO DIỆN | TGIRRPALETTE | Bật/tắt bảng công cụ Palette (AutoCAD, ZWCAD & GstarCAD) | Có (`TGIRRPALETTE`) |
+| GIAO DIỆN | TGIRRQUICK | Bật/tắt palette Quick Tools riêng — chứa các nút đã ghim ★ (AutoCAD, ZWCAD & GstarCAD) | Có (`TGIRRQUICK`) |
+| GIAO DIỆN | TGIRRSETTINGS | Bật/tắt nạp từng file AutoLISP (SBS, HBD, DOITEXT, TGIRRBAR) để tránh xung đột | Có (`TGIRRSETTINGS`) |
 | GIAO DIỆN | TGIRRBAR | Bật thanh công cụ icon native (toolbar ***TOOLBARS trong TGIRR_CAD.mnu) | Có (`TGIRRBAR`, `TGIRRTB`) |
 <!-- END GENERATED COMMAND TABLE -->
 
@@ -175,7 +178,7 @@ bản port hoặc menu/tài liệu bị lệch khỏi nguồn.
 
 ## Ghi chú về nền tảng
  
-- **AutoCAD:** Toàn bộ công cụ hiển thị trên thanh Ribbon (tab **TGIRR CAD LISP**).
+- **AutoCAD:** Toàn bộ công cụ hiển thị trên thanh Ribbon (tab **TGIRR CAD LISP**). Panel **GIAO DIỆN** có hai nút `TGIRRPALETTE` (mở bảng công cụ) và `TGIRRQUICK` (mở Quick Tools); bấm ★ trên nút trong bảng công cụ để ghim lệnh vào Quick Tools.
 - **ZWCAD & GstarCAD:** **KHÔNG DÙNG RIBBON** (do không hỗ trợ API Ribbon như AutoCAD). Thay vào đó, toàn bộ công cụ được hiển thị trên bảng công cụ neo **`TGIRRPALETTE`** (dockable WPF Palette — tự nhớ vị trí/kích thước/trạng thái neo giữa các phiên CAD, lưu ở `%APPDATA%\TGIRR\palette-state.txt`) và menu kéo xuống `TGIRR_CAD.mnu`. Mỗi nút có sao ☆/★ để **ghim vào palette "TGIRR QUICK TOOLS" RIÊNG** (dockable độc lập, bật/tắt bằng `TGIRRQUICK`; danh sách ghim lưu ở `%APPDATA%\TGIRR\quick-tools.txt`, vị trí/kích thước/dock lưu ở `quick-palette-state.txt`).
 - **SBS, HBD, JH, DOITEXT, DOIMTEXT, TGIRRBAR** được viết bằng AutoLISP; **CPLUS, VDNG, TNET, TL, TGL, CVPL, TGN** được viết bằng .NET.
 - Các lệnh Lisp có thể nạp tự động qua loader tương ứng:
@@ -184,6 +187,35 @@ bản port hoặc menu/tài liệu bị lệch khỏi nguồn.
   - GstarCAD: `TGIRRLoaderG.lsp` (gõ `TGIRRLOAD`)
 
 Mỗi nút trên Ribbon / Palette đều có tooltip tiếng Việt chi tiết hướng dẫn cách sử dụng và cú pháp lệnh.
+
+### Giao diện chỉ có icon
+
+Mọi nút trên Ribbon, palette `TGIRRPALETTE`, Quick Tools và thanh công cụ native `TGIRRBAR`
+**chỉ hiển thị icon** (không có chữ trên nút). Hover vào nút sẽ hiện **tên lệnh** (ví dụ `HBD`)
+và **cách dùng ngắn**. Icon được vẽ từ một nguồn duy nhất `src/shared/ToolIcons.cs`
+(`scripts/gen-icons.ps1` rasterize ra BMP 16/32 cho toolbar native), nên mọi bề mặt luôn giống nhau.
+
+### Bật/tắt nạp từng LISP — tránh xung đột
+
+Khi bộ LISP khác trùng tên lệnh, dùng **`TGIRRSETTINGS`** (hoặc nút ⚙ trên palette) để bỏ nạp
+**từng lệnh** AutoLISP của TGIRR:
+
+- Nhóm theo file: `SBS.lsp` (SBS, SBSE, SCH), `HBD.lsp` (HBD, JH, SP2PL),
+  `DOITEXT.lsp` (DOITEXT, DOIMTEXT), `TGIRRBAR.lsp` (TGIRRBAR) — tổng 9 lệnh.
+- Nhóm lệnh .NET: `TL`, `TGN`, `TNET`, `TGL`, `TGLADD`, `CPLUS`, `VDNG`, `CVPL`
+  (kèm biệt danh `CVP`, `CVPLG`, `CV2PL`). Các lệnh này được đăng ký dưới **tên nội bộ**
+  `TGIRR<CMD>` (ví dụ `TGIRRTL`), còn tên quen thuộc `TL` do shim LISP
+  `src/lisp/TGIRRCOMMANDS.lsp` tạo lại — chỉ khi lệnh còn bật. Nhờ vậy tắt `TL` là LISP `TL`
+  của anh nạp sau sẽ chạy được, không bị lệnh .NET chiếm tên.
+- Tắt một lệnh: file vẫn nạp nhưng lệnh đó bị vô hiệu hoá; tắt hết lệnh của một file thì file
+  không được nạp. Nút của lệnh đã tắt cũng tự ẩn khỏi Ribbon / palette / Quick Tools.
+- Hộp thoại **lưu ngay mỗi lần tick** (không cần bấm Lưu); đóng bằng X hay Esc đều không mất.
+- Lưu tại `%APPDATA%\TGIRR\load-settings.txt` (`v1 disabled=ID,ID`).
+- AutoCAD chỉ nạp `TGIRRLoader.lsp` khi khởi động; loader đọc file trên và bỏ qua lệnh đã tắt
+  (ZWCAD/GstarCAD tương tự trong `TGIRRLOAD`).
+- Không cần khởi động lại CAD: gõ `TGIRRRELOAD` (nạp lại theo cài đặt) và `TGIRRDROP`
+  (gỡ ngay các lệnh vừa tắt khỏi phiên hiện tại để nhường tên cho LISP khác).
+- Chẩn đoán: `TGIRRSTATUS` in ra thư mục LISP, số lệnh đang tắt và trạng thái `SBS`, `HBD`, `TL`.
 
 
 ### Thêm Layer vào kho bằng TGLADD

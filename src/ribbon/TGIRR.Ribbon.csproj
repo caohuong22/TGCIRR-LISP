@@ -32,6 +32,14 @@
     <!-- Danh muc lenh sinh tu src/catalog/tools.json (scripts/gen-catalog.ps1).
          Namespace cua no la Tgirrr.CadLisp nen Ribbon dung chung metadata tooltip/nut. -->
     <Compile Include="..\shared\ToolCatalog.generated.cs" Link="ToolCatalog.generated.cs" />
+    <!-- Bo icon vector dung chung cho Ribbon, palette va Quick Tools. -->
+    <Compile Include="..\shared\ToolIcons.cs" Link="ToolIcons.cs" />
+    <!-- Hop thoai bat/tat nap tung LISP (TGIRRSETTINGS). -->
+    <Compile Include="..\shared\LoadSettingsWindow.cs" Link="LoadSettingsWindow.cs" />
+    <!-- AutoCAD cung dung Palette chinh + Quick Tools tu bo ma nguon chung. -->
+    <Compile Include="..\shared\PaletteCommands.cs" Link="PaletteCommands.cs" />
+    <Compile Include="..\shared\PaletteContent.cs" Link="PaletteContent.cs" />
+    <Compile Include="..\shared\PaletteState.cs" Link="PaletteState.cs" />
   </ItemGroup>
 
   <ItemGroup>

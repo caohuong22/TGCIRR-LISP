@@ -49,6 +49,8 @@ $TgirrrMappedFromRibbon = @(
 # ToolCatalog.generated.cs duoc sinh tu src\catalog\tools.json (gen-catalog.ps1)
 $TgirrrRawFromShared = @(
     'ToolCatalog.generated.cs',
+    'ToolIcons.cs',
+    'LoadSettingsWindow.cs',
     'PaletteState.cs',
     'PaletteContent.cs'
 )
@@ -142,7 +144,7 @@ function Convert-TgirrrSource {
         $text = [regex]::Replace($text, '(?<![.\w])Application\.ShowModalWindow',
                               "$($Target.Prefix).ApplicationServices.Core.Application.ShowModalWindow")
         if ($leaf -eq 'PaletteCommands.cs') {
-            $text = $text.Replace('"@@TGIRR_HOST@@"', $Target.HostToken)
+            $text = $text.Replace('"AutoCAD"', $Target.HostToken)
         }
     }
     return & $Target.Extra $leaf $text

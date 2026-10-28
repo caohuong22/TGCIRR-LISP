@@ -22,7 +22,7 @@ namespace Tgirrr.CadLisp {
    internal double Total;
   }
 
-  [CommandMethod("TGN")]
+  [CommandMethod("TGIRRTGN")]
   public void Run() {
    Document doc = ZwSoft.ZwCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument;
    if (doc == null) return;

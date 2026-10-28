@@ -1,6 +1,10 @@
-param()
+param([switch]$AssetsPrepared)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
+
+if (-not $AssetsPrepared) {
+  & (Join-Path $PSScriptRoot 'prepare-package-assets.ps1')
+}
 
 # 1) Build the GstarCAD .NET plugin (net8.0)
 $gscadProject = Join-Path $root 'src\gscad\TGIRR.Gscad.csproj'
@@ -23,8 +27,9 @@ $winDir   = Join-Path $bundle 'Contents\Windows'
 New-Item -ItemType Directory -Force -Path $lispDir, $winDir | Out-Null
 
 # LISP files (same as AutoCAD version, plus the GstarCAD loader)
-$allowedLisp = @('SBS.lsp','HBD.lsp','DOITEXT.lsp','TGIRRBAR.lsp','TGIRRLoaderG.lsp')
+$allowedLisp = @('SBS.lsp','HBD.lsp','DOITEXT.lsp','TGIRRBAR.lsp','TGIRRCOMMANDS.lsp','TGIRRLoaderG.lsp')
 Get-ChildItem $lispDir -File -ErrorAction SilentlyContinue | Where-Object { $_.Extension -in '.lsp','.dcl' } | Remove-Item -Force
+Get-ChildItem $lispDir -File -Filter '*.bmp' -ErrorAction SilentlyContinue | Remove-Item -Force
 foreach ($f in $allowedLisp) {
   Copy-Item (Join-Path $root "src\lisp\$f") $lispDir -Force
 }

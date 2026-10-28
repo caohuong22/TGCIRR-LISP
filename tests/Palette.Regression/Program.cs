@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Tgirrr.CadLisp;
 
 /// <summary>
@@ -55,6 +56,9 @@ internal static class Program {
   Check("lenh giao dien (role ui) khong co nhom palette",
    all.Where(t => !t.IsTool).All(t => t.GroupKey == null));
   Check("moi nut palette khai bao panel Ribbon", tools.TrueForAll(t => !string.IsNullOrEmpty(t.RibbonPanel)));
+  Check("moi lenh co icon", all.TrueForAll(t => !string.IsNullOrEmpty(t.Icon)));
+  Check("icon khong trung nhau (moi lenh 1 hinh rieng)",
+   all.Select(t => t.Icon).Distinct().Count() == all.Count);
 
   Console.WriteLine("== 2. Moi lenh phai that su ton tai trong ma nguon ==");
   string lispAll = ReadDir("src/lisp", "*.lsp");
@@ -66,6 +70,9 @@ internal static class Program {
     Check("biet danh " + alias + " cua " + t.Id + " ton tai", HasCommand(lispAll, managed, alias));
    }
   }
+
+  CheckCatalogCoversAllProductCommands(all);
+  CheckDotNetShims(all);
 
   Console.WriteLine("== 3. Menu keo xuong (src/menu + 2 bundle) ==");
   string menu = Read("src/menu/TGIRR_CAD.mnu");
@@ -86,6 +93,14 @@ internal static class Program {
    Check("bundle " + bundle + " menu khong lech src/menu", Norm(Read(rel)) == Norm(menu));
   }
 
+  Console.WriteLine("== 3b. Toolbar native: nut va icon khop catalog ==");
+  foreach (TgToolInfo t in tools) {
+   Check("toolbar co nut " + t.Id,
+    menu.Contains("\"" + t.MenuTag + ".bmp\"") && menu.Contains("\"" + t.MenuTag + "_L.bmp\""));
+   Check("tooltip toolbar " + t.Id + " co ten lenh", menu.Contains("_Button(\"" + t.Id + " - "));
+   Check("icon toolbar va bundle khop cho " + t.Id, NativeToolbarAssetsMatch(t.MenuTag));
+  }
+
   Console.WriteLine("== 4. Bang lenh trong docs/COMMANDS.md ==");
   string docs = Read("docs/COMMANDS.md");
   int bi = docs.IndexOf("BEGIN GENERATED COMMAND TABLE");
@@ -103,19 +118,27 @@ internal static class Program {
   string plugin = Read("src/ribbon/Plugin.cs");
   Check("Ribbon duyet TgToolCatalog.RibbonPanels",
    plugin.Contains("TgToolCatalog.RibbonPanels") && plugin.Contains("TgToolCatalog.RibbonIconByKey"));
+  Check("Ribbon dung bo icon vector dung chung",
+   plugin.Contains("ToolIcons.For") && plugin.Contains("PaletteTheme.Accent(tool.Accent)"));
+  Check("Palette dung bo icon vector dung chung", Read("src/shared/PaletteContent.cs").Contains("ToolIcons.For(tool.Icon"));
+  Check("Palette khong con hien nhan chu tren nut", !Read("src/shared/PaletteContent.cs").Contains("Text = tool.Badge"));
   Check("Ribbon khong con hard-code chuoi tooltip", !plugin.Contains("new RibbonToolTip{Title=\""));
   foreach (TgToolInfo t in tools.Where(x => x.Supports("AutoCAD"))) {
    Check("Ribbon sinh nut cho " + t.Id, RibbonHas(t.Id));
   }
   int ribbonTotal = TgToolCatalog.RibbonPanels.Sum(p => p.Items.Count(i => i != null));
   int acadTools = tools.Count(t => t.Supports("AutoCAD"));
-  Check("so nut Ribbon = so lenh ho tro AutoCAD (" + ribbonTotal + ")", ribbonTotal == acadTools);
+  int acadUiInRibbon = all.Count(t => !t.IsTool && t.Supports("AutoCAD") && RibbonHas(t.Id));
+  Check("so nut Ribbon = lenh AutoCAD + nut giao dien (" + ribbonTotal + ")",
+   ribbonTotal == acadTools + acadUiInRibbon);
+  Check("Ribbon co nut Quick Tools (TGIRRQUICK)", RibbonHas("TGIRRQUICK"));
   Check("ten panel Ribbon khong trung lap",
    TgToolCatalog.RibbonPanels.Select(p => p.Title).Distinct().Count() == TgToolCatalog.RibbonPanels.Length);
   foreach (var panel in TgToolCatalog.RibbonPanels) {
    Check("panel Ribbon '" + panel.Title + "' co nut", panel.Items.Length > 0);
+   // Lenh giao dien (role ui) khong co ribbonPanel rieng nen duoc phep null.
    Check("nut cua panel '" + panel.Title + "' khai bao dung panel",
-    panel.Items.Where(i => i != null).All(i => i.RibbonPanel == panel.Title));
+    panel.Items.Where(i => i != null).All(i => i.RibbonPanel == panel.Title || !i.IsTool));
   }
 
   Console.WriteLine("== 6. Hai ban port palette dung chung metadata ==");
@@ -183,8 +206,90 @@ internal static class Program {
 
   Console.WriteLine("== 8. Nguon that phai nam trong repo ==");
   Check("src/catalog/tools.json ton tai", File.Exists(Path.Combine(Root, "src", "catalog", "tools.json")));
-  foreach (string f in new[] { "PaletteCommands.cs", "PaletteContent.cs", "PaletteState.cs", "ToolCatalog.generated.cs" }) {
+  string packageContents = Read("bundle/TGIRR_CAD_LISP.bundle/PackageContents.xml");
+  Check("AutoCAD nap truc tiep cac file LISP khi khoi dong (khong phu thuoc loader)",
+   packageContents.Contains("ModuleName=\"./Contents/Lisp/SBS.lsp\" LoadOnAutoCADStartup")
+   && packageContents.Contains("ModuleName=\"./Contents/Lisp/HBD.lsp\" LoadOnAutoCADStartup")
+   && packageContents.Contains("ModuleName=\"./Contents/Lisp/DOITEXT.lsp\" LoadOnAutoCADStartup")
+   && packageContents.Contains("ModuleName=\"./Contents/Lisp/TGIRRBAR.lsp\" LoadOnAutoCADStartup"));
+  Check("AutoCAD nap file shim lenh .NET khi khoi dong",
+   packageContents.Contains("ModuleName=\"./Contents/Lisp/TGIRRCOMMANDS.lsp\" LoadOnAutoCADStartup"));
+  Check("shim lenh .NET tu doc cai dat (khong phu thuoc loader)",
+   Read("src/lisp/TGIRRCOMMANDS.lsp").Contains("TGIRR:CMDSET-DISABLED"));
+  string shimText = Read("src/lisp/TGIRRCOMMANDS.lsp");
+  foreach (TgToolCatalog.TgLoadUnit unit in TgToolCatalog.LoadUnits) {
+   foreach (string cmd in unit.Commands) {
+    Check("shim tu go lenh LISP " + cmd + " khi bi tat",
+     shimText.Contains("(setq C:" + cmd + " nil)"));
+   }
+  }
+  string toolbarLisp = Read("src/lisp/TGIRRBAR.lsp");
+  Check("TGIRRBAR tu tim bundle AutoCAD ngoai Support Path",
+   toolbarLisp.Contains("getenv \"APPDATA\"") && toolbarLisp.Contains("getenv \"PROGRAMDATA\"")
+   && toolbarLisp.Contains("ApplicationPlugins") && toolbarLisp.Contains("TGIRR_CAD_LISP.bundle"));
+  Check("TGIRRBAR go dung ten toolbar hien thi tren AutoCAD",
+   toolbarLisp.Contains("(command \"_.-TOOLBAR\" \"TGIRR CAD\" \"\" \"_Show\")")
+   && !toolbarLisp.Contains("\"TB_TGIRR\" \"_Show\""));
+  Check("TGIRRBAR khong bao thanh cong khi -TOOLBAR con dang mo",
+   toolbarLisp.Contains("(logand 1 (getvar \"CMDACTIVE\"))"));
+  foreach (string f in new[] { "PaletteCommands.cs", "PaletteContent.cs", "PaletteState.cs", "ToolCatalog.generated.cs", "ToolIcons.cs", "LoadSettingsWindow.cs" }) {
    Check("src/shared/" + f + " ton tai", File.Exists(Path.Combine(Root, "src", "shared", f)));
+  }
+
+  Console.WriteLine("== 9. Cai dat bat/tat nap LISP (TGIRRSETTINGS) ==");
+  Check("catalog co lenh TGIRRSETTINGS", all.Any(t => t.Id == "TGIRRSETTINGS"));
+  Check("catalog khai bao du file LISP co the tat", TgToolCatalog.LoadUnits.Length >= 4);
+  string[] lispCommands = TgToolCatalog.LoadUnitCommands();
+  Check("hop thoai liet ke du 9 lenh LISP", lispCommands.Length == 9);
+  foreach (string cmd in new[] { "SBS", "SBSE", "SCH", "HBD", "JH", "SP2PL", "DOITEXT", "DOIMTEXT", "TGIRRBAR" }) {
+   Check("hop thoai cai dat co lenh " + cmd, Array.IndexOf(lispCommands, cmd) >= 0);
+   Check("lenh " + cmd + " thuoc mot file LISP", TgToolCatalog.LoadUnitFor(cmd) != null);
+  }
+  Check("lenh .NET khong nam trong danh sach LISP", TgToolCatalog.LoadUnitFor("TNET") == null);
+  foreach (TgToolCatalog.TgLoadUnit unit in TgToolCatalog.LoadUnits) {
+   Check("file " + unit.File + " co lenh", unit.Commands.Length > 0);
+  }
+  foreach (string f in new[] { "src/lisp/TGIRRLoader.lsp", "src/lisp/TGIRRLoaderZ.lsp", "src/lisp/TGIRRLoaderG.lsp" }) {
+   string lisp = Read(f);
+   Check(Path.GetFileName(f) + " doc cai dat nap", lisp.Contains("TGIRR:DISABLED-LIST") && lisp.Contains("TGIRRSETTINGS"));
+   Check(Path.GetFileName(f) + " nap theo nhom lenh", lisp.Contains("LOAD-GROUP"));
+   foreach (TgToolCatalog.TgLoadUnit unit in TgToolCatalog.LoadUnits) {
+    Check(Path.GetFileName(f) + " nap " + unit.File, lisp.Contains("\"" + unit.File + "\""));
+   }
+  }
+  string acadLoader = Read("src/lisp/TGIRRLoader.lsp");
+  Check("TGIRRLoader tu tim bundle AutoCAD ngoai Support Path",
+   acadLoader.Contains("ApplicationPlugins") && acadLoader.Contains("TGIRR_CAD_LISP.bundle")
+   && acadLoader.Contains("TGIRR:DIR-EXISTS"));
+  foreach (string f in new[] { "src/lisp/TGIRRLoader.lsp", "src/lisp/TGIRRLoaderZ.lsp", "src/lisp/TGIRRLoaderG.lsp" }) {
+   Check(Path.GetFileName(f) + " nap file shim lenh .NET", Read(f).Contains("TGIRRCOMMANDS.lsp"));
+  }
+  Check("hop thoai cai dat co ca lenh .NET", Read("src/shared/LoadSettingsWindow.cs").Contains("ManagedTools"));
+  Check("hop thoai cai dat luu ngay khi tick (khong can nut Luu)",
+   Read("src/shared/LoadSettingsWindow.cs").Contains("OnToggled") && Read("src/shared/LoadSettingsWindow.cs").Contains("LoadSettingsStore.Save"));
+  Check("loader khong dung read+setq dong (nguon gay dung nap)",
+   !acadLoader.Contains("(read (strcat \"C:\""));
+  Check("loader boc moi nhom lenh trong bao loi",
+   acadLoader.Contains("TGIRR:SAFE") && acadLoader.Contains("vl-catch-all-apply 'eval"));
+  Check("co lenh nap lai khong can khoi dong CAD", acadLoader.Contains("c:TGIRRRELOAD") && acadLoader.Contains("c:TGIRRDROP"));
+  Check("co lenh chan doan TGIRRSTATUS", acadLoader.Contains("c:TGIRRSTATUS"));
+  string tempDir = Path.Combine(Path.GetTempPath(), "tgirr-load-settings-" + Guid.NewGuid().ToString("N"));
+  try {
+   PaletteStorage.RootOverride = tempDir;
+   Check("luu danh sach LISP tat", LoadSettingsStore.Save(new[] { "SBS", "DOITEXT" }));
+   Check("ap dung danh sach LISP tat",
+    LoadSettingsStore.IsEnabled("HBD") && !LoadSettingsStore.IsEnabled("SBS") && !LoadSettingsStore.IsEnabled("DOITEXT"));
+   Check("file cai dat dung dinh dang",
+    File.ReadAllText(Path.Combine(tempDir, "load-settings.txt")).Trim() == "v1 disabled=DOITEXT,SBS");
+   Check("tat lenh .NET thi palette an nut",
+    TgToolCatalog.ForHost("AutoCAD").Any(t => t.Id == "TL"));
+   LoadSettingsStore.Save(new[] { "TL", "SBS" });
+   Check("TL bi tat thi khong con trong palette",
+    TgToolCatalog.ForHost("AutoCAD").All(t => t.Id != "TL"));
+   Check("cac lenh khac van hien", TgToolCatalog.ForHost("AutoCAD").Any(t => t.Id == "TGN"));
+  } finally {
+   PaletteStorage.RootOverride = null;
+   try { Directory.Delete(tempDir, true); } catch { }
   }
 
   Console.WriteLine();
@@ -204,6 +309,69 @@ internal static class Program {
  static bool HasCommand(string lisp, string managed, string cmd) {
   if (lisp.IndexOf("(defun c:" + cmd, StringComparison.OrdinalIgnoreCase) >= 0) return true;
   return managed.Contains("CommandMethod(\"" + cmd + "\"");
+ }
+
+ static void CheckCatalogCoversAllProductCommands(List<TgToolInfo> all) {
+  Console.WriteLine("== 2b. Catalog bao phu tat ca lenh nguoi dung ==");
+  var catalog = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+  foreach (TgToolInfo t in all) {
+   catalog.Add(t.Cmd);
+   foreach (string alias in t.Aliases) catalog.Add(alias);
+  }
+
+  string lisp = Read("src/lisp/SBS.lsp") + Read("src/lisp/HBD.lsp")
+   + Read("src/lisp/DOITEXT.lsp") + Read("src/lisp/TGIRRBAR.lsp");
+  var commands = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+  foreach (Match m in Regex.Matches(lisp, @"(?i)\(defun\s+c:([A-Za-z0-9_]+)")) commands.Add(m.Groups[1].Value);
+
+  string managed = ReadDir("src/ribbon", "*.cs") + ReadDir("src/shared", "*.cs");
+  foreach (Match m in Regex.Matches(managed, @"(?i)CommandMethod\s*\(\s*""([A-Za-z0-9_]+)""")) commands.Add(m.Groups[1].Value);
+
+  var hostOnly = new HashSet<string>(new[] { "TGIRR_RIBBON", "TGIRRRIBBON" }, StringComparer.OrdinalIgnoreCase);
+  foreach (string cmd in commands.Where(c => !hostOnly.Contains(c)).OrderBy(c => c, StringComparer.OrdinalIgnoreCase)) {
+   // Lenh .NET dang ky ten noi bo TGIRR<CMD>; catalog van dung ten quen thuoc <CMD>.
+   string publicName = cmd;
+   if (!catalog.Contains(publicName) && publicName.StartsWith("TGIRR", StringComparison.OrdinalIgnoreCase)
+    && catalog.Contains(publicName.Substring(5)))
+    publicName = publicName.Substring(5);
+   Check("lenh nguoi dung " + cmd + " co trong catalog", catalog.Contains(publicName));
+  }
+ }
+
+ /// <summary>Lenh .NET phai co shim c:LISP tao lai ten quen thuoc, co dieu kien bat/tat.</summary>
+ static void CheckDotNetShims(List<TgToolInfo> tools) {
+  Console.WriteLine("== 2c. Lenh .NET: ten noi bo + shim LISP bat/tat duoc ==");
+  string shim = Read("src/lisp/TGIRRCOMMANDS.lsp");
+  Check("shim co ham gui lenh TGIRR:RUN", shim.Contains("(defun TGIRR:RUN"));
+  foreach (TgToolInfo t in tools.Where(x => x.Managed)) {
+   string guard = "(if (TGIRR:LOAD-ENABLED-P \"" + t.Id + "\") (defun c:" + t.Cmd;
+   Check("shim cho " + t.Cmd + " co dieu kien bat/tat", shim.Contains(guard));
+   Check("shim " + t.Cmd + " goi lenh noi bo " + TgToolCatalog.ManagedCommand(t.Id),
+    shim.Contains("(TGIRR:RUN \"" + TgToolCatalog.ManagedCommand(t.Id) + "\")"));
+  }
+  Check("khong con lenh .NET trung ten LISP ngoai",
+   tools.Where(x => x.Managed).All(x => shim.Contains("c:" + x.Cmd)));
+  Check("shim liet ke toan bo lenh de canh bao tat sach",
+   shim.Contains("*TGIRR:ALL-COMMANDS*") && tools.Where(t => t.IsTool).All(t => shim.Contains("\"" + t.Cmd + "\"")));
+  foreach (string f in new[] { "src/lisp/TGIRRLoader.lsp", "src/lisp/TGIRRLoaderZ.lsp", "src/lisp/TGIRRLoaderG.lsp" }) {
+   string lisp = Read(f);
+   Check(Path.GetFileName(f) + " canh bao khi tat het lenh",
+    lisp.Contains("TGIRR:WARN-IF-ALL-OFF") && lisp.Contains("TAT CA lenh dang bi tat"));
+  }
+ }
+
+ static bool NativeToolbarAssetsMatch(string tag) {
+  string[] bundles = { "TGIRR_CAD_LISP", "TGIRR_CAD_ZWCAD", "TGIRR_CAD_GSTARCAD" };
+  foreach (string name in new[] { tag + ".bmp", tag + "_L.bmp" }) {
+   string source = Path.Combine(Root, "src", "menu", "icons", name);
+   if (!File.Exists(source)) return false;
+   byte[] expected = File.ReadAllBytes(source);
+   foreach (string bundle in bundles) {
+    string actual = Path.Combine(Root, "bundle", bundle + ".bundle", "Contents", "Lisp", name);
+    if (!File.Exists(actual) || !expected.SequenceEqual(File.ReadAllBytes(actual))) return false;
+   }
+  }
+  return true;
  }
 
  static bool HelpDefined(string menu, string tag) {

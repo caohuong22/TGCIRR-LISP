@@ -12,7 +12,7 @@ namespace Tgirrr.CadLisp {
  /// Lenh TGL (bo Layer chuan) va TGLADD (them Layer vao kho) - ban native thay AutoLISP.
  /// </summary>
  public sealed class LayerSetCommands {
-  [CommandMethod("TGL")]
+  [CommandMethod("TGIRRTGL")]
   public void CreateStandardLayers() {
    Document doc = ZwSoft.ZwCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument;
    if (doc == null) return;
@@ -32,7 +32,7 @@ namespace Tgirrr.CadLisp {
    doc.Editor.WriteMessage("\nĐã tạo xong bộ Layer tiêu chuẩn và chuyển Layer hiện hành về " + LayerSetService.CurrentLayer + "!");
   }
 
-  [CommandMethod("TGLADD")]
+  [CommandMethod("TGIRRTGLADD")]
   public void AddLayerToLibrary() {
    Document doc = ZwSoft.ZwCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument;
    if (doc == null) return;

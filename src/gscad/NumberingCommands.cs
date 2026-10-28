@@ -22,7 +22,7 @@ namespace Tgirrr.CadLisp {
    internal double Total;
   }
 
-  [CommandMethod("TGN")]
+  [CommandMethod("TGIRRTGN")]
   public void Run() {
    Document doc = Gssoft.Gscad.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument;
    if (doc == null) return;

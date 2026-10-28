@@ -26,9 +26,6 @@ namespace Tgirrr.CadLisp {
   internal static readonly Color Amber = Color.FromRgb(251, 191, 36);
   internal static readonly Color AccentInk = Color.FromRgb(15, 23, 42);
 
-  /// <summary>Bep rung toi thieu de xep 2 cot nut; duoi muc nay xe 1 cot cho de doc.</summary>
-  internal const int TwoColumnWidth = 300;
-
   /// <summary>★ khi chua ghim van hien (moc nho) de nguoi dung biet nut co the pin (F6).</summary>
   internal const double StarIdleOpacity = 0.45;
 
@@ -118,44 +115,34 @@ namespace Tgirrr.CadLisp {
    Color accent = PaletteTheme.Accent(tool.Accent);
    var b = new Button {
     Template = PaletteTheme.ChipTemplate,
-    Height = 31,
-    HorizontalAlignment = HorizontalAlignment.Stretch,
-    HorizontalContentAlignment = HorizontalAlignment.Left,
-    VerticalContentAlignment = VerticalAlignment.Center,
+    Width = 44,
+    Height = 44,
     Background = PaletteTheme.Brush(PaletteTheme.BtnNormalBg),
     BorderBrush = PaletteTheme.Brush(PaletteTheme.BtnBorder),
     BorderThickness = new Thickness(1),
-    Padding = new Thickness(5, 2, 5, 2),
+    Padding = new Thickness(0),
     Cursor = Cursors.Hand,
     FocusVisualStyle = null,
     Tag = tool.Id
    };
 
-   var dock = new DockPanel { LastChildFill = true };
-
-   var badge = new Border {
-    Background = PaletteTheme.Alpha(accent, 38),
-    BorderBrush = PaletteTheme.Alpha(accent, 120),
-    BorderThickness = new Thickness(1),
-    CornerRadius = new CornerRadius(3),
-    Padding = new Thickness(3, 1, 3, 1),
+   var grid = new Grid();
+   grid.Children.Add(new Image {
+    Source = ToolIcons.For(tool.Icon, accent),
+    Width = 28,
+    Height = 28,
+    Stretch = Stretch.Uniform,
+    HorizontalAlignment = HorizontalAlignment.Center,
     VerticalAlignment = VerticalAlignment.Center,
-    MinWidth = 36
-   };
-   badge.Child = new TextBlock {
-    Text = tool.Badge,
-    Foreground = new SolidColorBrush(accent),
-    FontSize = 10.5,
-    FontWeight = FontWeights.Bold,
-    TextAlignment = TextAlignment.Center
-   };
-   DockPanel.SetDock(badge, Dock.Left);
-   dock.Children.Add(badge);
+    IsHitTestVisible = false
+   });
 
    var star = new TextBlock {
-    FontSize = 12,
+    Text = "☆",
+    FontSize = 10,
     Background = Brushes.Transparent,
-    VerticalAlignment = VerticalAlignment.Center,
+    HorizontalAlignment = HorizontalAlignment.Right,
+    VerticalAlignment = VerticalAlignment.Top,
     Margin = new Thickness(0, 0, 2, 0),
     Cursor = Cursors.Hand
    };
@@ -164,20 +151,10 @@ namespace Tgirrr.CadLisp {
     e.Handled = true;
     PinService.Toggle(tool.Id);
    };
-   DockPanel.SetDock(star, Dock.Right);
-   dock.Children.Add(star);
+   grid.Children.Add(star);
    if (stars != null) stars.Add(new ToolChip.Star(tool.Id, star, fromQuickPalette));
 
-   dock.Children.Add(new TextBlock {
-    Text = tool.Label,
-    Foreground = PaletteTheme.Brush(PaletteTheme.MainText),
-    FontSize = 11,
-    FontWeight = FontWeights.SemiBold,
-    Margin = new Thickness(5, 0, 0, 0),
-    VerticalAlignment = VerticalAlignment.Center,
-    TextTrimming = TextTrimming.CharacterEllipsis
-   });
-   b.Content = dock;
+   b.Content = grid;
 
    b.MouseEnter += (s, e) => {
     b.Background = PaletteTheme.Brush(PaletteTheme.BtnHoverBg);
@@ -220,21 +197,17 @@ namespace Tgirrr.CadLisp {
   internal static ToolTip CreateToolTip(TgToolInfo tool) {
    Color accent = PaletteTheme.Accent(tool.Accent);
    var panel = new StackPanel { MaxWidth = 280 };
-   panel.Children.Add(PaletteTheme.MakeText(tool.TipTitle, 11.5, accent, true, new Thickness(0)));
+   // Hover chi hien ten lenh + cach dung ngan (yeu cau UI: nut chi co icon).
+   string head = tool.Cmd;
+   if (tool.Aliases != null && tool.Aliases.Length > 0) head += "  (" + string.Join(", ", tool.Aliases) + ")";
+   panel.Children.Add(PaletteTheme.MakeText(head, 12, accent, true, new Thickness(0)));
    panel.Children.Add(PaletteTheme.MakeText(tool.TipDesc, 11, PaletteTheme.MainText, false, new Thickness(0, 3, 0, 0)));
-   if (!string.IsNullOrEmpty(tool.TipUsage)) {
-    panel.Children.Add(PaletteTheme.MakeText(tool.TipUsage, 10.5, PaletteTheme.MutedText, false, new Thickness(0, 3, 0, 0)));
+   string usage = ShortUsage(tool);
+   if (!string.IsNullOrEmpty(usage)) {
+    panel.Children.Add(PaletteTheme.MakeText("Cách dùng: " + usage, 10.5, PaletteTheme.MutedText, false, new Thickness(0, 3, 0, 0)));
    }
-   string tail = tool.TipCommand;
    if (tool.RequiresSelection) {
-    tail = (string.IsNullOrEmpty(tail) ? "" : tail + "  \u2022  ") + "Chon truoc doi tuong roi bam nut";
-   }
-   if (!string.IsNullOrEmpty(tail)) {
-    panel.Children.Add(PaletteTheme.MakeText(tail, 10.5, PaletteTheme.DimText, false, new Thickness(0, 3, 0, 0)));
-   }
-   if (tool.Aliases != null && tool.Aliases.Length > 0) {
-    panel.Children.Add(PaletteTheme.MakeText("Biet danh: " + string.Join(", ", tool.Aliases) + "  (gõ trực tiếp được)",
-     10.5, PaletteTheme.DimText, false, new Thickness(0, 3, 0, 0)));
+    panel.Children.Add(PaletteTheme.MakeText("Chọn trước đối tượng rồi bấm nút", 10.5, PaletteTheme.DimText, false, new Thickness(0, 3, 0, 0)));
    }
    return new ToolTip {
     Background = PaletteTheme.Brush(PaletteTheme.BgDark),
@@ -244,6 +217,22 @@ namespace Tgirrr.CadLisp {
     Padding = new Thickness(8, 6, 8, 7),
     Content = panel
    };
+  }
+
+  /// <summary>Cau cach dung ngan nhat (1 cau, toi da ~120 ky tu) cho tooltip va dong trang thai.</summary>
+  internal static string ShortUsage(TgToolInfo tool) {
+   string text = string.IsNullOrEmpty(tool.TipUsage) ? tool.TipDesc : tool.TipUsage;
+   if (string.IsNullOrEmpty(text)) return "";
+   int cut = text.IndexOf(". ");
+   if (cut > 12) text = text.Substring(0, cut);
+   text = text.Trim().TrimEnd('.');
+   if (text.Length > 120) {
+    text = text.Substring(0, 117);
+    int space = text.LastIndexOf(' ');
+    if (space > 60) text = text.Substring(0, space);
+    text = text.TrimEnd(',', ';', ':') + "...";
+   }
+   return text;
   }
 
   /// <summary> ★ cua mot nut, giu WeakReference de cap nhat khi danh sach ghim doi.</summary>
@@ -281,7 +270,6 @@ namespace Tgirrr.CadLisp {
   TextBlock hint;
   TextBlock status;
   string filter = "";
-  int columns = 2;
   bool rebuilding;
 
   public PaletteContent() {
@@ -295,23 +283,10 @@ namespace Tgirrr.CadLisp {
     VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
     HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
    };
-   columns = PickColumns(ActualWidth);
-   SizeChanged += OnWidthChanged;
    RebuildBody();
    // Palette Quick Tools cung co the doi ★ -> view nay phai theo (F3).
    PinService.Changed += RefreshPins;
    PreviewKeyDown += OnKeyDown;
-  }
-
-  static int PickColumns(double width) {
-   return width >= PaletteTheme.TwoColumnWidth ? 2 : 1;
-  }
-
-  void OnWidthChanged(object sender, SizeChangedEventArgs e) {
-   int next = PickColumns(e.NewSize.Width);
-   if (next == columns) return;
-   columns = next;
-   RebuildBody();
   }
 
   void OnKeyDown(object sender, KeyEventArgs e) {
@@ -356,12 +331,17 @@ namespace Tgirrr.CadLisp {
    var quickBtn = PaletteTheme.MakeHeaderButton("⚡ Quick", "Mở/đóng palette Quick Tools riêng (TGIRRQUICK)",
     PaletteTheme.Brush(PaletteTheme.MutedText));
    quickBtn.Click += (s, e) => ToolRunner.Run("TGIRRQUICK", true);
-   var reloadBtn = PaletteTheme.MakeHeaderButton("⟳ Nạp lại", "Nạp lại toàn bộ Lisp + plugin (" + CadHost.ReloadCommand + ")",
+    var settingsBtn = PaletteTheme.MakeHeaderButton("⚙", "Bật/tắt nạp từng LISP (TGIRRSETTINGS) — tránh xung đột với LISP khác",
     PaletteTheme.Brush(PaletteTheme.MutedText));
-   reloadBtn.Click += (s, e) => ToolRunner.Run(CadHost.ReloadCommand, false);
-   right.Children.Add(quickBtn);
-   right.Children.Add(new TextBlock { Text = " ", FontSize = 10.5 });
-   right.Children.Add(reloadBtn);
+    settingsBtn.Click += (s, e) => ToolRunner.Run("TGIRRSETTINGS", true);
+    var reloadBtn = PaletteTheme.MakeHeaderButton("⟳ Nạp lại", "Nạp lại toàn bộ Lisp + plugin (" + CadHost.ReloadCommand + ")",
+     PaletteTheme.Brush(PaletteTheme.MutedText));
+    reloadBtn.Click += (s, e) => ToolRunner.Run(CadHost.ReloadCommand, false);
+    right.Children.Add(quickBtn);
+    right.Children.Add(new TextBlock { Text = " ", FontSize = 10.5 });
+    right.Children.Add(settingsBtn);
+    right.Children.Add(new TextBlock { Text = " ", FontSize = 10.5 });
+    right.Children.Add(reloadBtn);
    DockPanel.SetDock(right, Dock.Right);
 
    dock.Children.Add(left);
@@ -492,9 +472,8 @@ namespace Tgirrr.CadLisp {
 
   void ShowToolStatus(TgToolInfo tool) {
    if (status == null || rebuilding) return;
-   string line = tool.TipTitle;
+   string line = tool.Cmd + " \u2014 " + ToolChip.ShortUsage(tool);
    if (tool.RequiresSelection) line += "  \u2022  nên chọn trước đối tượng";
-   else if (tool.Aliases != null && tool.Aliases.Length > 0) line += "  \u2022  biệt danh: " + string.Join(", ", tool.Aliases);
    status.Text = line;
   }
 
@@ -557,26 +536,15 @@ namespace Tgirrr.CadLisp {
    };
    panel.Children.Add(header);
 
-   var groupBody = new StackPanel { Visibility = isOpen ? Visibility.Visible : Visibility.Collapsed };
-   for (int i = 0; i < tools.Count; i += columns) {
-    if (columns == 2 && i + 1 < tools.Count) {
-     var grid = new Grid { Margin = new Thickness(0, 0, 0, 3) };
-     grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-     grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-     var b1 = Chip(tools[i]);
-     b1.Margin = new Thickness(0, 0, 2, 0);
-     grid.Children.Add(b1);
-     Grid.SetColumn(b1, 0);
-     var b2 = Chip(tools[i + 1]);
-     b2.Margin = new Thickness(2, 0, 0, 0);
-     grid.Children.Add(b2);
-     Grid.SetColumn(b2, 1);
-     groupBody.Children.Add(grid);
-    } else {
-     var b = Chip(tools[i]);
-     b.Margin = new Thickness(0, 0, 0, 3);
-     groupBody.Children.Add(b);
-    }
+   var groupBody = new WrapPanel {
+    Orientation = Orientation.Horizontal,
+    Visibility = isOpen ? Visibility.Visible : Visibility.Collapsed,
+    Margin = new Thickness(0, 2, 0, 0)
+   };
+   foreach (TgToolInfo tool in tools) {
+    Button b = Chip(tool);
+    b.Margin = new Thickness(0, 0, 4, 4);
+    groupBody.Children.Add(b);
    }
    panel.Children.Add(groupBody);
    card.Child = panel;
@@ -645,8 +613,6 @@ namespace Tgirrr.CadLisp {
    List<TgToolInfo> tools = PinService.PinnedTools();
    foreach (TgToolInfo tool in tools) {
     var b = ToolChip.Create(tool, true, stars);
-    b.Height = 27;
-    b.MinWidth = 120;
     b.Margin = new Thickness(0, 0, 4, 4);
     b.HorizontalAlignment = HorizontalAlignment.Left;
     panel.Children.Add(b);

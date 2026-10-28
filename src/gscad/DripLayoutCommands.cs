@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace Tgirrr.CadLisp {
  public sealed class DripLayoutCommands {
-  [CommandMethod("VDNG")]
+  [CommandMethod("TGIRRVDNG")]
   public void Run() {
    var doc = Gssoft.Gscad.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument;
    var ed = doc.Editor;

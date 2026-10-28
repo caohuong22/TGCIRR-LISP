@@ -24,16 +24,16 @@ namespace Tgirrr.CadLisp {
    internal double LinetypeScale;
   }
 
-  [CommandMethod("CVPL")]
+  [CommandMethod("TGIRRCVPL")]
   public void ConvertDelete() { Run(false); }
 
-  [CommandMethod("CVP")]
+  [CommandMethod("TGIRRCVP")]
   public void ConvertDeleteAlias() { Run(false); }
 
-  [CommandMethod("CVPLG")]
+  [CommandMethod("TGIRRCVPLG")]
   public void ConvertKeep() { Run(true); }
 
-  [CommandMethod("CV2PL")]
+  [CommandMethod("TGIRRCV2PL")]
   public void ConvertKeepAlias() { Run(true); }
 
   void Run(bool keep) {

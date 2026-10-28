@@ -7,19 +7,19 @@ namespace Tgirrr.CadLisp {
 
  /// <summary>Mot cong cu trong catalog, dung chung cho palette, Quick Tools, menu va docs.</summary>
  internal sealed class TgToolInfo {
-  internal readonly string Id, Cmd, Label, GroupKey, GroupTitle, RibbonPanel, Runner;
+  internal readonly string Id, Cmd, Label, Icon, GroupKey, GroupTitle, RibbonPanel, Runner;
   internal readonly string TipTitle, TipDesc, TipUsage, TipCommand, MenuTag, MenuLabel, MenuHelp;
   internal readonly string[] Aliases, Hosts;
   internal readonly TgToolAccent Accent;
-  internal readonly bool IsTool, KeepSelection, RequiresSelection;
+  internal readonly bool IsTool, KeepSelection, RequiresSelection, Managed;
   internal readonly int Order;
-  internal TgToolInfo(string id, string cmd, string label, string[] aliases, string groupKey, string groupTitle,
+  internal TgToolInfo(string id, string cmd, string label, string icon, string[] aliases, string groupKey, string groupTitle,
     TgToolAccent accent, string ribbonPanel, string[] hosts, int order, bool isTool, bool keepSelection,
-    bool requiresSelection, string runner, string tipTitle, string tipDesc, string tipUsage, string tipCommand,
+    bool requiresSelection, string runner, bool managed, string tipTitle, string tipDesc, string tipUsage, string tipCommand,
     string menuTag, string menuLabel, string menuHelp) {
-      Id = id; Cmd = cmd; Label = label; Aliases = aliases; GroupKey = groupKey; GroupTitle = groupTitle;
+      Id = id; Cmd = cmd; Label = label; Icon = icon; Aliases = aliases; GroupKey = groupKey; GroupTitle = groupTitle;
       Accent = accent; RibbonPanel = ribbonPanel; Hosts = hosts; Order = order; IsTool = isTool;
-      KeepSelection = keepSelection; RequiresSelection = requiresSelection; Runner = runner;
+      KeepSelection = keepSelection; RequiresSelection = requiresSelection; Runner = runner; Managed = managed;
       TipTitle = tipTitle; TipDesc = tipDesc; TipUsage = tipUsage; TipCommand = tipCommand;
       MenuTag = menuTag; MenuLabel = menuLabel; MenuHelp = menuHelp;
     }
@@ -38,154 +38,181 @@ namespace Tgirrr.CadLisp {
   internal static readonly string[] NoAliases = new string[0];
   internal static readonly TgToolInfo[] All = new TgToolInfo[] {
        new TgToolInfo(
-         id: "HBD", cmd: "HBD", label: "Bound Hatch",
+         id: "HBD", cmd: "HBD", label: "Bound Hatch", icon: "boundary",
          aliases: new[] { "BH", "TGBOUND" }, groupKey: "BOUNDARY", groupTitle: "RANH GI\u1edaI & BI\u00caN D\u1ea0NG", accent: TgToolAccent.Cyan,
          ribbonPanel: "RANH GI\u1edaI", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 1, isTool: true,
-         keepSelection: true, requiresSelection: true, runner: "command",
+         keepSelection: true, requiresSelection: true, runner: "command", managed: false,
          tipTitle: "HBD \u2014 V\u1ebd \u0111\u01b0\u1eddng bao Hatch c\u1ecf", tipDesc: "T\u1ef1 \u0111\u1ed9ng t\u1ea1o \u0111\u01b0\u1eddng bao Boundary Polyline k\u00edn quanh c\u00e1c Hatch c\u1ecf tr\u00ean layer TG-BOUND (h\u1ed7 tr\u1ee3 join m\u1ea3ng gi\u00e1p nhau).",
          tipUsage: "Ch\u1ecdn tr\u01b0\u1edbc c\u00e1c Hatch r\u1ed3i b\u1ea5m n\u00fat, ho\u1eb7c b\u1ea5m n\u00fat r\u1ed3i qu\u00e9t ch\u1ecdn. T\u00f9y ch\u1ecdn M l\u1ecdc theo m\u1eabu c\u1ecf, J t\u1ef1 h\u1ee3p nh\u1ea5t m\u1ea3ng gi\u00e1p nhau. \u0110\u01b0\u1eddng bao n\u1eb1m tr\u00ean layer TG-BOUND.", tipCommand: "L\u1ec7nh: HBD (ho\u1eb7c BH, TGBOUND)",
          menuTag: "HBD", menuLabel: "Ve duong bao Hatch co (&HBD)",
          menuHelp: "Ve duong bao Boundary Polyline xung quanh cac doi tuong Hatch co"),
        new TgToolInfo(
-         id: "JH", cmd: "JH", label: "G\u1ed9p Hatch",
+         id: "JH", cmd: "JH", label: "G\u1ed9p Hatch", icon: "join-hatch",
          aliases: new[] { "MH", "JOINHATCH" }, groupKey: "BOUNDARY", groupTitle: "RANH GI\u1edaI & BI\u00caN D\u1ea0NG", accent: TgToolAccent.Cyan,
          ribbonPanel: "RANH GI\u1edaI", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 2, isTool: true,
-         keepSelection: true, requiresSelection: true, runner: "command",
+         keepSelection: true, requiresSelection: true, runner: "command", managed: false,
          tipTitle: "JH \u2014 G\u1ed9p c\u00e1c Hatch th\u00e0nh 1", tipDesc: "H\u1ee3p nh\u1ea5t c\u00e1c Hatch ph\u00e2n m\u1ea3nh gi\u00e1p nhau th\u00e0nh 1 Hatch duy nh\u1ea5t v\u00e0 t\u1ea1o \u0111\u01b0\u1eddng bao chung tr\u00ean layer TG-BOUND.",
          tipUsage: "Ch\u1ecdn 2 ho\u1eb7c nhi\u1ec1u Hatch ph\u00e2n m\u1ea3nh gi\u00e1p nhau r\u1ed3i b\u1ea5m n\u00fat JH. L\u1ec7nh tri\u1ec7t ti\u00eau v\u00e1ch ng\u0103n \u1edf gi\u1eefa, t\u1ea1o 1 Hatch m\u1edbi v\u00e0 1 \u0111\u01b0\u1eddng bao chung.", tipCommand: "L\u1ec7nh: JH (ho\u1eb7c MH, JOINHATCH)",
          menuTag: "JH", menuLabel: "Gop cac Hatch thanh 1 (&JH)",
          menuHelp: "Gop cac Hatch phan manh giap nhau thanh 1 va tao duong bao chung"),
        new TgToolInfo(
-         id: "SP2PL", cmd: "SP2PL", label: "Spline/Region sang Polyline",
+         id: "SP2PL", cmd: "SP2PL", label: "Spline/Region sang Polyline", icon: "spline-polyline",
          aliases: new[] { "REG2PL", "C2PL" }, groupKey: "BOUNDARY", groupTitle: "RANH GI\u1edaI & BI\u00caN D\u1ea0NG", accent: TgToolAccent.Cyan,
          ribbonPanel: "RANH GI\u1edaI", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 3, isTool: true,
-         keepSelection: false, requiresSelection: false, runner: "command",
+         keepSelection: false, requiresSelection: false, runner: "command", managed: false,
          tipTitle: "SP2PL \u2014 Chuy\u1ec3n Spline/Region sang Polyline", tipDesc: "Chuy\u1ec3n nhanh c\u00e1c \u0111\u1ed1i t\u01b0\u1ee3ng SPLINE v\u00e0 REGION th\u00e0nh LWPOLYLINE kh\u00e9p k\u00edn, gi\u1eef layer/m\u00e0u/ki\u1ec3u n\u00e9t.",
          tipUsage: "B\u1ea5m n\u00fat r\u1ed3i qu\u00e9t ch\u1ecdn c\u00e1c SPLINE/REGION c\u1ea7n chuy\u1ec3n. G\u00f5 REG2PL ho\u1eb7c C2PL n\u1ebfu quen t\u00ean c\u0169.", tipCommand: "L\u1ec7nh: SP2PL (ho\u1eb7c REG2PL, C2PL)",
          menuTag: "SP2PL", menuLabel: "Chuyen SPLINE/REGION sang Polyline (&SP2PL)",
          menuHelp: "Chuyen nhanh cac doi tuong SPLINE/REGION sang LWPOLYLINE khap kin"),
        new TgToolInfo(
-         id: "CVPL", cmd: "CVPL", label: "Convert sang Polyline",
+         id: "CVPL", cmd: "CVPL", label: "Convert sang Polyline", icon: "convert-polyline",
          aliases: new[] { "CVP", "CVPLG", "CV2PL" }, groupKey: "BOUNDARY", groupTitle: "RANH GI\u1edaI & BI\u00caN D\u1ea0NG", accent: TgToolAccent.Cyan,
          ribbonPanel: "RANH GI\u1edaI", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 4, isTool: true,
-         keepSelection: true, requiresSelection: false, runner: "command",
+         keepSelection: true, requiresSelection: false, runner: "command", managed: true,
          tipTitle: "CVPL \u2014 Convert LINE/ARC/CIRCLE/SPLINE sang Polyline", tipDesc: "Chuy\u1ec3n LINE, ARC, CIRCLE, ELLIPSE, SPLINE, POLYLINE ki\u1ec3u c\u0169 v\u00e0 REGION th\u00e0nh LWPOLYLINE; gi\u1eef layer/m\u00e0u/n\u00e9t. G\u00f5 CVPLG \u0111\u1ec3 gi\u1eef \u0111\u1ed1i t\u01b0\u1ee3ng ngu\u1ed3n.",
          tipUsage: "B\u1ea5m n\u00fat r\u1ed3i qu\u00e9t ch\u1ecdn \u0111\u1ed1i t\u01b0\u1ee3ng c\u1ea7n chuy\u1ec3n. ARC/CIRCLE chuy\u1ec3n ch\u00ednh x\u00e1c b\u1eb1ng bulge; SPLINE/ELLIPSE r\u1eddi r\u1ea1c 128 \u0111i\u1ec3m m\u1eabu.", tipCommand: "L\u1ec7nh: CVPL (ho\u1eb7c CVP, CVPLG)",
          menuTag: "CVPL", menuLabel: "Chuyen LINE/ARC/CIRCLE/SPLINE sang Polyline (&CVPL)",
          menuHelp: "Chuyen LINE/ARC/CIRCLE/ELLIPSE/SPLINE/POLYLINE/REGION sang LWPOLYLINE (CVPLG giu nguon)"),
        new TgToolInfo(
-         id: "SBS", cmd: "SBS", label: "Ch\u1ecdn theo m\u1eabu",
+         id: "SBS", cmd: "SBS", label: "Ch\u1ecdn theo m\u1eabu", icon: "select-similar",
          aliases: TgToolCatalog.NoAliases, groupKey: "BOUNDARY", groupTitle: "RANH GI\u1edaI & BI\u00caN D\u1ea0NG", accent: TgToolAccent.Cyan,
          ribbonPanel: "CH\u1eccN", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 5, isTool: true,
-         keepSelection: false, requiresSelection: false, runner: "command",
+         keepSelection: false, requiresSelection: false, runner: "command", managed: false,
          tipTitle: "SBS \u2014 Ch\u1ecdn \u0111\u1ed1i t\u01b0\u1ee3ng gi\u1ed1ng m\u1eabu trong v\u00f9ng", tipDesc: "Ch\u1ecdn c\u00e1c \u0111\u1ed1i t\u01b0\u1ee3ng n\u1eb1m trong Polyline k\u00edn c\u00f3 c\u00f9ng layer, m\u00e0u s\u1eafc, ki\u1ec3u n\u00e9t ho\u1eb7c t\u00ean Block v\u1edbi m\u1eabu.",
          tipUsage: "Ch\u1ecdn Polyline k\u00edn l\u00e0m v\u00f9ng bao, ch\u1ecdn m\u1ed9t \u0111\u1ed1i t\u01b0\u1ee3ng m\u1eabu; c\u00e1c \u0111\u1ed1i t\u01b0\u1ee3ng gi\u1ed1ng m\u1eabu n\u1eb1m ph\u1ea7n l\u1edbn trong v\u00f9ng s\u1ebd \u0111\u01b0\u1ee3c ch\u1ecdn.", tipCommand: "L\u1ec7nh: SBS",
          menuTag: "SBS", menuLabel: "Chon doi tuong giong mau (&SBS)",
          menuHelp: "Chon cac doi tuong giong mau nam phan lon trong Polyline kin"),
        new TgToolInfo(
-         id: "SBSE", cmd: "SBSE", label: "Ch\u1ecdn ch\u00ednh x\u00e1c",
-         aliases: TgToolCatalog.NoAliases, groupKey: "BOUNDARY", groupTitle: "RANH GI\u1edaI & BI\u00caN D\u1ea0NG", accent: TgToolAccent.Cyan,
+         id: "SBSE", cmd: "SBSE", label: "Ch\u1ecdn ch\u00ednh x\u00e1c", icon: "select-exact",
+         aliases: new[] { "SBE", "SE" }, groupKey: "BOUNDARY", groupTitle: "RANH GI\u1edaI & BI\u00caN D\u1ea0NG", accent: TgToolAccent.Cyan,
          ribbonPanel: "CH\u1eccN", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 6, isTool: true,
-         keepSelection: false, requiresSelection: false, runner: "command",
+         keepSelection: false, requiresSelection: false, runner: "command", managed: false,
          tipTitle: "SBSE \u2014 Ch\u1ecdn ch\u00ednh x\u00e1c theo m\u1eabu (tr\u00f9ng ch\u1eef)", tipDesc: "Ch\u1ecdn c\u00e1c \u0111\u1ed1i t\u01b0\u1ee3ng trong v\u00f9ng Polyline k\u00edn c\u00f3 c\u00f9ng layer, m\u00e0u, ki\u1ec3u n\u00e9t v\u00e0 B\u1eaeT BU\u1ed8C tr\u00f9ng n\u1ed9i dung ch\u1eef v\u1edbi TEXT/MTEXT.",
-         tipUsage: "Ch\u1ecdn Polyline k\u00edn l\u00e0m v\u00f9ng bao r\u1ed3i ch\u1ecdn m\u1ed9t \u0111\u1ed1i t\u01b0\u1ee3ng m\u1eabu. Ch\u1ec9 \u0111\u1ed1i t\u01b0\u1ee3ng tr\u00f9ng kh\u1edbp ho\u00e0n to\u00e0n (n\u1ed9i dung ch\u1eef, t\u00ean block k\u1ec3 c\u1ea3 Dynamic Block) n\u1eb1m trong v\u00f9ng \u0111\u01b0\u1ee3c ch\u1ecdn.", tipCommand: "L\u1ec7nh: SBSE",
+         tipUsage: "Ch\u1ecdn Polyline k\u00edn l\u00e0m v\u00f9ng bao r\u1ed3i ch\u1ecdn m\u1ed9t \u0111\u1ed1i t\u01b0\u1ee3ng m\u1eabu. Ch\u1ec9 \u0111\u1ed1i t\u01b0\u1ee3ng tr\u00f9ng kh\u1edbp ho\u00e0n to\u00e0n (n\u1ed9i dung ch\u1eef, t\u00ean block k\u1ec3 c\u1ea3 Dynamic Block) n\u1eb1m trong v\u00f9ng \u0111\u01b0\u1ee3c ch\u1ecdn.", tipCommand: "L\u1ec7nh: SBSE (ho\u1eb7c SBE, SE)",
          menuTag: "SBSE", menuLabel: "Chon chinh xac theo mau (trung chu) (&SBSE)",
          menuHelp: "Chon chinh xac doi tuong theo mau trong bien kin (trung ca noi dung TEXT/MTEXT)"),
        new TgToolInfo(
-         id: "VDNG", cmd: "VDNG", label: "D\u00e2y nh\u1ecf gi\u1ecdt",
+         id: "SCH", cmd: "SCH", label: "Ch\u1ecdn Hatch c\u00f9ng m\u1eabu", icon: "select-hatch",
+         aliases: new[] { "SH" }, groupKey: "BOUNDARY", groupTitle: "RANH GI\u1edaI & BI\u00caN D\u1ea0NG", accent: TgToolAccent.Cyan,
+         ribbonPanel: "CH\u1eccN", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 7, isTool: true,
+         keepSelection: false, requiresSelection: false, runner: "command", managed: false,
+         tipTitle: "SCH \u2014 Ch\u1ecdn Hatch c\u00f9ng m\u1eabu", tipDesc: "Ch\u1ecdn nhanh c\u00e1c Hatch c\u00f9ng layer chuy\u00ean d\u1ee5ng ho\u1eb7c tr\u00f9ng m\u00e0u v\u00e0 pattern v\u1edbi Hatch m\u1eabu.",
+         tipUsage: "Ch\u1ecdn m\u1ed9t Hatch l\u00e0m m\u1eabu, r\u1ed3i qu\u00e9t v\u00f9ng c\u1ea7n l\u1ecdc; nh\u1ea5n Enter \u0111\u1ec3 t\u00ecm trong to\u00e0n b\u1ed9 b\u1ea3n v\u1ebd hi\u1ec7n h\u00e0nh.", tipCommand: "L\u1ec7nh: SCH (ho\u1eb7c SH)",
+         menuTag: "SCH", menuLabel: "Chon Hatch cung mau (&SCH)",
+         menuHelp: "Chon nhanh Hatch cung layer, mau va pattern theo Hatch mau"),
+       new TgToolInfo(
+         id: "VDNG", cmd: "VDNG", label: "D\u00e2y nh\u1ecf gi\u1ecdt", icon: "drip",
          aliases: TgToolCatalog.NoAliases, groupKey: "DESIGN", groupTitle: "THI\u1ebeT K\u1ebe & H\u1ec6 TH\u1ed0NG", accent: TgToolAccent.Green,
-         ribbonPanel: "N\u00c9T V\u1ebc", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 7, isTool: true,
-         keepSelection: false, requiresSelection: false, runner: "command",
+         ribbonPanel: "N\u00c9T V\u1ebc", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 8, isTool: true,
+         keepSelection: false, requiresSelection: false, runner: "command", managed: true,
          tipTitle: "VDNG \u2014 R\u1ea3i d\u00e2y nh\u1ecf gi\u1ecdt", tipDesc: "V\u1ebd d\u00e2y nh\u1ecf gi\u1ecdt t\u1ef1 do c\u00f3 bo g\u00f3c ho\u1eb7c offset song song theo \u0111\u01b0\u1eddng ranh gi\u1edbi b\u00ean trong boundary k\u00edn.",
          tipUsage: "Ch\u1ecdn Boundary k\u00edn (LWPOLYLINE/CIRCLE), \u0111\u1eb7t kho\u1ea3ng c\u00e1ch d\u00e2y v\u00e0 kho\u1ea3ng l\u00f9i r\u1ed3i b\u1ea5m R\u1ea2I D\u00c2Y. M\u1eb7c \u0111\u1ecbnh h\u00e0ng d\u00e2y th\u1eb3ng song song tr\u1ee5c d\u00e0i c\u1ee7a Boundary.", tipCommand: "L\u1ec7nh: VDNG",
          menuTag: "VDNG", menuLabel: "Rai day nho giot (&VDNG)",
          menuHelp: "Ve day nho giot ben trong Boundary kin"),
        new TgToolInfo(
-         id: "TNET", cmd: "TNET", label: "N\u00e9t v\u1ebd c\u00f3 ch\u1eef",
+         id: "TNET", cmd: "TNET", label: "N\u00e9t v\u1ebd c\u00f3 ch\u1eef", icon: "linetype",
          aliases: TgToolCatalog.NoAliases, groupKey: "DESIGN", groupTitle: "THI\u1ebeT K\u1ebe & H\u1ec6 TH\u1ed0NG", accent: TgToolAccent.Green,
-         ribbonPanel: "N\u00c9T V\u1ebc", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 8, isTool: true,
-         keepSelection: false, requiresSelection: false, runner: "window",
+         ribbonPanel: "N\u00c9T V\u1ebc", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 9, isTool: true,
+         keepSelection: false, requiresSelection: false, runner: "window", managed: true,
          tipTitle: "TNET \u2014 T\u1ea1o n\u00e9t v\u1ebd c\u00f3 ch\u1eef (LIN)", tipDesc: "M\u1edf h\u1ed9p tho\u1ea1i tr\u1ef1c quan thi\u1ebft k\u1ebf n\u00e9t v\u1ebd AutoCAD/ZWCAD c\u00f3 ch\u1eef v\u00e0 n\u1ea1p tr\u1ef1c ti\u1ebfp v\u00e0o b\u1ea3n v\u1ebd.",
          tipUsage: "Nh\u1eadp t\u00ean, \u0111o\u1ea1n g\u1ea1ch, kho\u1ea3ng tr\u1ed1ng, n\u1ed9i dung ch\u1eef v\u00e0 t\u1ef7 l\u1ec7; xem tr\u01b0\u1edbc r\u1ed3i b\u1ea5m T\u1ea1o v\u00e0 n\u1ea1p v\u00e0o CAD.", tipCommand: "C\u1eeda s\u1ed5: TNET",
          menuTag: "TNET", menuLabel: "Tao net ve co chu (&TNET)",
          menuHelp: "Mo hop thoai tao/chinh sua net ve co chu (file LIN)"),
        new TgToolInfo(
-         id: "TGL", cmd: "TGL", label: "T\u1ea1o Layer chu\u1ea9n ho\u1eb7c th\u00eam Layer v\u00e0o kho",
+         id: "TGL", cmd: "TGL", label: "T\u1ea1o Layer chu\u1ea9n", icon: "layers",
          aliases: TgToolCatalog.NoAliases, groupKey: "DESIGN", groupTitle: "THI\u1ebeT K\u1ebe & H\u1ec6 TH\u1ed0NG", accent: TgToolAccent.Green,
-         ribbonPanel: "LAYER", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 9, isTool: true,
-         keepSelection: false, requiresSelection: false, runner: "command",
-         tipTitle: "TGL \u2014 T\u1ea1o b\u1ed9 Layer ti\u00eau chu\u1ea9n / th\u00eam Layer v\u00e0o kho", tipDesc: "Kh\u1edfi t\u1ea1o nhanh b\u1ed9 24 layer chu\u1ea9n TGIRR (t\u00ean, m\u00e0u, n\u00e9t) v\u00e0 \u0111\u1eb7t TG-DRIP l\u00e0m layer hi\u1ec7n h\u00e0nh.",
+         ribbonPanel: "LAYER", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 10, isTool: true,
+         keepSelection: false, requiresSelection: false, runner: "command", managed: true,
+         tipTitle: "TGL \u2014 T\u1ea1o b\u1ed9 Layer ti\u00eau chu\u1ea9n", tipDesc: "Kh\u1edfi t\u1ea1o nhanh b\u1ed9 24 layer chu\u1ea9n TGIRR (t\u00ean, m\u00e0u, n\u00e9t) v\u00e0 \u0111\u1eb7t TG-DRIP l\u00e0m layer hi\u1ec7n h\u00e0nh.",
          tipUsage: "B\u1ea5m n\u00fat: l\u1ec7nh t\u1ef1 t\u1ea1o c\u00e1c layer c\u00f2n thi\u1ebfu v\u00e0 gi\u1eef nguy\u00ean layer \u0111\u00e3 c\u00f3.", tipCommand: "L\u1ec7nh: TGL",
          menuTag: "TGL", menuLabel: "Tao bo layer chuan (&TGL)",
          menuHelp: "Tao bo layer tieu chuan va dat TG-DRIP lam layer hien hanh"),
        new TgToolInfo(
-         id: "TL", cmd: "TL", label: "\u0110o chi\u1ec1u d\u00e0i",
-         aliases: TgToolCatalog.NoAliases, groupKey: "UTIL", groupTitle: "GHI CH\u00da & TI\u1ec6N \u00cdCH", accent: TgToolAccent.Amber,
-         ribbonPanel: "\u0110O", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 10, isTool: true,
-         keepSelection: true, requiresSelection: true, runner: "command",
-         tipTitle: "TL \u2014 T\u00ednh t\u1ed5ng chi\u1ec1u d\u00e0i", tipDesc: "C\u1ed9ng d\u1ed3n t\u1ed5ng chi\u1ec1u d\u00e0i c\u1ee7a t\u1ea5t c\u1ea3 Line, Polyline, Arc, Circle, Spline, Ellipse \u0111\u01b0\u1ee3c ch\u1ecdn tr\u01b0\u1edbc.",
-         tipUsage: "Ch\u1ecdn tr\u01b0\u1edbc to\u00e0n b\u1ed9 \u0111\u1ed1i t\u01b0\u1ee3ng c\u1ea7n t\u00ednh r\u1ed3i b\u1ea5m n\u00fat. T\u1ed5ng chi\u1ec1u d\u00e0i hi\u1ec7n trong h\u1ed9p tho\u1ea1i.", tipCommand: "L\u1ec7nh: TL (ch\u1ecdn tr\u01b0\u1edbc r\u1ed3i b\u1ea5m n\u00fat)",
-         menuTag: "TL", menuLabel: "Tong chieu dai (&TL)",
-         menuHelp: "Cong tong chieu dai cac duong da chon truoc"),
+         id: "TGLADD", cmd: "TGLADD", label: "Th\u00eam Layer v\u00e0o kho", icon: "layer-add",
+         aliases: TgToolCatalog.NoAliases, groupKey: "DESIGN", groupTitle: "THI\u1ebeT K\u1ebe & H\u1ec6 TH\u1ed0NG", accent: TgToolAccent.Green,
+         ribbonPanel: "LAYER", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 11, isTool: true,
+         keepSelection: false, requiresSelection: false, runner: "command", managed: true,
+         tipTitle: "TGLADD \u2014 Th\u00eam Layer v\u00e0o kho", tipDesc: "T\u1ea1o ho\u1eb7c c\u1eadp nh\u1eadt m\u1ed9t Layer, r\u1ed3i l\u01b0u t\u00ean, m\u00e0u ACI v\u00e0 ki\u1ec3u n\u00e9t v\u00e0o kho Layer TGIRR \u0111\u1ec3 TGL d\u00f9ng \u1edf c\u00e1c b\u1ea3n v\u1ebd sau.",
+         tipUsage: "Nh\u1eadp t\u00ean Layer, m\u00e0u ACI v\u00e0 ki\u1ec3u n\u00e9t. N\u1ebfu Layer \u0111\u00e3 c\u00f3 trong kho, l\u1ec7nh s\u1ebd c\u1eadp nh\u1eadt c\u1ea5u h\u00ecnh c\u1ee7a Layer \u0111\u00f3.", tipCommand: "L\u1ec7nh: TGLADD",
+         menuTag: "TGLADD", menuLabel: "Them Layer vao kho (&TGLADD)",
+         menuHelp: "Tao/cap nhat Layer va luu mau, net vao kho Layer TGIRR"),
        new TgToolInfo(
-         id: "TGN", cmd: "TGN", label: "\u0110\u00e1nh s\u1ed1 nh\u00e3n",
+         id: "TL", cmd: "TL", label: "\u0110o chi\u1ec1u d\u00e0i", icon: "measure",
          aliases: TgToolCatalog.NoAliases, groupKey: "UTIL", groupTitle: "GHI CH\u00da & TI\u1ec6N \u00cdCH", accent: TgToolAccent.Amber,
-         ribbonPanel: "V\u0102N B\u1ea2N", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 11, isTool: true,
-         keepSelection: false, requiresSelection: false, runner: "dialog",
+         ribbonPanel: "\u0110O", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 12, isTool: true,
+         keepSelection: true, requiresSelection: true, runner: "command", managed: true,
+         tipTitle: "TL \u2014 T\u00ednh t\u1ed5ng chi\u1ec1u d\u00e0i", tipDesc: "C\u1ed9ng d\u1ed3n t\u1ed5ng chi\u1ec1u d\u00e0i c\u1ee7a t\u1ea5t c\u1ea3 Line, Polyline, Arc, Circle, Spline, Ellipse \u0111\u01b0\u1ee3c ch\u1ecdn tr\u01b0\u1edbc.",
+         tipUsage: "Ch\u1ecdn tr\u01b0\u1edbc to\u00e0n b\u1ed9 \u0111\u1ed1i t\u01b0\u1ee3ng r\u1ed3i b\u1ea5m n\u00fat, ho\u1eb7c b\u1ea5m n\u00fat r\u1ed3i qu\u00e9t ch\u1ecdn khi \u0111\u01b0\u1ee3c h\u1ecfi. T\u1ed5ng chi\u1ec1u d\u00e0i hi\u1ec7n trong h\u1ed9p tho\u1ea1i v\u00e0 \u1edf d\u00f2ng l\u1ec7nh.", tipCommand: "L\u1ec7nh: TL (ch\u1ecdn tr\u01b0\u1edbc ho\u1eb7c ch\u1ecdn khi \u0111\u01b0\u1ee3c h\u1ecfi)",
+         menuTag: "TL", menuLabel: "Tong chieu dai (&TL)",
+         menuHelp: "Cong tong chieu dai cac duong da chon truoc (hoac chon khi duoc hoi)"),
+       new TgToolInfo(
+         id: "TGN", cmd: "TGN", label: "\u0110\u00e1nh s\u1ed1 nh\u00e3n", icon: "number",
+         aliases: TgToolCatalog.NoAliases, groupKey: "UTIL", groupTitle: "GHI CH\u00da & TI\u1ec6N \u00cdCH", accent: TgToolAccent.Amber,
+         ribbonPanel: "V\u0102N B\u1ea2N", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 13, isTool: true,
+         keepSelection: false, requiresSelection: false, runner: "dialog", managed: true,
          tipTitle: "TGN \u2014 \u0110\u00e1nh s\u1ed1 v\u00f9ng t\u01b0\u1edbi / \u0111\u1ed1i t\u01b0\u1ee3ng", tipDesc: "T\u1ef1 \u0111\u1ed9ng \u0111\u00e1nh s\u1ed1 th\u1ee9 t\u1ef1 trong nh\u00e3n tr\u00f2n ho\u1eb7c ellipse theo t\u1ecda \u0111\u1ed9 ho\u1eb7c b\u00e1m theo \u0111\u01b0\u1eddng Polyline.",
          tipUsage: "Ch\u1ecdn ph\u1ea1m vi, s\u1ed1 b\u1eaft \u0111\u1ea7u, b\u01b0\u1edbc nh\u1ea3y, k\u00edch th\u01b0\u1edbc khung v\u00e0 chi\u1ec1u cao ch\u1eef trong h\u1ed9p tho\u1ea1i; c\u00f3 th\u1ec3 s\u1eafp th\u1ee9 t\u1ef1 th\u1ee7 c\u00f4ng, theo t\u1ecda \u0111\u1ed9 ho\u1eb7c theo m\u1ed9t \u0111\u01b0\u1eddng d\u1eabn Polyline.", tipCommand: "L\u1ec7nh: TGN",
          menuTag: "TGN", menuLabel: "Danh so doi tuong / vung tuoi (&TGN)",
          menuHelp: "Danh so doi tuong / vung tuoi bang nhan tron/ellipse"),
        new TgToolInfo(
-         id: "CPLUS", cmd: "CPLUS", label: "Copy theo quy lu\u1eadt",
+         id: "CPLUS", cmd: "CPLUS", label: "Copy theo quy lu\u1eadt", icon: "copy",
          aliases: TgToolCatalog.NoAliases, groupKey: "UTIL", groupTitle: "GHI CH\u00da & TI\u1ec6N \u00cdCH", accent: TgToolAccent.Amber,
-         ribbonPanel: "V\u0102N B\u1ea2N", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 12, isTool: true,
-         keepSelection: false, requiresSelection: false, runner: "dialog",
+         ribbonPanel: "V\u0102N B\u1ea2N", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 14, isTool: true,
+         keepSelection: false, requiresSelection: false, runner: "dialog", managed: true,
          tipTitle: "CPLUS \u2014 Copy v\u0103n b\u1ea3n theo quy lu\u1eadt", tipDesc: "Sao ch\u00e9p Text, MText, Multileader, Block Attribute ho\u1eb7c Dimension t\u0103ng d\u1ea7n theo s\u1ed1, ch\u1eef ho\u1eb7c danh s\u00e1ch.",
          tipUsage: "Ch\u1ecdn n\u1ed9i dung c\u1ea7n t\u0103ng trong UI r\u1ed3i b\u1ea5m li\u00ean ti\u1ebfp c\u00e1c \u0111i\u1ec3m \u0111\u1eb7t. V\u1edbi Attribute, CPLUS copy nguy\u00ean Block v\u00e0 ch\u1ec9 \u0111\u1ed5i \u0111\u00fang Attribute \u0111\u00e3 ch\u1ecdn.", tipCommand: "C\u1eeda s\u1ed5 / L\u1ec7nh: CPLUS",
          menuTag: "CPLUS", menuLabel: "Copy theo quy lu\u1eadt (&CPLUS)",
          menuHelp: "Copy TEXT/MTEXT/Multileader/Attribute/Dimension theo quy luat"),
        new TgToolInfo(
-         id: "DOITEXT", cmd: "DOITEXT", label: "\u0110\u1ed5i MText sang Text",
-         aliases: new[] { "M2T" }, groupKey: "UTIL", groupTitle: "GHI CH\u00da & TI\u1ec6N \u00cdCH", accent: TgToolAccent.Amber,
-         ribbonPanel: "V\u0102N B\u1ea2N", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 13, isTool: true,
-         keepSelection: false, requiresSelection: false, runner: "command",
+         id: "DOITEXT", cmd: "DOITEXT", label: "\u0110\u1ed5i MText sang Text", icon: "mtext-text",
+         aliases: new[] { "M2T", "MTEXT2TEXT" }, groupKey: "UTIL", groupTitle: "GHI CH\u00da & TI\u1ec6N \u00cdCH", accent: TgToolAccent.Amber,
+         ribbonPanel: "V\u0102N B\u1ea2N", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 15, isTool: true,
+         keepSelection: false, requiresSelection: false, runner: "command", managed: false,
          tipTitle: "DOITEXT \u2014 \u0110\u1ed5i MText sang Text v\u00e0 Gom list", tipDesc: "Chuy\u1ec3n \u0111\u1ed5i MText sang Text t\u1ea1i ch\u1ed7 ho\u1eb7c gom nhi\u1ec1u MText th\u00e0nh 1 danh s\u00e1ch c\u1ed9t th\u1eb3ng h\u00e0ng \u0111\u1ec1u \u0111\u1eb7n.",
-         tipUsage: "Ch\u1ecdn c\u00e1c MText c\u1ea7n chuy\u1ec3n, ch\u1ecdn ch\u1ebf \u0111\u1ed9 List (gom danh s\u00e1ch) ho\u1eb7c In-place (t\u1ea1i ch\u1ed7), r\u1ed3i pick \u0111i\u1ec3m \u0111\u1eb7t v\u00e0 kho\u1ea3ng c\u00e1ch d\u00f2ng n\u1ebfu ch\u1ecdn List.", tipCommand: "L\u1ec7nh: DOITEXT (ho\u1eb7c M2T)",
+         tipUsage: "Ch\u1ecdn c\u00e1c MText c\u1ea7n chuy\u1ec3n, ch\u1ecdn ch\u1ebf \u0111\u1ed9 List (gom danh s\u00e1ch) ho\u1eb7c In-place (t\u1ea1i ch\u1ed7), r\u1ed3i pick \u0111i\u1ec3m \u0111\u1eb7t v\u00e0 kho\u1ea3ng c\u00e1ch d\u00f2ng n\u1ebfu ch\u1ecdn List.", tipCommand: "L\u1ec7nh: DOITEXT (ho\u1eb7c M2T, MTEXT2TEXT)",
          menuTag: "DOITEXT", menuLabel: "Chuyen MText sang Text / Gom list (&DOITEXT)",
          menuHelp: "Chuyen MText sang Text tai cho hoac gom nhieu MText thanh 1 danh sach cot thang hang"),
        new TgToolInfo(
-         id: "DOIMTEXT", cmd: "DOIMTEXT", label: "G\u1ed9p Text th\u00e0nh MText",
+         id: "DOIMTEXT", cmd: "DOIMTEXT", label: "G\u1ed9p Text th\u00e0nh MText", icon: "text-mtext",
          aliases: new[] { "T2M", "TEXT2MTEXT" }, groupKey: "UTIL", groupTitle: "GHI CH\u00da & TI\u1ec6N \u00cdCH", accent: TgToolAccent.Amber,
-         ribbonPanel: "V\u0102N B\u1ea2N", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 14, isTool: true,
-         keepSelection: false, requiresSelection: false, runner: "command",
+         ribbonPanel: "V\u0102N B\u1ea2N", hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 16, isTool: true,
+         keepSelection: false, requiresSelection: false, runner: "command", managed: false,
          tipTitle: "DOIMTEXT \u2014 G\u1ed9p nhi\u1ec1u Text th\u00e0nh 1 MText nhi\u1ec1u \u0111o\u1ea1n", tipDesc: "G\u1ed9p c\u00e1c d\u00f2ng TEXT \u0111\u00e3 ch\u1ecdn th\u00e0nh m\u1ed9t MTEXT nhi\u1ec1u \u0111o\u1ea1n (m\u1ed7i TEXT l\u00e0 1 \u0111o\u1ea1n) \u0111\u1ec3 ch\u00e8n/s\u1eeda nhi\u1ec1u \u0111o\u1ea1n v\u00e0 Enter xu\u1ed1ng d\u00f2ng trong c\u00f9ng m\u1ed9t \u0111\u1ed1i t\u01b0\u1ee3ng.",
          tipUsage: "Ch\u1ecdn c\u00e1c TEXT c\u1ea7n g\u1ed9p, pick \u0111i\u1ec3m ch\u00e8n MTEXT (Enter \u0111\u1ec3 l\u1ea5y \u0111i\u1ec3m g\u1ed1c tr\u00ean c\u00f9ng), r\u1ed3i ch\u1ecdn x\u00f3a hay gi\u1eef TEXT g\u1ed1c.", tipCommand: "L\u1ec7nh: DOIMTEXT (ho\u1eb7c T2M, TEXT2MTEXT)",
          menuTag: "DOIMTEXT", menuLabel: "Gop nhieu Text thanh 1 MText (&T2M)",
          menuHelp: "Gop cac dong TEXT thanh 1 MTEXT nhieu doan (Enter xuong dong trong MTEXT)"),
        new TgToolInfo(
-         id: "TGIRRPALETTE", cmd: "TGIRRPALETTE", label: "B\u1ea3ng c\u00f4ng c\u1ee5 Palette",
+         id: "TGIRRPALETTE", cmd: "TGIRRPALETTE", label: "B\u1ea3ng c\u00f4ng c\u1ee5 Palette", icon: "palette",
          aliases: TgToolCatalog.NoAliases, groupKey: null, groupTitle: null, accent: TgToolAccent.Cyan,
-         ribbonPanel: null, hosts: new[] { "ZWCAD", "GstarCAD" }, order: 15, isTool: false,
-         keepSelection: false, requiresSelection: false, runner: "",
+         ribbonPanel: null, hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 17, isTool: false,
+         keepSelection: false, requiresSelection: false, runner: "", managed: false,
          tipTitle: "TGIRRPALETTE \u2014 B\u1ea3ng c\u00f4ng c\u1ee5 Palette", tipDesc: "B\u1eadt/t\u1eaft palette c\u00f4ng c\u1ee5 TGIRR CAD ch\u1ee9a to\u00e0n b\u1ed9 l\u1ec7nh theo nh\u00f3m.",
          tipUsage: "Palette t\u1ef1 nh\u1edb v\u1ecb tr\u00ed, k\u00edch th\u01b0\u1edbc v\u00e0 tr\u1ea1ng th\u00e1i neo gi\u1eefa c\u00e1c phi\u00ean CAD.", tipCommand: "L\u1ec7nh: TGIRRPALETTE",
          menuTag: "PALETTE", menuLabel: "Bang cong cu Palette (&PALETTE)",
          menuHelp: "Bat hoac tat bang cong cu TGIRR CAD Palette"),
        new TgToolInfo(
-         id: "TGIRRQUICK", cmd: "TGIRRQUICK", label: "Palette Quick Tools",
+         id: "TGIRRQUICK", cmd: "TGIRRQUICK", label: "Palette Quick Tools", icon: "quick",
          aliases: TgToolCatalog.NoAliases, groupKey: null, groupTitle: null, accent: TgToolAccent.Cyan,
-         ribbonPanel: null, hosts: new[] { "ZWCAD", "GstarCAD" }, order: 16, isTool: false,
-         keepSelection: false, requiresSelection: false, runner: "",
+         ribbonPanel: null, hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 18, isTool: false,
+         keepSelection: false, requiresSelection: false, runner: "", managed: false,
          tipTitle: "TGIRRQUICK \u2014 Palette Quick Tools ri\u00eang", tipDesc: "B\u1eadt/t\u1eaft palette Quick Tools dockable ri\u00eang ch\u1ee9a c\u00e1c n\u00fat \u0111\u00e3 ghim \u2605.",
          tipUsage: "B\u1ea5m \u2605 \u1edf m\u1ed9t n\u00fat tr\u00ean palette TGIRR CAD \u0111\u1ec3 ghim v\u00e0o Quick Tools. Quick Tools t\u1ef1 m\u1edf khi c\u00f3 n\u00fat ghim v\u00e0 t\u1ef1 \u1ea9n khi b\u1ecf ghim h\u1ebft.", tipCommand: "L\u1ec7nh: TGIRRQUICK",
          menuTag: "QUICK", menuLabel: "Palette Quick Tools da ghim (&QUICK)",
          menuHelp: "Bat hoac tat palette Quick Tools rieng (cac nut da ghim vao Quick Tools)"),
        new TgToolInfo(
-         id: "TGIRRBAR", cmd: "TGIRRBAR", label: "Thanh c\u00f4ng c\u1ee5 icon",
+         id: "TGIRRSETTINGS", cmd: "TGIRRSETTINGS", label: "C\u00e0i \u0111\u1eb7t n\u1ea1p LISP", icon: "settings",
+         aliases: TgToolCatalog.NoAliases, groupKey: null, groupTitle: null, accent: TgToolAccent.Cyan,
+         ribbonPanel: null, hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 19, isTool: false,
+         keepSelection: false, requiresSelection: false, runner: "", managed: false,
+         tipTitle: "TGIRRSETTINGS \u2014 C\u00e0i \u0111\u1eb7t n\u1ea1p LISP", tipDesc: "B\u1eadt/t\u1eaft n\u1ea1p t\u1eebng file AutoLISP c\u1ee7a TGIRR \u0111\u1ec3 tr\u00e1nh xung \u0111\u1ed9t v\u1edbi LISP kh\u00e1c.",
+         tipUsage: "M\u1edf h\u1ed9p tho\u1ea1i, b\u1ecf d\u1ea5u c\u00e1c LISP kh\u00f4ng mu\u1ed1n n\u1ea1p r\u1ed3i b\u1ea5m L\u01b0u. LISP \u0111\u00e3 n\u1ea1p trong phi\u00ean hi\u1ec7n t\u1ea1i kh\u00f4ng g\u1ee1 \u0111\u01b0\u1ee3c, n\u00ean thay \u0111\u1ed5i \u00e1p d\u1ee5ng t\u1eeb l\u1ea7n kh\u1edfi \u0111\u1ed9ng CAD sau.", tipCommand: "L\u1ec7nh: TGIRRSETTINGS",
+         menuTag: "SETTINGS", menuLabel: "Cai dat nap LISP (&SETTINGS)",
+         menuHelp: "Bat/tat nap tung file AutoLISP cua TGIRR de tranh xung dot"),
+       new TgToolInfo(
+         id: "TGIRRBAR", cmd: "TGIRRBAR", label: "Thanh c\u00f4ng c\u1ee5 icon", icon: "toolbar",
          aliases: new[] { "TGIRRTB" }, groupKey: null, groupTitle: null, accent: TgToolAccent.Cyan,
-         ribbonPanel: null, hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 17, isTool: false,
-         keepSelection: false, requiresSelection: false, runner: "",
+         ribbonPanel: null, hosts: new[] { "AutoCAD", "ZWCAD", "GstarCAD" }, order: 20, isTool: false,
+         keepSelection: false, requiresSelection: false, runner: "", managed: false,
          tipTitle: "TGIRRBAR \u2014 Thanh c\u00f4ng c\u1ee5 icon native", tipDesc: "B\u1eadt thanh c\u00f4ng c\u1ee5 icon native (dock/k\u00e9o th\u1ea3 nh\u01b0 toolbar CAD) ch\u1ee9a to\u00e0n b\u1ed9 l\u1ec7nh TGIRR, icon 16x16 v\u00e0 32x32.",
          tipUsage: "G\u00f5 TGIRRBAR: l\u1ec7nh t\u1ef1 th\u00eam th\u01b0 m\u1ee5c ch\u1ee9a icon v\u00e0o Support File Search Path, n\u1ea1p TGIRR_CAD.mnu v\u00e0 b\u1eadt thanh TGIRR CAD. B\u1ea5m chu\u1ed9t ph\u1ea3i l\u00ean thanh \u0111\u1ec3 dock tr\u00e1i/ph\u1ea3i/tr\u00ean ho\u1eb7c \u0111\u1ed5i sang icon l\u1edbn.", tipCommand: "L\u1ec7nh: TGIRRBAR (ho\u1eb7c TGIRRTB)",
          menuTag: "BAR", menuLabel: "Bat thanh cong cu icon (&TGIRRBAR)",
@@ -195,7 +222,7 @@ namespace Tgirrr.CadLisp {
   /// <summary>Danh sach nut hien thi tren palette cua host dang chay.</summary>
   internal static TgToolInfo[] ForHost(string host) {
     var list = new System.Collections.Generic.List<TgToolInfo>();
-    foreach (var t in All) if (t.IsTool && t.Supports(host)) list.Add(t);
+    foreach (var t in All) if (t.IsTool && t.Supports(host) && LoadSettingsStore.IsEnabled(t.Id)) list.Add(t);
     list.Sort(delegate(TgToolInfo a, TgToolInfo b) { return a.Order.CompareTo(b.Order); });
     return list.ToArray();
   }
@@ -222,31 +249,82 @@ namespace Tgirrr.CadLisp {
   }
 
   internal static readonly TgRibbonPanel[] RibbonPanels = new[] {
-    new TgRibbonPanel("CH\u1eccN", new TgToolInfo[] { Find("SBS"), Find("SBSE") }),
+    new TgRibbonPanel("CH\u1eccN", new TgToolInfo[] { Find("SBS"), Find("SBSE"), Find("SCH") }),
     new TgRibbonPanel("RANH GI\u1edaI", new TgToolInfo[] { Find("HBD"), Find("JH"), Find("SP2PL"), Find("CVPL") }),
     new TgRibbonPanel("\u0110O", new TgToolInfo[] { Find("TL") }),
     new TgRibbonPanel("V\u0102N B\u1ea2N", new TgToolInfo[] { Find("CPLUS"), Find("TGN"), Find("DOITEXT"), Find("DOIMTEXT") }),
-    new TgRibbonPanel("LAYER", new TgToolInfo[] { Find("TGL") }),
-    new TgRibbonPanel("N\u00c9T V\u1ebc", new TgToolInfo[] { Find("TNET"), Find("VDNG") })
+    new TgRibbonPanel("LAYER", new TgToolInfo[] { Find("TGL"), Find("TGLADD") }),
+    new TgRibbonPanel("N\u00c9T V\u1ebc", new TgToolInfo[] { Find("TNET"), Find("VDNG") }),
+    new TgRibbonPanel("GIAO DI\u1ec6N", new TgToolInfo[] { Find("TGIRRPALETTE"), Find("TGIRRQUICK"), Find("TGIRRSETTINGS") })
   };
 
-  /// <summary>Icon cua mot nut Ribbon, theo ribbonPanels[].items[].icon trong tools.json.</summary>
+  /// <summary>Mot file LISP cung cac lenh no dinh nghia (nguon: loadUnits trong tools.json).</summary>
+  internal sealed class TgLoadUnit {
+    internal readonly string File, Note;
+    internal readonly string[] Commands;
+    internal TgLoadUnit(string file, string[] commands, string note) {
+      File = file; Commands = commands; Note = note;
+    }
+    internal bool Defines(string command) {
+      foreach (var c in Commands) if (c == command) return true;
+      return false;
+    }
+  }
+
+  /// <summary>Cac file LISP nguoi dung co the bat/tat nap de tranh xung dot.</summary>
+  internal static readonly TgLoadUnit[] LoadUnits = new[] {
+    new TgLoadUnit("SBS.lsp", new[] { "SBS", "SBSE", "SCH" }, "Nhom chon doi tuong theo mau."),
+    new TgLoadUnit("HBD.lsp", new[] { "HBD", "JH", "SP2PL" }, "Nhom duong bao / gop hatch / spline sang polyline."),
+    new TgLoadUnit("DOITEXT.lsp", new[] { "DOITEXT", "DOIMTEXT" }, "Nhom chuyen doi Text <-> MText."),
+    new TgLoadUnit("TGIRRBAR.lsp", new[] { "TGIRRBAR" }, "Thanh cong cu icon native TGIRR CAD.")
+  };
+
+  /// <summary>Toan bo lenh do cac file LISP dinh nghia (de liet ke trong hop thoai cai dat).</summary>
+  internal static string[] LoadUnitCommands() {
+    var list = new System.Collections.Generic.List<string>();
+    foreach (var u in LoadUnits) foreach (var c in u.Commands) list.Add(c);
+    return list.ToArray();
+  }
+
+  /// <summary>Lenh .NET: ten nguoi dung -> ten lenh noi bo (TGIRR + ten).</summary>
+  internal static string ManagedCommand(string id) { return "TGIRR" + id; }
+
+  /// <summary>Cac lenh do DLL .NET dinh nghia (co the tat de nhuong ten cho LISP khac).</summary>
+  internal static TgToolInfo[] ManagedTools() {
+    var list = new System.Collections.Generic.List<TgToolInfo>();
+    foreach (var t in All) if (t.IsTool && t.Managed) list.Add(t);
+    return list.ToArray();
+  }
+
+  /// <summary>File LISP dinh nghia mot lenh, hoac null neu lenh khong thuoc LISP nao.</summary>
+  internal static string LoadUnitFor(string command) {
+    foreach (var u in LoadUnits) if (u.Defines(command)) return u.File;
+    return null;
+  }
+
+  /// <summary>Khoa icon cua mot lenh, theo "icon" trong tools.json.</summary>
   internal static string RibbonIconByKey(string id) {
-      if (id == "SBS") return "select";
-      if (id == "SBSE") return "exact";
       if (id == "HBD") return "boundary";
-      if (id == "JH") return "joinhatch";
-      if (id == "SP2PL") return "boundary";
-      if (id == "CVPL") return "boundary";
-      if (id == "TL") return "measure";
-      if (id == "CPLUS") return "copynumber";
-      if (id == "TGN") return "copynumber";
-      if (id == "DOITEXT") return "dotext";
-      if (id == "DOIMTEXT") return "dotext";
-      if (id == "TGL") return "layers";
+      if (id == "JH") return "join-hatch";
+      if (id == "SP2PL") return "spline-polyline";
+      if (id == "CVPL") return "convert-polyline";
+      if (id == "SBS") return "select-similar";
+      if (id == "SBSE") return "select-exact";
+      if (id == "SCH") return "select-hatch";
+      if (id == "VDNG") return "drip";
       if (id == "TNET") return "linetype";
-      if (id == "VDNG") return "copynumber";
-    return "select";
+      if (id == "TGL") return "layers";
+      if (id == "TGLADD") return "layer-add";
+      if (id == "TL") return "measure";
+      if (id == "TGN") return "number";
+      if (id == "CPLUS") return "copy";
+      if (id == "DOITEXT") return "mtext-text";
+      if (id == "DOIMTEXT") return "text-mtext";
+      if (id == "TGIRRPALETTE") return "palette";
+      if (id == "TGIRRQUICK") return "quick";
+      if (id == "TGIRRSETTINGS") return "settings";
+      if (id == "TGIRRBAR") return "toolbar";
+    return "crosshair";
   }
 
   internal static TgToolInfo Find(string id) {

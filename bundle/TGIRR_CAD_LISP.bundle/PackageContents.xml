@@ -2,12 +2,17 @@
 <ApplicationPackage SchemaVersion="1.0" AutodeskProduct="AutoCAD" Name="TGIRR CAD LISP" AppVersion="1.4.0" ProductCode="{65F66A23-9110-4C2A-BCC4-66A304D52C75}">
   <CompanyDetails Name="TGIRR" />
 
-  <!-- AutoLISP common across AutoCAD versions (2021 - 2027+) -->
+  <!-- Nap truc tiep tung file LISP (giong ban da chay duoc) de khong phu thuoc
+       vao loader; TGIRRLoader chi chay sau do de GO cac lenh da tat trong
+       TGIRRSETTINGS va tao lai ten lenh .NET (TL, TGL, ...). -->
   <Components Description="TGIRR AutoLISP">
     <RuntimeRequirements OS="Win64" Platform="AutoCAD" SeriesMin="R24.0" SeriesMax="R26.2" />
     <ComponentEntry AppName="TGIRR SBS" ModuleName="./Contents/Lisp/SBS.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR HBD" ModuleName="./Contents/Lisp/HBD.lsp" LoadOnAutoCADStartup="True" />
     <ComponentEntry AppName="TGIRR DOITEXT" ModuleName="./Contents/Lisp/DOITEXT.lsp" LoadOnAutoCADStartup="True" />
+    <ComponentEntry AppName="TGIRR Toolbar" ModuleName="./Contents/Lisp/TGIRRBAR.lsp" LoadOnAutoCADStartup="True" />
+    <ComponentEntry AppName="TGIRR Commands" ModuleName="./Contents/Lisp/TGIRRCOMMANDS.lsp" LoadOnAutoCADStartup="True" />
+    <ComponentEntry AppName="TGIRR Settings" ModuleName="./Contents/Lisp/TGIRRLoader.lsp" LoadOnAutoCADStartup="True" />
   </Components>
 
   <!-- AutoCAD 2021 - 2024 (.NET Framework 4.8) -->
@@ -17,20 +22,23 @@
       <Commands GroupName="TGIRR">
         <Command Local="TGIRR_RIBBON" Global="TGIRR_RIBBON" />
         <Command Local="TGIRRRIBBON" Global="TGIRRRIBBON" />
+        <Command Local="TGIRRPALETTE" Global="TGIRRPALETTE" />
+        <Command Local="TGIRRQUICK" Global="TGIRRQUICK" />
+        <Command Local="TGIRRSETTINGS" Global="TGIRRSETTINGS" />
         <Command Local="SBSE" Global="SBSE" />
         <Command Local="DOITEXT" Global="DOITEXT" />
         <Command Local="M2T" Global="M2T" />
-        <Command Local="CPLUS" Global="CPLUS" />
-        <Command Local="TNET" Global="TNET" />
-        <Command Local="VDNG" Global="VDNG" />
-        <Command Local="TL" Global="TL" />
-        <Command Local="TGL" Global="TGL" />
-        <Command Local="TGLADD" Global="TGLADD" />
-        <Command Local="CVPL" Global="CVPL" />
-        <Command Local="CVP" Global="CVP" />
-        <Command Local="CVPLG" Global="CVPLG" />
-        <Command Local="CV2PL" Global="CV2PL" />
-        <Command Local="TGN" Global="TGN" />
+        <Command Local="TGIRRCPLUS" Global="TGIRRCPLUS" />
+        <Command Local="TGIRRTNET" Global="TGIRRTNET" />
+        <Command Local="TGIRRVDNG" Global="TGIRRVDNG" />
+        <Command Local="TGIRRTL" Global="TGIRRTL" />
+        <Command Local="TGIRRTGL" Global="TGIRRTGL" />
+        <Command Local="TGIRRTGLADD" Global="TGIRRTGLADD" />
+        <Command Local="TGIRRCVPL" Global="TGIRRCVPL" />
+        <Command Local="TGIRRCVP" Global="TGIRRCVP" />
+        <Command Local="TGIRRCVPLG" Global="TGIRRCVPLG" />
+        <Command Local="TGIRRCV2PL" Global="TGIRRCV2PL" />
+        <Command Local="TGIRRTGN" Global="TGIRRTGN" />
       </Commands>
     </ComponentEntry>
   </Components>
@@ -42,20 +50,23 @@
       <Commands GroupName="TGIRR">
         <Command Local="TGIRR_RIBBON" Global="TGIRR_RIBBON" />
         <Command Local="TGIRRRIBBON" Global="TGIRRRIBBON" />
+        <Command Local="TGIRRPALETTE" Global="TGIRRPALETTE" />
+        <Command Local="TGIRRQUICK" Global="TGIRRQUICK" />
+        <Command Local="TGIRRSETTINGS" Global="TGIRRSETTINGS" />
         <Command Local="SBSE" Global="SBSE" />
         <Command Local="DOITEXT" Global="DOITEXT" />
         <Command Local="M2T" Global="M2T" />
-        <Command Local="CPLUS" Global="CPLUS" />
-        <Command Local="TNET" Global="TNET" />
-        <Command Local="VDNG" Global="VDNG" />
-        <Command Local="TL" Global="TL" />
-        <Command Local="TGL" Global="TGL" />
-        <Command Local="TGLADD" Global="TGLADD" />
-        <Command Local="CVPL" Global="CVPL" />
-        <Command Local="CVP" Global="CVP" />
-        <Command Local="CVPLG" Global="CVPLG" />
-        <Command Local="CV2PL" Global="CV2PL" />
-        <Command Local="TGN" Global="TGN" />
+        <Command Local="TGIRRCPLUS" Global="TGIRRCPLUS" />
+        <Command Local="TGIRRTNET" Global="TGIRRTNET" />
+        <Command Local="TGIRRVDNG" Global="TGIRRVDNG" />
+        <Command Local="TGIRRTL" Global="TGIRRTL" />
+        <Command Local="TGIRRTGL" Global="TGIRRTGL" />
+        <Command Local="TGIRRTGLADD" Global="TGIRRTGLADD" />
+        <Command Local="TGIRRCVPL" Global="TGIRRCVPL" />
+        <Command Local="TGIRRCVP" Global="TGIRRCVP" />
+        <Command Local="TGIRRCVPLG" Global="TGIRRCVPLG" />
+        <Command Local="TGIRRCV2PL" Global="TGIRRCV2PL" />
+        <Command Local="TGIRRTGN" Global="TGIRRTGN" />
       </Commands>
     </ComponentEntry>
   </Components>
@@ -67,20 +78,23 @@
       <Commands GroupName="TGIRR">
         <Command Local="TGIRR_RIBBON" Global="TGIRR_RIBBON" />
         <Command Local="TGIRRRIBBON" Global="TGIRRRIBBON" />
+        <Command Local="TGIRRPALETTE" Global="TGIRRPALETTE" />
+        <Command Local="TGIRRQUICK" Global="TGIRRQUICK" />
+        <Command Local="TGIRRSETTINGS" Global="TGIRRSETTINGS" />
         <Command Local="SBSE" Global="SBSE" />
         <Command Local="DOITEXT" Global="DOITEXT" />
         <Command Local="M2T" Global="M2T" />
-        <Command Local="CPLUS" Global="CPLUS" />
-        <Command Local="TNET" Global="TNET" />
-        <Command Local="VDNG" Global="VDNG" />
-        <Command Local="TL" Global="TL" />
-        <Command Local="TGL" Global="TGL" />
-        <Command Local="TGLADD" Global="TGLADD" />
-        <Command Local="CVPL" Global="CVPL" />
-        <Command Local="CVP" Global="CVP" />
-        <Command Local="CVPLG" Global="CVPLG" />
-        <Command Local="CV2PL" Global="CV2PL" />
-        <Command Local="TGN" Global="TGN" />
+        <Command Local="TGIRRCPLUS" Global="TGIRRCPLUS" />
+        <Command Local="TGIRRTNET" Global="TGIRRTNET" />
+        <Command Local="TGIRRVDNG" Global="TGIRRVDNG" />
+        <Command Local="TGIRRTL" Global="TGIRRTL" />
+        <Command Local="TGIRRTGL" Global="TGIRRTGL" />
+        <Command Local="TGIRRTGLADD" Global="TGIRRTGLADD" />
+        <Command Local="TGIRRCVPL" Global="TGIRRCVPL" />
+        <Command Local="TGIRRCVP" Global="TGIRRCVP" />
+        <Command Local="TGIRRCVPLG" Global="TGIRRCVPLG" />
+        <Command Local="TGIRRCV2PL" Global="TGIRRCV2PL" />
+        <Command Local="TGIRRTGN" Global="TGIRRTGN" />
       </Commands>
     </ComponentEntry>
   </Components>

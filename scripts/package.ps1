@@ -6,6 +6,10 @@ param(
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 
+# Tao lai menu, icon native va catalog tu tools.json truoc khi dong goi.
+# Nho vay bundle luon nhan cac nut moi cua Quick Tools va TGIRRBAR.
+& (Join-Path $PSScriptRoot 'prepare-package-assets.ps1')
+
 Write-Host ''
 Write-Host '=============================================================' -ForegroundColor Cyan
 Write-Host '          TGIRR CAD - BUILD & PACKAGE SCRIPT                 ' -ForegroundColor Cyan
@@ -59,8 +63,9 @@ if ($targetNorm -in 'all', 'autocad') {
     $lispSource = Join-Path $root 'src\lisp'
     $lispTarget = Join-Path $root 'bundle\TGIRR_CAD_LISP.bundle\Contents\Lisp'
     if (-not (Test-Path $lispTarget)) { New-Item -ItemType Directory -Path $lispTarget -Force | Out-Null }
-    $allowed = @('SBS.lsp','HBD.lsp','DOITEXT.lsp','TGIRRBAR.lsp','TGIRRLoader.lsp')
+    $allowed = @('SBS.lsp','HBD.lsp','DOITEXT.lsp','TGIRRBAR.lsp','TGIRRCOMMANDS.lsp','TGIRRLoader.lsp')
     Get-ChildItem $lispTarget -File -ErrorAction SilentlyContinue | Where-Object { $_.Extension -in '.lsp','.dcl' } | Remove-Item -Force
+    Get-ChildItem $lispTarget -File -Filter '*.bmp' -ErrorAction SilentlyContinue | Remove-Item -Force
     foreach ($file in $allowed) {
         Copy-Item (Join-Path $lispSource $file) $lispTarget -Force
     }
@@ -84,7 +89,7 @@ if ($targetNorm -in 'all', 'zwcad') {
     Write-Host '[2/3] ZWCAD: Build .NET net48 (KHONG DUNG RIBBON)...' -ForegroundColor Cyan
     Write-Host '      (ZWCAD dung PaletteSet TGIRRPALETTE + Menu TGIRR_CAD.mnu)' -ForegroundColor DarkGray
 
-    & (Join-Path $PSScriptRoot 'package-zwcad.ps1')
+    & (Join-Path $PSScriptRoot 'package-zwcad.ps1') -AssetsPrepared
     if ($LASTEXITCODE -ne 0) { throw "ZWCAD package that bai voi ma loi $LASTEXITCODE" }
     $successList += 'ZWCAD (Palette + Menu, Khong Ribbon)'
 }
@@ -97,7 +102,7 @@ if ($targetNorm -in 'all', 'gstarcad') {
     Write-Host '[3/3] GstarCAD: Build .NET net8.0 (KHONG DUNG RIBBON)...' -ForegroundColor Cyan
     Write-Host '      (GstarCAD dung PaletteSet TGIRRPALETTE + Menu TGIRR_CAD.mnu)' -ForegroundColor DarkGray
 
-    & (Join-Path $PSScriptRoot 'package-gscad.ps1')
+    & (Join-Path $PSScriptRoot 'package-gscad.ps1') -AssetsPrepared
     if ($LASTEXITCODE -ne 0) { throw "GstarCAD package that bai voi ma loi $LASTEXITCODE" }
     $successList += 'GstarCAD (Palette + Menu, Khong Ribbon)'
 }

@@ -5,12 +5,12 @@ using Autodesk.AutoCAD.Windows;
 
 namespace Tgirrr.CadLisp {
  /// <summary>
- /// Host dang chay. Chuoi "@@TGIRR_HOST@@" duoc scripts\port-config.ps1 thay bang
- /// "ZWCAD" / "GstarCAD" khi sinh src\zwcad va src\gscad tu file nay.
+ /// AutoCAD dung truc tiep file nay; scripts\port-config.ps1 thay host name khi
+ /// sinh src\zwcad va src\gscad.
  /// KHONG sua tay hai ban da port - chung la dau ra cua file nguon nay.
  /// </summary>
  internal static class CadHost {
-  internal const string Name = "@@TGIRR_HOST@@";
+  internal const string Name = "AutoCAD";
 
   /// <summary>Lenh nap lai toan bo Lisp + plugin .NET cua TGIRR.</summary>
   internal const string ReloadCommand = "TGIRRLOAD";
@@ -79,7 +79,7 @@ namespace Tgirrr.CadLisp {
    lock (Pins) {
     foreach (string id in Pins) {
      TgToolInfo t = TgToolCatalog.Find(id);
-     if (t != null && t.Supports(CadHost.Name)) list.Add(t);
+     if (t != null && t.Supports(CadHost.Name) && LoadSettingsStore.IsEnabled(t.Id)) list.Add(t);
     }
    }
    return list;
@@ -275,7 +275,7 @@ namespace Tgirrr.CadLisp {
  public sealed class QuickPalette {
   static PaletteSet _qp;
   static PaletteGeometryKeeper _keeper;
-  static readonly Guid QuickId = new Guid("9B2F6C31-4E7A-4D5F-8A1C-3F7E2B9D5C46");
+  static readonly Guid QuickId = new Guid("1145a3fb-7c83-4b0c-b912-bf702981fc3b");
 
   static QuickPalette() {
    // Ghi/bo ghi tu dau nao (palette chinh hay Quick Tools) cung chay qua day.
@@ -286,8 +286,7 @@ namespace Tgirrr.CadLisp {
   public void Toggle() {
    try {
     if (PinService.Count == 0) {
-     ToolRunner.Notify("Quick Tools dang trong - mo palette TGIRR CAD roi bam ★ o nut cong cu de ghim vao day.");
-     return;
+     ToolRunner.Notify("Quick Tools dang trong - mo palette TGIRR CAD (TGIRRPALETTE) roi bam ★ o nut cong cu de ghim vao day.");
     }
     if (_qp == null) { Create(); return; }
     if (_qp.Visible) _keeper.PersistNow();
@@ -341,7 +340,7 @@ namespace Tgirrr.CadLisp {
  public sealed class PaletteCommands {
   static PaletteSet _ps;
   static PaletteGeometryKeeper _keeper;
-  static readonly Guid PaletteId = new Guid("4A5F71BD-560C-4A2D-A537-88D83B106F79");
+  static readonly Guid PaletteId = new Guid("2f042a7d-9d46-4a97-9d93-41cdf4f74085");
 
   [Autodesk.AutoCAD.Runtime.CommandMethod("TGIRRPALETTE")]
   public void Show() {
@@ -368,6 +367,23 @@ namespace Tgirrr.CadLisp {
     if (_ps.Visible) { try { _ps.Activate(0); } catch { } }
    } catch (Exception ex) {
     ToolRunner.Notify("Loi bat palette TGIRR CAD: " + ex.Message);
+   }
+  }
+ }
+
+ /// <summary>
+ /// Lenh TGIRRSETTINGS: bat/tat nap tung file AutoLISP (tranh xung dot voi bo LISP khac).
+ /// Cau hinh luu o %APPDATA%\TGIRR\load-settings.txt; TGIRRLoader*.lsp doc file nay.
+ /// </summary>
+ public sealed class SettingsCommands {
+  [Autodesk.AutoCAD.Runtime.CommandMethod("TGIRRSETTINGS")]
+  public void Show() {
+   try {
+    var window = new LoadSettingsWindow();
+    if (Autodesk.AutoCAD.ApplicationServices.Application.ShowModalWindow(window) != true) return;
+    ToolRunner.Notify("Cai dat nap lenh da duoc luu. Go TGIRRLOAD (hoac khoi dong lai CAD) de ap dung.");
+   } catch (Exception ex) {
+    ToolRunner.Notify("Loi mo cai dat nap LISP: " + ex.Message);
    }
   }
  }

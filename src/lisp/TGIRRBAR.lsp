@@ -23,6 +23,13 @@
   (foreach v (list TGIRR:LISP-DIR *TGIRR:G-ROOT* *TGIRR:ZW-ROOT*)
     (if (and v (= (type v) 'STR) (> (strlen v) 0))
       (setq dirs (cons (strcat v "\\Lisp") (cons v dirs)))))
+  ;; 3. AutoCAD nap .bundle truc tiep, nhung Contents\Lisp khong mac dinh
+  ;; nam trong Support File Search Path. Dung duong dan bundle chuan de
+  ;; TGIRRBAR van tim thay menu/icon ngay sau khi cai moi.
+  (foreach root (list (getenv "APPDATA") (getenv "PROGRAMDATA"))
+    (if (and root (= (type root) 'STR) (> (strlen root) 0))
+      (setq dirs
+        (cons (strcat root "\\Autodesk\\ApplicationPlugins\\TGIRR_CAD_LISP.bundle\\Contents\\Lisp") dirs))))
   (setq out nil)
   (foreach d dirs
     (if (and (not out) d (= (type d) 'STR)
@@ -53,7 +60,7 @@
   (vl-catch-all-apply '(lambda () (setq grp (menugroup "TGIRR"))))
   (if (and grp (= (type grp) 'STR)) grp nil))
 
-(defun c:TGIRRBAR (/ dir mnu grp res)
+(defun c:TGIRRBAR (/ dir mnu grp res active)
 
   (prompt "\n===========================================================")
   (prompt "\n[TGIRR] TGIRRBAR - BẬT THANH CÔNG CỤ ICON NATIVE")
@@ -83,12 +90,18 @@
           (prompt (strcat "\n[TGIRRBAR] Gõ MENULOAD và chọn: " mnu)))
 
         (t
+          ;; -TOOLBAR collects one or more toolbar names first. Empty input
+          ;; ends that list; without it, _Show is parsed as another name and
+          ;; CAD remains stuck at "Enter toolbar name or [ALL]".
           (setq res (vl-catch-all-apply
-                      '(lambda () (command "_.-TOOLBAR" "TB_TGIRR" "_Show"))))
-          (if (vl-catch-all-error-p res)
+                      '(lambda () (command "_.-TOOLBAR" "TGIRR CAD" "" "_Show"))))
+          ;; -TOOLBAR khong nem loi Lisp khi khong tim thay thanh; no giu
+          ;; command prompt dang mo. Kiem tra bit 1 de tranh bao thanh cong sai.
+          (setq active (logand 1 (getvar "CMDACTIVE")))
+          (if (or (vl-catch-all-error-p res) (/= active 0))
             (progn
               (prompt "\n[TGIRRBAR] Đã nạp menu nhưng chưa bật được toolbar.")
-              (prompt "\n[TGIRRBAR] Gõ TOOLBAR, chọn thanh 'TGIRR CAD' rồi bấm Show."))
+              (prompt "\n[TGIRRBAR] Nhấn Esc nếu CAD còn ở prompt -TOOLBAR, rồi gõ TOOLBAR, chọn 'TGIRR CAD' và bấm Show."))
             (prompt "\n[TGIRRBAR] Đã bật thanh công cụ TGIRR CAD (icon native)."))))
     )
   )

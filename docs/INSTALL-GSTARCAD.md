@@ -23,7 +23,7 @@ Bản port chạy trên **GstarCAD 2027** (API .NET `Gssoft.Gscad.*`, runtime **
    - **Tìm nhanh lệnh**: gõ vào ô *Tìm lệnh* ở đầu palette (phím tắt `Ctrl+F`, `Enter` chạy lệnh khớp đầu tiên, `Esc` xoá lọc). Tìm được cả theo mã lệnh, tên nút và biệt danh (`BH`, `M2T`, `CVPLG`...).
    - **Thu gọn nhóm**: bấm vào tiêu đề nhóm (RANH GIỚI & BIÊN DẠNG / THIẾT KẾ & HỆ THỐNG / GHI CHÚ & TIỆN ÍCH) để đóng/mở; trạng thái thu gọn được nhớ (`%APPDATA%\TGIRR\palette-layout.txt`).
    - Danh sách ghim (`%APPDATA%\TGIRR\quick-tools.txt`), vị trí/kích thước/dock từng palette (`palette-state.txt`, `quick-palette-state.txt`) đều được nhớ giữa các phiên CAD; ghi file theo kiểu atomic nên không hỏng dữ liệu khi CAD bị crash. Lệnh bị xoá/đổi tên sẽ tự được gỡ khỏi danh sách ghim.
-   - Đầu palette có hai nút: **⚡ Quick** (ẩn/hiện Quick Tools) và **⟳ Nạp lại** (chạy `TGIRRLOAD`).
+   - Đầu palette có ba nút: **⚡ Quick** (ẩn/hiện Quick Tools), **⚙** (bật/tắt nạp từng LISP — `TGIRRSETTINGS`) và **⟳ Nạp lại** (chạy `TGIRRLOAD`).
    - Ngoài ra vẫn có menu kéo xuống `TGIRR_CAD.mnu` (dùng `MENULOAD`) và các **lệnh** gõ trực tiếp:
    - `SBS`, `HBD`, `DOITEXT` — lệnh AutoLISP; `TL`, `TGL`, `CVPL`, `TGN` — lệnh .NET (native)
    - `CPLUS`, `VDNG`, `TNET` — lệnh .NET (`[CommandMethod]`)

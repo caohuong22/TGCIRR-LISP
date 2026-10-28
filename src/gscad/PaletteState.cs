@@ -132,6 +132,60 @@ namespace Tgirrr.CadLisp {
   }
  }
 
+ /// <summary>
+ /// Bat/tat nap tung goi LISP (tranh xung dot voi LISP khac).
+ /// File %APPDATA%\TGIRR\load-settings.txt dinh dang "v1 disabled=ID,ID";
+ /// TGIRRLoader*.lsp doc truc tiep file nay nen khong can .NET.
+ /// </summary>
+ internal static class LoadSettingsStore {
+  internal const string FileName = "load-settings.txt";
+
+  static HashSet<string> disabled;
+
+  internal static HashSet<string> Disabled {
+   get {
+    lock (typeof(LoadSettingsStore)) {
+     if (disabled == null) disabled = Load();
+     return new HashSet<string>(disabled, StringComparer.OrdinalIgnoreCase);
+    }
+   }
+  }
+
+  internal static bool IsEnabled(string id) {
+   lock (typeof(LoadSettingsStore)) {
+    if (disabled == null) disabled = Load();
+    return !disabled.Contains(id ?? "");
+   }
+  }
+
+  static HashSet<string> Load() {
+   var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+   string raw = PaletteStorage.ReadText(FileName);
+   if (raw == null) return set;
+   try {
+    string text = raw.Trim();
+    if (!text.StartsWith("v1", StringComparison.OrdinalIgnoreCase)) return set;
+    int pos = text.IndexOf("disabled=", StringComparison.OrdinalIgnoreCase);
+    if (pos < 0) return set;
+    foreach (string id in text.Substring(pos + 9).Split(',')) {
+     string v = id.Trim();
+     if (v.Length > 0) set.Add(v);
+    }
+   } catch { }
+   return set;
+  }
+
+  internal static bool Save(ICollection<string> ids) {
+   var list = new List<string>(ids);
+   list.Sort(StringComparer.OrdinalIgnoreCase);
+   lock (typeof(LoadSettingsStore)) {
+    if (!PaletteStorage.TryWriteText(FileName, "v1 disabled=" + string.Join(",", list.ToArray()))) return false;
+    disabled = new HashSet<string>(list, StringComparer.OrdinalIgnoreCase);
+    return true;
+   }
+  }
+ }
+
  /// <summary>Trang thai thu gon cua cac nhom tren palette chinh.</summary>
  internal static class GroupCollapseStore {
   internal const string FileName = "palette-layout.txt";

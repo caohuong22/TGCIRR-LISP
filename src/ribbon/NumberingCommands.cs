@@ -22,7 +22,7 @@ namespace Tgirrr.CadLisp {
    internal double Total;
   }
 
-  [CommandMethod("TGN")]
+  [CommandMethod("TGIRRTGN")]
   public void Run() {
    Document doc = Application.DocumentManager.MdiActiveDocument;
    if (doc == null) return;
